@@ -284,76 +284,56 @@
       stageRings.push({ring,item});
     }
     function createGirl(type='narrator'){
-      const g=new T.Group();g.userData={type,walkPhase:0};
-      const isLi=type==='lihua';
-      const skirtMat=material(isLi?'#6688ae':'#7090ba','#afc4dd');
-      const whiteShirt=material('#fffdf0','#d8e8ea');
-      const hair=material(isLi?'#614333':'#4b352e','#9e7654');
-      const shoe=material('#fffaf3','#dce1de');
-      const collar=material('#557ba8','#9ab9d9');
-      // Overall 1.75 units high, with visible actual volumetric facial features.
-      // Torso, neck, skirt and jointed legs.
-      cyl(.22,.27,.39,whiteShirt,0,1.06,0,g);
-      cyl(.135,.13,.11,claySkin,0,1.32,0,g);
-      cyl(.28,.47,.44,skirtMat,0,.72,0,g,18);
-      for(let j=0;j<6;j++){
-        const theta=(j/6)*Math.PI*2;
-        let edge=box(.025,.23,.035,material('#9eb6ce','#d1dfeb'),Math.cos(theta)*.38,.68,Math.sin(theta)*.38,g);
-        edge.rotation.y=-theta;
-      }
-      g.userData.arms=[];g.userData.legs=[];
-      for(let sign of [-1,1]){
-        const leg=new T.Group();add(g,leg,sign*.18,.61,0);
-        cyl(.085,.075,.39,claySkin,0,-.19,0,leg);
-        cyl(.096,.094,.15,whiteShirt,0,-.37,0,leg);
-        let foot=ball(.14,shoe,0,-.47,-.11,leg,14);foot.scale.set(1.05,.58,1.3);
-        g.userData.legs.push(leg);
-        const arm=new T.Group();add(g,arm,sign*.29,1.20,0);
-        let sleeve=ball(.15,whiteShirt,0,-.075,0,arm);sleeve.scale.set(.8,.75,.9);
-        cyl(.077,.07,.34,claySkin,0,-.28,0,arm);
-        ball(.084,claySkin,0,-.47,0,arm,12);
-        arm.rotation.z=sign*.1;g.userData.arms.push(arm);
-      }
-      // Hair volume behind head, then face and 3D eyes (front = negative z).
-      ball(.35,hair,0,1.52,.08,g,18).scale.set(1.07,1.06,.96);
-      if(isLi){
-        let tail=ball(.23,hair,.36,1.39,.25,g);tail.scale.set(.75,1.45,.85);
-        let blueTie=ball(.11,material('#83bde9','#d3e8f6'),.28,1.65,.17,g);blueTie.scale.x=1.45;
-      }else{
-        for(const sign of [-1,1]){
-          let lock=ball(.17,hair,sign*.28,1.29,.18,g);
-          lock.scale.set(.68,1.85,.69);
-        }
-      }
-      const face=ball(.31,claySkin,0,1.51,-.075,g,20);
-      face.scale.set(1.08,1,.90);
-      for(const side of [-1,1]){
-        ball(.058,new T.MeshStandardMaterial({color:0x2a2728,roughness:.38}),side*.135,1.54,-.347,g,12).scale.set(.77,1.13,.64);
-        ball(.017,new T.MeshBasicMaterial({color:0xffffff}),side*.12,1.566,-.379,g,10);
-        const blush=ball(.052,material('#f6a6a2','#ffcdc0'),side*.226,1.44,-.282,g,10);blush.scale.set(1,.44,.28);
-      }
-      let mouth=torus(.049,.009,material('#a15f5d','#b87a6a'),0,1.405,-.343,g);
-      mouth.rotation.z=Math.PI;mouth.scale.y=.49;
-      const bow=material('#416c9e','#a4bede');
-      for(const side of [-1,1]){
-        const part=ball(.094,bow,side*.085,1.18,-.22,g);part.scale.set(1.03,.67,.39);
-      }
-      ball(.036,bow,0,1.18,-.255,g);
-      if(!isLi){
-        // Cream bucket hat: thick crown, three-dimensional brim and blue ribbon.
-        cyl(.28,.36,.28,softCream,0,1.85,0,g,24);
-        cyl(.43,.42,.058,softCream,0,1.74,0,g,28);
-        cyl(.347,.349,.043,material('#638caf','#c7d6e1'),0,1.755,0,g,24);
-        // Chest/backpack as geometric accessory, not a flat character texture.
-        let pack=box(.48,.55,.19,material('#c7bba4','#e6d7b8'),0,1.01,.27,g);
-        pack.castShadow=true;
-        box(.35,.16,.045,material('#a89575','#c4b398'),0,.89,.392,g);
-        tube([-.2,1.27,.28],[-.24,.85,.31],.028,wood,g);
-        tube([.2,1.27,.28],[.24,.85,.31],.028,wood,g);
-      }
-      g.traverse(obj=>{if(obj.isMesh){obj.castShadow=true;obj.receiveShadow=true}});
-      return g;
-    }
+ const g=new T.Group();g.userData={type,walkPhase:0};const isLi=type==='lihua';
+ const skin=material('#ffe0bd','#f3b79e'),shirt=material('#ffffff','#d7e2e9'),skirt=material('#284b8a','#456dad'),hair=material('#3b2314','#65432c'),navy=material('#1e3f7a','#3a679b'),shoes=material('#272c34','#49505e'),socks=material('#fffdf6','#d7e1e7');
+ cyl(.28,.32,.48,shirt,0,1.11,0,g,16);cyl(.14,.16,.11,skin,0,1.39,0,g);
+ cyl(.29,.51,.48,skirt,0,.71,0,g,20);
+ for(let j=0;j<10;j++){let a=j*2*Math.PI/10,o=box(.022,.255,.033,material('#1c3869','#34558e'),Math.cos(a)*.40,.66,Math.sin(a)*.40,g);o.rotation.y=-a;}
+ g.userData.arms=[];g.userData.legs=[];
+ for(let sign of [-1,1]){
+  const leg=new T.Group();add(g,leg,sign*.19,.57,0);
+  cyl(.093,.087,.4,skin,0,-.17,0,leg);cyl(.102,.10,.15,socks,0,-.37,0,leg);
+  ball(.16,shoes,0,-.48,-.14,leg,16).scale.set(1.05,.63,1.30);g.userData.legs.push(leg);
+  const arm=new T.Group();add(g,arm,sign*.35,1.29,0);
+  ball(.18,shirt,0,-.075,0,arm,14).scale.set(.84,.77,.83);
+  cyl(.09,.075,.38,skin,0,-.31,0,arm);ball(.088,skin,0,-.52,0,arm,12);
+  arm.rotation.z=sign*.14;g.userData.arms.push(arm);
+ }
+ ball(.56,hair,0,1.81,.075,g,24).scale.set(1.07,1.06,.98);
+ ball(.52,skin,0,1.82,-.085,g,28).scale.set(1.04,1.01,.93);
+ for(let k=0;k<5;k++){let xx=(k-2)*.19,b=ball(.15,hair,xx,2.26,-.37,g,15);b.scale.set(.8,.95,.66);b.rotation.z=(k-2)*.15;}
+ for(let side of [-1,1]){
+  ball(.215,hair,side*.48,1.70,-.02,g,16).scale.set(.70,1.55,.86);
+  ball(.20,hair,side*.48,1.42,.15,g,16).scale.set(.83,1.3,1.05);
+  if(!isLi){ball(.23,hair,side*.36,1.46,.41,g,16).scale.set(.84,1.65,.73);let k=ball(.16,hair,side*.51,1.33,.39,g,12);k.rotation.z=side*.5;}
+ }
+ const eyes=new T.MeshPhysicalMaterial({color:0x10161e,roughness:.12,metalness:.05,clearcoat:1,clearcoatRoughness:.07});
+ const glow=new T.MeshBasicMaterial({color:0xffffff}),blush=material('#ff9a8b','#ffb1a4');
+ for(let side of [-1,1]){
+  ball(.113,eyes,side*.217,1.89,-.539,g,18).scale.set(.83,1.24,.62);
+  ball(.035,glow,side*.20,1.935,-.604,g,12);
+  let brow=ball(.063,hair,side*.225,2.066,-.535,g,10);brow.scale.set(1.37,.21,.28);brow.rotation.z=-side*.12;
+  ball(.105,blush,side*.363,1.69,-.489,g,16).scale.set(1.2,.48,.22);
+  let wing=ball(.095,navy,side*.095,1.285,-.30,g,14);wing.scale.set(1.05,.7,.50);wing.rotation.z=side*.23;
+ }
+ ball(.065,material('#d9534f','#ec6f64'),0,1.63,-.566,g,16).scale.set(.83,.68,.38);
+ ball(.041,navy,0,1.28,-.36,g);
+ if(!isLi){
+  const hat=material('#f7f1e3','#dbcbb1');
+  cyl(.35,.46,.31,hat,0,2.45,0,g,28);
+  let brim=cyl(.58,.565,.062,hat,0,2.30,0,g,32);brim.rotation.z=-.07;
+  cyl(.405,.42,.047,material('#5b9bd5','#8dc0e6'),0,2.342,0,g,28);
+  const bag=material('#d9c6a5','#bbaa89');box(.45,.48,.18,bag,0,1.04,.37,g);
+  box(.29,.12,.042,material('#ad9674','#cfb890'),0,.91,.48,g);
+  tube([-.20,1.29,.30],[-.23,.86,.38],.026,bag,g);tube([.20,1.29,.30],[.23,.86,.38],.026,bag,g);
+ }else{
+  ball(.21,hair,.41,2.06,.32,g,18).scale.set(.78,.8,1.02);
+  ball(.30,hair,.50,1.88,.47,g,20).scale.set(.78,1.44,.84);
+  ball(.20,hair,.54,1.60,.55,g,16).scale.set(.83,1.25,.79);
+  ball(.15,material('#5b9bd5','#8cc2e8'),.39,2.11,.33,g,14).scale.set(.92,.55,.65);
+ }
+ g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});return g;
+}
     function buildStage(index,items){
       scene.remove(sceneRoot);sceneRoot=new T.Group();scene.add(sceneRoot);
       idSeed=1013+index*733;activeGrass=null;grassInfo=[];stageRings=[];npcGirls=[];
@@ -361,7 +341,7 @@
       if(index===0){
         building(0);parkFurniture();bike(-5.7,-4.35);
         for(const [x,z,h] of [[-12,-4,6],[-10,-11,5.2],[11,-4.5,6.5],[13,5,6],[-12,7,7],[9,10,5.5],[-8,-16,6]])tree(x,z,h);
-        const npc=createGirl('lihua');add(sceneRoot,npc,-2.95,.15,-1.86);npc.rotation.z=.9;npc.rotation.y=.5;npcGirls.push(npc);
+        const npc=createGirl('lihua');add(sceneRoot,npc,-5.05,.40,-3.30);npc.rotation.z=.96;npc.rotation.y=.25;npcGirls.push(npc);
       }else if(index===1){
         building(1);
         for(const [x,z,h] of [[-10,-4,6],[-11,7,5],[-8,-12,7],[12,-1,6.5],[12,9,6],[8,-15,5]])tree(x,z,h);
@@ -387,6 +367,7 @@
         const diff=Math.atan2(Math.sin(want-currentPlayer.rotation.y),Math.cos(want-currentPlayer.rotation.y));
         currentPlayer.rotation.y+=diff*Math.min(1,dt*12);
       }
+      else if(!moving){const want=2.52,diff=Math.atan2(Math.sin(want-currentPlayer.rotation.y),Math.cos(want-currentPlayer.rotation.y));currentPlayer.rotation.y+=diff*Math.min(1,dt*2.3);}
       currentPlayer.userData.lastX=player.x;currentPlayer.userData.lastZ=player.z;
       if(!currentPlayer.userData.arms)return;
       const ud=currentPlayer.userData;
@@ -400,7 +381,7 @@
       currentPlayer.position.y=base;
     }
     function updateCamera(player,dt){
-      const targetPos=new T.Vector3(player.x+1.25,3.25,player.z+6.5);
+      const targetPos=new T.Vector3(player.x+1.1,3.52,player.z+6.9);
       if(!cameraReady){camera.position.copy(targetPos);cameraReady=true}
       const a=1-Math.exp(-dt*5.2);
       camera.position.lerp(targetPos,a);
