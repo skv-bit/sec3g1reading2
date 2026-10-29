@@ -256,7 +256,7 @@
       tube([x+.92,.55,z],[x+.86,1.48,z],.06,black);
       tube([x+.63,1.49,z],[x+1.05,1.49,z],.05,black);
       tube([x+.1,1.35,z],[x+.1,1.53,z],.06,black);
-      box(.55,.09,.25,black,x+.05,1.55,z);const basket=material('#8c5828','#b48245');box(.64,.39,.38,basket,x-1.27,1.32,z+.04);const basket=material('#8c5828','#b48245');box(.64,.39,.38,basket,x-1.27,1.32,z+.04);for(let i=0;i<5;i++)box(.07,.29,.40,darkwood,x-1.51+i*.12,1.34,z+.04);
+      box(.55,.09,.25,black,x+.05,1.55,z);const basket=material('#8c5828','#b48245');box(.64,.39,.38,basket,x-1.27,1.32,z+.04);for(let i=0;i<5;i++)box(.07,.29,.40,darkwood,x-1.51+i*.12,1.34,z+.04);
     }
     function parkFurniture(){
       const mat=material('#6e4726','#9c6934');
