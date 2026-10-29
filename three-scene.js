@@ -150,28 +150,29 @@
       path([[-4,3],[-5,-1],[-4,-5]],1.15);
     }
     function makeGrass(){
-      const verts=[-.065,0,0, .065,0,0, -.052,.35,.012, .052,.35,.012, -.022,.76,.095, .018,.76,.095, 0,1.05,.19];
+      const verts=[-.108,0,0, .108,0,0, -.09,.38,.014, .09,.38,.014, -.045,.78,.13, .043,.78,.13, 0,1.11,.22];
       const faces=[0,1,2,1,3,2,2,3,4,3,5,4,4,5,6];
       const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(verts,3));geo.setIndex([...faces,...faces.slice().reverse()]);geo.computeVertexNormals();
-      const m=new T.MeshStandardMaterial({color:'#ffffff',roughness:1,side:T.DoubleSide,map:createPainterlyTexture('#e5e7ac','#b2bd69')});
-      const count=1680;activeGrass=new T.InstancedMesh(geo,m,count);
+      const m=new T.MeshStandardMaterial({color:'#ffffff',roughness:1,side:T.DoubleSide,map:createPainterlyTexture('#d5e2ae','#b8ca96')});
+      const count=3650;activeGrass=new T.InstancedMesh(geo,m,count);
       activeGrass.castShadow=false;activeGrass.receiveShadow=false;activeGrass.instanceMatrix.setUsage(T.DynamicDrawUsage);
       activeGrass.frustumCulled=false;sceneRoot.add(activeGrass);grassInfo=[];
       for(let i=0;i<count;i++){
-        let x=-16+random()*32,z=-18+random()*33;
+        let x=-18+random()*36,z=-21+random()*39;
         // A small less-dense area follows the sandy walkway.
         const footpath=-4+(z-5)*.26;
         if(Math.abs(x-footpath)<1.35&&random()<.87) x+=(x>footpath?1:-1)*(1.3+random());
-        const height=.33+random()*.78;
+        const height=.38+random()*.87;
         const w=.7+random()*.8;
         const dir=random()*Math.PI*2;
         grassInfo.push({x,z,height,w,dir,phase:random()*6.28});
-        const paint=new T.Color().setHSL(.17+random()*.13,.36+random()*.24,.29+random()*.24);
+        const colors=['#2d5a1e','#68a832','#e8b838','#477a29','#83a632','#386b28'];const paint=new T.Color(colors[(random()*colors.length)|0]);
         activeGrass.setColorAt(i,paint);
       }
       activeGrass.instanceColor.needsUpdate=true;
-      updateGrass(0);
+      updateGrass(0);makeDaisies(115);
     }
+    function makeDaisies(n){const petal=new T.MeshStandardMaterial({color:'#ffffff',roughness:.91,side:T.DoubleSide}),center=material('#f5a623','#e5a12d');const heads=new T.InstancedMesh(new T.SphereGeometry(.062,7,6),center,n),leaves=new T.InstancedMesh(new T.SphereGeometry(.070,7,5),petal,n*5);heads.castShadow=false;leaves.castShadow=false;const r=makeRng(55911);for(let i=0;i<n;i++){let x=-15+r()*30,z=-15+r()*29,h=.35+r()*.33;tempMatrix.makeTranslation(x,h,z);heads.setMatrixAt(i,tempMatrix);for(let j=0;j<5;j++){let a=j*2*Math.PI/5;tempPos.set(x+Math.cos(a)*.105,h,z+Math.sin(a)*.105);tempQuat.setFromAxisAngle(upAxis,a);tempScale.set(1,.23,.64);tempMatrix.compose(tempPos,tempQuat,tempScale);leaves.setMatrixAt(i*5+j,tempMatrix);}}heads.instanceMatrix.needsUpdate=true;leaves.instanceMatrix.needsUpdate=true;sceneRoot.add(heads,leaves);}
     function updateGrass(t){
       if(!activeGrass)return;
       for(let i=0;i<grassInfo.length;i++){
@@ -270,7 +271,7 @@
       tube([x+.92,.55,z],[x+.86,1.48,z],.06,black);
       tube([x+.63,1.49,z],[x+1.05,1.49,z],.05,black);
       tube([x+.1,1.35,z],[x+.1,1.53,z],.06,black);
-      box(.55,.09,.25,black,x+.05,1.55,z);const basket=material('#8c5828','#b48245');box(.64,.39,.38,basket,x-1.27,1.32,z+.04);for(let i=0;i<5;i++)box(.07,.29,.40,darkwood,x-1.51+i*.12,1.34,z+.04);
+      box(.55,.09,.25,black,x+.05,1.55,z);const basket=material('#8c5828','#b48245');box(.64,.39,.38,basket,x-1.27,1.32,z+.04);const basket=material('#8c5828','#b48245');box(.64,.39,.38,basket,x-1.27,1.32,z+.04);for(let i=0;i<5;i++)box(.07,.29,.40,darkwood,x-1.51+i*.12,1.34,z+.04);
     }
     function parkFurniture(){
       const mat=material('#6e4726','#9c6934');
