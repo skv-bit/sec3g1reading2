@@ -157,6 +157,26 @@
       "pinyin": "yǒu yì",
       "english": "friendship",
       "simpleChinese": "朋友之间真诚的感情。"
+    },
+    "换": {
+      "pinyin": "huàn",
+      "english": "exchange; change",
+      "simpleChinese": "用另一样东西替换，或把原来的东西换回来。"
+    },
+    "愿意": {
+      "pinyin": "yuàn yì",
+      "english": "be willing to",
+      "simpleChinese": "心里肯做某件事；“不愿意”就是不想这样做。"
+    },
+    "脾气": {
+      "pinyin": "pí qi",
+      "english": "temper",
+      "simpleChinese": "一个人表现情绪的习惯，如容易生气。"
+    },
+    "只好照做": {
+      "pinyin": "zhǐ hǎo zhào zuò",
+      "english": "have no choice but to do as told",
+      "simpleChinese": "虽然不太愿意，但没有别的办法，只能按照要求去做。"
     }
   },
   "levelConfig": [
@@ -612,7 +632,13 @@
       "displayEvidenceParagraphs": [
         6
       ],
-      "art": "mom_angry"
+      "art": "mom_angry",
+      "vocabWords": [
+        "换",
+        "愿意",
+        "脾气",
+        "只好照做"
+      ]
     },
     {
       "id": "L2_DOORBELL",
