@@ -24,7 +24,7 @@ global.WatchThreeScene=function(options){
   let stage=-1,requestToken=0,width=1,height=1,disposed=false,playerGroup=null,visual=null;
   let previous=null,idlePhase=0,walkingPhase=0,cameraReady=false,filterOn=false,loadingStatus='pending';
   // A camera close enough to fill the viewport, with optional zoom and 3D orbit.
-  const defaultDistance=13.0,minDistance=5.4,maxDistance=25;
+  const defaultDistance=16.6,minDistance=5.4,maxDistance=25;
   let zoomDistance=defaultDistance,orbitYaw=.54,orbitElevation=.62;
   const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
   const defaultYaw=.54,defaultElevation=.62;
