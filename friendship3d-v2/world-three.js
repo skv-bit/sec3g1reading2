@@ -9,8 +9,8 @@ class World3DThree {
  constructor(canvas){
   this.canvas=canvas;this.contextLost=false;this.assets={};this.level=1;
   this.positions={
-    1:{bike:{x:-4.6,z:1.4,y:.02,s:1.6},watch:{x:4.2,z:1.4,y:0,s:1.13},lihua:{x:4.0,z:-4.5,y:0,s:1.35},inference:{x:-2.9,z:-2.35,y:0,s:1.05}},
-    2:{mom:{x:-2.8,z:-.9,y:0,s:1.29},doorbell:{x:1.35,z:-4.8,y:1.12,s:1.18},lihua:{x:4.1,z:-3.6,y:0,s:1.36},evidence_station:{x:-5.2,z:2.2,y:0,s:1.34}}
+    1:{bike:{x:-4.6,z:1.4,y:.02,s:1.6},lihua:{x:4.0,z:-4.5,y:0,s:1.35},inference:{x:-2.9,z:-2.35,y:0,s:1.05}},
+    2:{watch:{x:3.7,z:2.3,y:0,s:1.12},mom:{x:-2.8,z:-.9,y:0,s:1.29},doorbell:{x:1.35,z:-4.8,y:1.12,s:1.18},lihua:{x:4.1,z:-3.6,y:0,s:1.36},evidence_station:{x:-5.2,z:2.2,y:0,s:1.34}}
   };
   this.yaw=0;this.pitch=.72;this.dist=19;this.time=0;this.hotspots=[];this.padKeys=new Set();
   this.player={x:0,z:5.5,face:Math.PI,moving:false,bob:0};this.cursor={x:0,z:5.5};
@@ -130,7 +130,7 @@ class World3DThree {
    if(!this.modelNodes.has(h.id)){
      const holder=new T.Group();
      holder.position.set(p.x,p.y,p.z);
-     const key=h.hotspotId==='watch'&&this.level===1?'watch_display_v2':h.model.replace('.glb','');
+     const key=h.renderModel?.replace('.glb','')||(h.hotspotId==='watch'?'watch_display_v2':h.model.replace('.glb',''));
      if(h.hotspotId==='lihua'){
       // A 2D camera-facing Lihua with her blue ponytail ribbon and bandage.
       const npc=new T.Sprite(new T.SpriteMaterial({map:this.lihuaTexture,transparent:true,depthWrite:false,alphaTest:.05}));
@@ -175,7 +175,7 @@ class World3DThree {
  collision(x,z){
   if(Math.abs(x)>10.3||Math.abs(z)>10.3)return true; // walk to every reachable courtyard corner
   if(this.level===1&&Math.abs(x)<6.6&&z<-5.85)return true;
-  const colliders=this.level===1?[[-4.6,1.4,.92],[4.2,1.4,.85],[-2.9,-2.35,.65]]:[[-5.2,2.2,1.35],[.8,-5.7,1.05]];
+  const colliders=this.level===1?[[-4.6,1.4,.92],[-2.9,-2.35,.65]]:[[-5.2,2.2,1.35],[.8,-5.7,1.05]];
   return colliders.some(([a,b,r])=>Math.hypot(x-a,z-b)<r);
  }
  update(dt,allow){
