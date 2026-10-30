@@ -484,7 +484,7 @@ global.WatchThreeScene=function(options){
     for(const {item,ring} of rings){
       const done=isDone(item.id),locked=isLocked(item.id);
       ring.material.color.setHex(done?0x83cfad:locked?0xb7bdc1:0xffd177);
-      ring.material.opacity=done?.5:locked?.35:.82+Math.sin(time*2.3+item.x)*.08;
+      ring.material.opacity=done?.58:locked?.42:.80;
     }
     renderer.render(scene,camera);softenLabels(player,items||[]);
   }
@@ -492,7 +492,9 @@ global.WatchThreeScene=function(options){
     // Lower hotspot labels to ground level and nudge the accident clue away from Lihua.
     const nx=stage===0&&Math.abs(x+3)<.08&&Math.abs(z+1.7)<.12?x-.42:x;
     projected.set(nx,.44,z).project(camera);
-    if(projected.z<-1||projected.z>1||Math.abs(projected.x)>1.2||Math.abs(projected.y)>1.18)return null;
+    // Avoid frame-by-frame hide/show when a point is close to the screen edge.
+    // HTML positions are clamped and smoothed by updateMarkers(); only hide behind-camera points.
+    if(!Number.isFinite(projected.x)||!Number.isFinite(projected.y)||projected.z<-1||projected.z>1)return null;
     return {x:Math.round((projected.x*.5+.5)*width),y:Math.round((-.5*projected.y+.5)*height),d:projected.z,s:1/Math.max(.03,projected.z+1)};
   }
   function resize(w,h){width=Math.max(1,w);height=Math.max(1,h);camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height,false);}
