@@ -2,7 +2,7 @@
   "schemaVersion": "2.5",
   "title": "《手表》3D友情侦探｜I Do＋We Do",
   "language": "zh-SG",
-  "purpose": "中三G1华文阅读二读，证据→推论→主题，7热点内含多步骤题目，严格保留截图的I Do/We Do和三级侦探笔记",
+  "purpose": "中三G1华文阅读二读：校园3个触发点、家门口5个触发点（含手表两题），找依据→作推论→联主题",
   "reviewStatus": "按2026-10-30课堂图片调整：第一关手表两题（P1/P5），第二关妈妈只用P6；双栏言行分类；单一侦探笔记输入框",
   "sourcePriority": [
     "content/《手表》原文九段_核对资料.md",
@@ -168,10 +168,9 @@
       "hotspotOrder": [
         "L1_BIKE",
         "L1_LIHUA",
-        "L1_WATCH",
         "L1_INFERENCE"
       ],
-      "goal": "按脚踏车→丽华→手表→作推论收集两处证据，最后从学校大门进入第二关。",
+      "goal": "按脚踏车→丽华→作推论完成校园证据学习，从学校大门进入第二关。",
       "exit": {
         "hotspotId": "school_gate",
         "name": "学校大门",
@@ -185,19 +184,20 @@
       "teachingMode": "WE_DO",
       "sceneFile": "scene2_house_clay.glb",
       "hotspotOrder": [
+        "L2_WATCH",
         "L2_MOM",
         "L2_DOORBELL",
         "L2_LIHUA",
         "L2_STATION"
       ],
-      "goal": "第5–8段人物与心意分析，连第3–4段及第8–9段完成推论与侦探笔记。"
+      "goal": "先探究第5段手表的来历与送礼心意，再了解第6–8段人物言行；最后整合第3–4段及第8–9段写侦探笔记。"
     }
   ],
   "hotspotSequence": [
     "L1_BIKE",
     "L1_LIHUA",
-    "L1_WATCH",
     "L1_INFERENCE",
+    "L2_WATCH",
     "L2_MOM",
     "L2_DOORBELL",
     "L2_LIHUA",
@@ -287,7 +287,7 @@
         "06"
       ],
       "beforeQuestion": {
-        "teacherGuide": "第4段丽华手缠纱布，却先问“你没事吧？”引导回看第3段，收集两处言行支持结论。",
+        "teacherGuide": "第4段丽华手缠纱布，仍先问“你没事吧？”题面仍只呈现第4段；点击“看回原文”可完整回读第3、4段，结合两处言行选择证据。",
         "onScreen": "第二处证据：受伤后还先关心朋友",
         "sourceType": "game_written"
       },
@@ -349,28 +349,106 @@
         "reasoning": "证据一：危险时推开“我”，自己受伤；证据二：第二天受伤了仍先问“我”有没有事。",
         "studentFollowup": "两处证据为什么能支持“关心朋友”这一特点？"
       },
-      "unlockNext": "L1_WATCH",
-      "completionText": "收集了两处言行证据，接着到手表旁看看故事的重要物品。",
+      "unlockNext": "L1_INFERENCE",
+      "completionText": "收集了两处言行证据。到作推论站解释丽华为什么关心朋友。",
       "displayEvidenceParagraphs": [
+        4
+      ],
+      "reviewEvidenceParagraphs": [
+        3,
         4
       ]
     },
     {
-      "id": "L1_WATCH",
+      "id": "L1_INFERENCE",
       "level": 1,
       "order": 3,
+      "hotspotId": "inference",
+      "model": "evidence_station.glb",
+      "role": "independent_character_inference",
+      "label": "作推论：人物特点",
+      "sceneMode": "I_DO_TEACHER_DEMO",
+      "originalScreenshotRefs": [
+        "06"
+      ],
+      "beforeQuestion": {
+        "teacherGuide": "回看刚才收集的两处证据，再选择人物特点。不要只凭一句话判断。",
+        "onScreen": "证据收齐！现在到校园推论站，把两处言行连起来。",
+        "sourceType": "game_written"
+      },
+      "evidence": [
+        {
+          "paragraph": 3,
+          "sourceType": "verbatim",
+          "fullText": "“我叫丽华，你呢？”她问道。我还没来得及回答，一辆脚踏车朝我飞快地冲过来。丽华连忙推开我，结果自己却摔倒在地上。她擦伤了手臂，我反而没事。",
+          "excerpt": "丽华连忙推开我，结果自己却摔倒在地上。"
+        },
+        {
+          "paragraph": 4,
+          "sourceType": "verbatim",
+          "fullText": "第二天，丽华手臂缠着纱布走进教室。我正想向她道谢，她却关心地问我：“你没事吧？”她的善良让我很感动。从此，我们成了好朋友。",
+          "excerpt": "丽华手臂缠着纱布走进教室。我正想向她道谢，她却关心地问我：“你没事吧？”"
+        }
+      ],
+      "collectCard": {
+        "id": "CARD_INFERENCE",
+        "title": "人物推论",
+        "text": "丽华在危险时保护朋友，受伤后仍关心朋友。"
+      },
+      "steps": [
+        {
+          "id": "L1Q3B",
+          "type": "keywordFill",
+          "stem": "根据两处证据，选一个合适的关键词完成句子：从丽华的言行，可以看出她很（　　）。",
+          "wordBank": [
+            {
+              "id": "w1",
+              "text": "关心朋友"
+            },
+            {
+              "id": "w2",
+              "text": "只顾自己"
+            },
+            {
+              "id": "w3",
+              "text": "讨厌朋友"
+            }
+          ],
+          "correctIds": [
+            "w1"
+          ],
+          "sourceParagraphs": [
+            3,
+            4
+          ],
+          "grading": "exactChoice",
+          "hints": [
+            "前面两张证据卡中，丽华两次都先想到谁？",
+            "她救了“我”，自己受伤却仍先关心“我”。"
+          ],
+          "displayMode": "tap_word_chip_and_fill_slot",
+          "teacherMode": "I_DO_GUIDED_WORD_CHOICE"
+        }
+      ],
+      "unlockNext": "school_gate",
+      "completionText": "校园线索已收集！前往教学楼大门，进入第二关，寻找手表线索。"
+    },
+    {
+      "id": "L2_WATCH",
+      "level": 2,
+      "order": 4,
       "hotspotId": "watch",
       "model": "watch.glb",
       "role": "object_origin_and_gift_reason",
       "label": "手表：故事的重要物品",
-      "sceneMode": "I_DO_BRIEF_BRIDGE",
+      "sceneMode": "WE_DO_WATCH",
       "originalScreenshotRefs": [
         "01",
         "09"
       ],
       "beforeQuestion": {
-        "teacherGuide": "两题统一显示第5段原文：第一题找出原本是谁送给“我”的手表，第二题理解“我”为什么珍惜这段友谊。第1段不显示在本触发点的原文依据区。",
-        "onScreen": "先找出手表原来的主人，再思考“我”为什么把它送给丽华。",
+        "teacherGuide": "第二关首先回顾第5段：通过手表的来历与送礼原因理解友情，再去妈妈处了解为什么必须把手表换回来。",
+        "onScreen": "先了解手表的来历与送礼心意，再去找妈妈。",
         "sourceType": "game_written"
       },
       "evidence": [
@@ -454,8 +532,8 @@
           ]
         }
       ],
-      "unlockNext": "L1_INFERENCE",
-      "completionText": "手表线索已收集。现在去推论站，运用两处证据判断丽华的特点。",
+      "unlockNext": "L2_MOM",
+      "completionText": "手表的两道题都完成了，接着找妈妈了解她为什么生气。",
       "renderModel": "watch_display_v2.glb",
       "sharedEvidenceParagraphs": [
         5
@@ -469,80 +547,6 @@
         "友谊",
         "移居海外"
       ]
-    },
-    {
-      "id": "L1_INFERENCE",
-      "level": 1,
-      "order": 4,
-      "hotspotId": "inference",
-      "model": "evidence_station.glb",
-      "role": "independent_character_inference",
-      "label": "作推论：人物特点",
-      "sceneMode": "I_DO_TEACHER_DEMO",
-      "originalScreenshotRefs": [
-        "06"
-      ],
-      "beforeQuestion": {
-        "teacherGuide": "回看刚才收集的两处证据，再选择人物特点。不要只凭一句话判断。",
-        "onScreen": "证据收齐！现在到校园推论站，把两处言行连起来。",
-        "sourceType": "game_written"
-      },
-      "evidence": [
-        {
-          "paragraph": 3,
-          "sourceType": "verbatim",
-          "fullText": "“我叫丽华，你呢？”她问道。我还没来得及回答，一辆脚踏车朝我飞快地冲过来。丽华连忙推开我，结果自己却摔倒在地上。她擦伤了手臂，我反而没事。",
-          "excerpt": "丽华连忙推开我，结果自己却摔倒在地上。"
-        },
-        {
-          "paragraph": 4,
-          "sourceType": "verbatim",
-          "fullText": "第二天，丽华手臂缠着纱布走进教室。我正想向她道谢，她却关心地问我：“你没事吧？”她的善良让我很感动。从此，我们成了好朋友。",
-          "excerpt": "丽华手臂缠着纱布走进教室。我正想向她道谢，她却关心地问我：“你没事吧？”"
-        }
-      ],
-      "collectCard": {
-        "id": "CARD_INFERENCE",
-        "title": "人物推论",
-        "text": "丽华在危险时保护朋友，受伤后仍关心朋友。"
-      },
-      "steps": [
-        {
-          "id": "L1Q3B",
-          "type": "keywordFill",
-          "stem": "根据两处证据，选一个合适的关键词完成句子：从丽华的言行，可以看出她很（　　）。",
-          "wordBank": [
-            {
-              "id": "w1",
-              "text": "关心朋友"
-            },
-            {
-              "id": "w2",
-              "text": "只顾自己"
-            },
-            {
-              "id": "w3",
-              "text": "讨厌朋友"
-            }
-          ],
-          "correctIds": [
-            "w1"
-          ],
-          "sourceParagraphs": [
-            3,
-            4
-          ],
-          "grading": "exactChoice",
-          "hints": [
-            "前面两张证据卡中，丽华两次都先想到谁？",
-            "她救了“我”，自己受伤却仍先关心“我”。"
-          ],
-          "displayMode": "tap_word_chip_and_fill_slot",
-          "teacherMode": "I_DO_GUIDED_WORD_CHOICE"
-        }
-      ],
-      "unlockNext": "LEVEL2_GATE",
-      "completionText": "已完成推论！前往学校大门，开启第二关。"
     },
     {
       "id": "L2_MOM",
@@ -984,5 +988,5 @@
     "completionRule": "所有客观子题必须正确；开放回答提交保存且至少有尝试/教师确认，不进行意义自动评分；自评后保留修改机会"
   },
   "legacyCaution": "旧页面使用旧触发顺序和2D渲染，不能直接照搬状态机、背景和答案；本文件是本次权威配置。",
-  "assetVersion": "watch-vocab-and-shared-source-20261030"
+  "assetVersion": "watch-in-level2-and-lihua-source-review-20261031"
 }
