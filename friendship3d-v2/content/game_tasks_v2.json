@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.4",
+  "schemaVersion": "2.5",
   "title": "《手表》3D友情侦探｜I Do＋We Do",
   "language": "zh-SG",
   "purpose": "中三G1华文阅读二读，证据→推论→主题，7热点内含多步骤题目，严格保留截图的I Do/We Do和三级侦探笔记",
@@ -132,6 +132,31 @@
       "pinyin": "yí jū hǎi wài",
       "english": "move overseas",
       "simpleChinese": "搬到外国去生活。"
+    },
+    "珍贵": {
+      "pinyin": "zhēn guì",
+      "english": "precious",
+      "simpleChinese": "很有价值，让人特别珍惜。"
+    },
+    "礼物": {
+      "pinyin": "lǐ wù",
+      "english": "gift",
+      "simpleChinese": "送给别人的东西，表达心意。"
+    },
+    "最后": {
+      "pinyin": "zuì hòu",
+      "english": "finally",
+      "simpleChinese": "想过或做过一些事以后，到了末尾。"
+    },
+    "选择": {
+      "pinyin": "xuǎn zé",
+      "english": "choose",
+      "simpleChinese": "从几样东西或做法中决定要哪一个。"
+    },
+    "友谊": {
+      "pinyin": "yǒu yì",
+      "english": "friendship",
+      "simpleChinese": "朋友之间真诚的感情。"
     }
   },
   "levelConfig": [
@@ -344,7 +369,7 @@
         "09"
       ],
       "beforeQuestion": {
-        "teacherGuide": "先看第1段确定手表来源，之后依据第5段理解送表动机。第6段属于第二关妈妈生气的情节，不在本触发点出现。",
+        "teacherGuide": "手表两题统一呈现第1段和第5段：第一题找出叔叔送表的事实，第二题联系移居海外与珍贵礼物的情节理解友情；题目的答案标准不变。",
         "onScreen": "先找出手表原来的主人，再思考“我”为什么把它送给丽华。",
         "sourceType": "game_written"
       },
@@ -431,7 +456,20 @@
       ],
       "unlockNext": "L1_INFERENCE",
       "completionText": "手表线索已收集。现在去推论站，运用两处证据判断丽华的特点。",
-      "renderModel": "watch_display_v2.glb"
+      "renderModel": "watch_display_v2.glb",
+      "sharedEvidenceParagraphs": [
+        1,
+        5
+      ],
+      "vocabWords": [
+        "珍贵",
+        "礼物",
+        "最后",
+        "选择",
+        "名贵",
+        "友谊",
+        "移居海外"
+      ]
     },
     {
       "id": "L1_INFERENCE",
@@ -947,5 +985,5 @@
     "completionRule": "所有客观子题必须正确；开放回答提交保存且至少有尝试/教师确认，不进行意义自动评分；自评后保留修改机会"
   },
   "legacyCaution": "旧页面使用旧触发顺序和2D渲染，不能直接照搬状态机、背景和答案；本文件是本次权威配置。",
-  "assetVersion": "2026-10-30; original GLB preserved; upgraded school scene and watch display"
+  "assetVersion": "watch-vocab-and-shared-source-20261030"
 }
