@@ -50,12 +50,27 @@ class World3D{
 
 
 const $=id=>document.getElementById(id), escapeHtml=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let DATA=null,world=null,state={alias:'小侦探',classCode:'3G1',current:0,done:[],answers:{},attempts:{},hints:{},reviewCount:{},supportLevel:'S2',originalDraft:'',revisedDraft:'',lifeResponse:'',selfChecks:[],started:false,completed:false},task=null,selection=[],categorize={},picked=null,hintIndex=0,feedback='',teacherMode=false,audioOn=true,paused=true,transitioning=false,toastTimer=null,allNodes=[];
+let DATA=null,world=null,state={alias:'小侦探',classCode:'3G1',current:0,done:[],answers:{},attempts:{},hints:{},reviewCount:{},supportLevel:'S2',originalDraft:'',revisedDraft:'',lifeResponse:'',selfChecks:[],started:false,completed:false,enteredLevel2:false,contentVersion:'2026-gate-v2'},task=null,selection=[],categorize={},picked=null,hintIndex=0,feedback='',teacherMode=false,audioOn=true,paused=true,transitioning=false,toastTimer=null,allNodes=[];
 const KEY='handwatch-3d-adventure-v1';
-const stage=(i)=>i<3?1:2;
+const FIRST_LEVEL_COUNT=4;
+const stage=(i)=>i<FIRST_LEVEL_COUNT?1:i===FIRST_LEVEL_COUNT&&!state.enteredLevel2?1:2;
 const currentNode=()=>allNodes[state.current];
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
-function restore(){try{let v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&typeof v.current==='number'&&v.current>=0&&v.current<=7){state={...state,...v}}}catch(e){}}
+function restore(){
+ try{
+  let v=JSON.parse(localStorage.getItem(KEY)||'null');
+  if(!v||typeof v.current!=='number'||v.current<0)return;
+  if(v.contentVersion!=='2026-gate-v2'){
+    const completed=new Set(v.done||[]);
+    const wasInSecond=v.current>3||[...completed].some(id=>id.startsWith('L2_'));
+    if(wasInSecond)completed.add('L1_INFERENCE');
+    let prefix=0;while(prefix<allNodes.length&&completed.has(allNodes[prefix].id))prefix++;
+    v.current=prefix;v.done=allNodes.slice(0,prefix).map(n=>n.id);
+    v.enteredLevel2=wasInSecond;v.contentVersion='2026-gate-v2';
+  }
+  state={...state,...v,current:Math.min(allNodes.length,v.current)};
+ }catch(e){console.warn('Save migration',e)}
+}
 window.toast=(msg)=>toast(msg);function toast(msg){let el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3200)}
 function show(el){$(el).classList.remove('hidden')};function hide(el){$(el).classList.add('hidden')};
 function refreshProgress(){let lv=world.level;world.hotspots=allNodes.filter(n=>n.level===lv).map(n=>{let idx=allNodes.indexOf(n);return {...n,available:idx===state.current,done:idx<state.current,locked:idx>state.current,hidden:n.id==='L2_LIHUA'&&state.current<5}});$('modeTag').textContent=lv===1?'I DO · 教师示范':'WE DO · 师生共学';$('levelTag').textContent=lv===1?'第一关 · 校园线索':'第二关 · 门前抉择';$('questLevelTitle').textContent=lv===1?'第一关 · 校园线索':'第二关 · 门前抉择';const levelNodes=allNodes.filter(n=>n.level===lv);let html='';for(let n of levelNodes){let i=allNodes.indexOf(n),cls=i<state.current?'done':i===state.current?'current':'locked';html+=`<div class="quest-row ${cls}"><div class="stepnum">${i<state.current?'✓':i===state.current?'✦':'🔒'}</div><div><strong>${escapeHtml(n.label.split('：')[0])}</strong><small>${escapeHtml(n.label.split('：')[1]||'等待解锁')}</small></div></div>`}$('questItems').innerHTML=html;$('progressCount').textContent=`${Math.min(state.current,7)} / 7`;$('progressBar').style.width=(Math.min(state.current,7)/7*100)+'%';const rem=state.current===7?'七处线索已完成，可以翻开侦探笔记。':state.current===3&&lv===1?'校园任务完成！即将前往丽华家。':currentNode()?.beforeQuestion?.onScreen||'寻找下一处线索。';$('evidenceSummary').textContent=rem}
