@@ -75,3 +75,48 @@
 .gate-link{white-space:nowrap;background:#fff1cf!important;border:2px solid #f4ba5b!important;box-shadow:0 0 0 5px #ffe4a071,0 6px 18px #9c784944!important;color:#865425!important;animation:gateGlow 1.6s ease-in-out infinite alternate}
 @keyframes gateGlow{from{box-shadow:0 0 0 4px #ffe4a053,0 6px 14px #9c784922}to{box-shadow:0 0 0 10px #fff0b583,0 7px 18px #9c784944}}
 @media(max-width:850px){.reading-helper-steps{grid-template-columns:1fr}.assistant-launch span{display:none}}
+
+/* 2026-10-30: evidence cards physically move into one of the two matching buckets. */
+.cat-source{background:#eff8ef;border:2px solid #c7e5d0;border-radius:18px;padding:13px 16px;margin:14px 0 16px;min-height:90px}
+.cat-source>h4{margin:0 0 11px;color:#246d57;font-size:15px}
+.cat-source>h4 small{font-weight:600;color:#658a74;font-size:12px}
+.cat-stack,.cat-bucket-cards{display:flex;flex-direction:column;gap:9px;min-height:56px}
+.cat-source .dragcard,.bucket .dragcard{position:relative;display:flex;align-items:center;justify-content:space-between;text-align:left;width:100%;border:2px solid #d1e4d9;border-radius:13px;background:#fffefb;margin:0;padding:13px 15px;line-height:1.65;color:#2e6253;font-size:15px;box-shadow:0 3px 0 #d5e6dc;cursor:grab;touch-action:none}
+.cat-source .dragcard:active,.bucket .dragcard:active{cursor:grabbing}
+.cat-source .dragcard.picked,.bucket .dragcard.picked{border-color:#268c66;background:#dff5e7;box-shadow:0 0 0 2px #8cceb0}
+.cat-source .dragcard.dragging,.bucket .dragcard.dragging{opacity:.48}
+.card-grip{font-size:24px;color:#a7c3ab;line-height:1;margin-left:12px;flex-shrink:0}
+.cat-empty,.cat-placeholder{display:flex;align-items:center;justify-content:center;min-height:70px;padding:11px;text-align:center;font-size:13px;color:#719185}
+.bucket-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin:13px 0 9px}
+.bucket{min-height:145px;border:2.5px dashed #a9cfb9;background:#f2f9f1;border-radius:19px;padding:14px;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
+.bucket:nth-child(2){border-color:#b5c9ef;background:#f1f6ff}
+.bucket h4{font-size:17px;color:#276454;margin:2px 0 10px;text-align:center}
+.bucket:nth-child(2) h4{color:#456995}
+.bucket .dragcard{font-size:14px;background:#dff4e7;border-color:#74c4a4}
+.bucket:nth-child(2) .dragcard{background:#e7efff;border-color:#9db9eb}
+.bucket.drag-over,.cat-source.drag-over{border-color:#258d62!important;background:#d7fae4!important;box-shadow:0 0 0 4px #80ddb376}
+.cat-instruction{font-size:12px;color:#638674;margin:8px 0 16px}
+.cat-drag-ghost{position:fixed;transform:translate(-50%,-50%);pointer-events:none;z-index:9999;max-width:min(340px,65vw);background:#fffefa;border:3px solid #46b789;border-radius:12px;padding:11px 17px;color:#2a644d;box-shadow:0 16px 35px #0b50314b;font-size:14px;font-weight:700}
+.dragcard:focus-visible,.bucket:focus-visible,.cat-source:focus-within{outline:3px solid #308fb7;outline-offset:3px}
+/* Teacher-visible left-hand scaffold entry on both collection-station questions. */
+.dialog-leading{display:flex;align-items:center;gap:13px;min-width:0}
+.scaffold-trigger{align-self:center;white-space:nowrap;background:#fff1d4;border:2px solid #e8bd70;border-radius:15px;padding:9px 14px;font-size:16px;font-weight:900;color:#93652a;box-shadow:0 3px 0 #dfc18a;cursor:pointer}
+.scaffold-trigger[aria-expanded="true"]{background:#e3f8e9;border-color:#5fc49b;color:#236d57}
+.scaffold-trigger.hidden{display:none!important}
+.scaffold-panel{margin:15px 0 17px;border:2px solid #bbddc8;border-radius:18px;padding:15px 17px;background:linear-gradient(135deg,#f5fff1,#e9f8f8);color:#285d4a;line-height:1.8}
+.scaffold-panel>strong{font-size:18px}
+.scaffold-panel>p{margin:10px 0}
+.scaffold-section{margin:10px 0;border-bottom:1px dashed #bad9c6;padding-bottom:12px}
+.scaffold-section:last-of-type{border-bottom:0}
+.scaffold-section>b{display:block;font-size:16px;margin-bottom:8px}
+.scaffold-chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.scaffold-chip{background:#fffdf8;border:1px solid #d0e4d5;border-radius:10px;padding:10px 12px;font-size:13px}
+.scaffold-chip b{display:block;font-size:12px;color:#3a9a74;margin-bottom:4px}
+.scaffold-chip span{color:#486d60}
+.scaffold-formula,.scaffold-quick{padding:14px 16px;border-radius:14px;margin:15px 0;background:#fff8df;border:1.5px solid #f0d6a1;line-height:1.8;color:#596b51}
+.scaffold-formula{background:#fffef5}
+.scaffold-formula p,.note-card p{white-space:normal;line-height:1.9;margin:9px 0}
+.scaffold-quick p{margin:7px 0}
+.scaffold-insert{margin-top:7px}
+.note-field{min-height:145px}
+@media(max-width:650px){.bucket-panel{grid-template-columns:1fr}.bucket{min-height:120px}.dialog-leading{gap:8px}.scaffold-trigger{font-size:12px;padding:6px 8px}.scaffold-chips{grid-template-columns:1fr}.cat-source .dragcard,.bucket .dragcard{font-size:13px}}
