@@ -19,19 +19,20 @@ class World3DThree {
   this.renderer.setPixelRatio(Math.min(1.1,window.devicePixelRatio||1));
   this.renderer.outputEncoding=T.sRGBEncoding;
   this.renderer.toneMapping=T.ACESFilmicToneMapping;
-  this.renderer.toneMappingExposure=1.24;
-  this.renderer.setClearColor(0xc8e2dc,1);
+  this.renderer.toneMappingExposure=1.42; // slightly brighter while preserving original GLB colors
+  this.renderer.setClearColor(0xe1f1e7,1);
   this.gl=this.renderer.getContext();
-  this.scene=new T.Scene();this.scene.background=new T.Color(0xcce5dd);
-  this.scene.fog=new T.Fog(0xd1e7d6,16,46);
-  this.scene.add(new T.HemisphereLight(0xfff7df,0x9caea1,1.3));
-  const sun=new T.DirectionalLight(0xffe7be,2.0);sun.position.set(-7,13,8);this.scene.add(sun);
-  const fill=new T.DirectionalLight(0xc3eaf1,.5);fill.position.set(8,8,-7);this.scene.add(fill);
+  this.scene=new T.Scene();this.scene.background=new T.Color(0xe2f0e4);
+  this.scene.fog=new T.Fog(0xe6f1df,16,46);
+  this.scene.add(new T.HemisphereLight(0xfff7df,0xb3c9b3,1.52));
+  const sun=new T.DirectionalLight(0xffefce,2.15);sun.position.set(-7,13,8);this.scene.add(sun);
+  const fill=new T.DirectionalLight(0xd3f2f4,.7);fill.position.set(8,8,-7);this.scene.add(fill);
   this.camera3D=new T.PerspectiveCamera(54,1,.1,120);
   this.loader=new T.GLTFLoader();
   this.worldGroup=new T.Group();this.scene.add(this.worldGroup);
   this.hotspotGroup=new T.Group();this.scene.add(this.hotspotGroup);
   this.avatarGroup=new T.Group();this.scene.add(this.avatarGroup);
+  this.playerSprite=this.createPlayerSprite(); // only the moving protagonist is 2D; all NPCs, props and scenes remain 3D
   this.modelNodes=new Map();
   this.lastRender=0;
   this.makeGround();
@@ -42,8 +43,48 @@ class World3DThree {
   canvas.addEventListener('webglcontextlost',(e)=>{e.preventDefault();this.contextLost=true;const backup=document.getElementById('sceneBackup');if(backup)backup.hidden=false;window.toast?.('3D 显卡暂时停止绘图，请点击恢复按钮。')});
   canvas.addEventListener('webglcontextrestored',()=>location.reload());
  }
+ createPlayerSprite(){
+   // The protagonist is screen-facing, but her feet follow her REAL 3D world coordinates.
+   // Keeping this lightweight sprite above WebGL prevents camera angle, depth occlusion,
+   // mesh normals and GPU frustum issues from making the walking character disappear.
+   const image=document.createElement('img');
+   image.src='assets/player-chibi.svg';
+   image.alt='';
+   image.setAttribute('aria-hidden','true');
+   image.draggable=false;
+   Object.assign(image.style,{
+     position:'absolute',left:'50%',top:'72%',height:'158px',width:'auto',
+     transform:'translate(-50%,-96%)',
+     transformOrigin:'50% 95%',
+     pointerEvents:'none',userSelect:'none',zIndex:'1',
+     filter:'drop-shadow(0 5px 4px rgba(55,77,49,.22))',
+     willChange:'left,top,transform'
+   });
+   this.canvas.parentElement.appendChild(image);
+   // In case a browser blocks SVG, the playable 3D world and tasks still work.
+   image.onerror=()=>{image.style.visibility='hidden';console.warn('Player sprite failed to load');};
+   return image;
+ }
+ updatePlayerSprite(){
+   const image=this.playerSprite;if(!image)return;
+   const p=this.player,foot=new T.Vector3(p.x,.02,p.z).project(this.camera3D),
+         head=new T.Vector3(p.x,2.15,p.z).project(this.camera3D);
+   const w=this.canvas.clientWidth,h=this.canvas.clientHeight;
+   if(!w||!h)return;
+   // Camera follows the avatar; clamp only as an emergency safety guard.
+   const safe=v=>Number.isFinite(v)?v:0;
+   const px=w*(.5+.5*safe(foot.x));
+   const py=h*(.5-.5*safe(foot.y));
+   const height=Math.max(92,Math.min(230,Math.abs(head.y-foot.y)*h*.52));
+   image.style.left=Math.max(55,Math.min(w-55,px))+'px';
+   image.style.top=Math.max(110,Math.min(h-8,py))+'px';
+   image.style.height=height+'px';
+   const wobble=p.moving?Math.sin(p.bob)*2.2:0;
+   image.style.transform='translate(-50%,-96%) rotate('+wobble.toFixed(2)+'deg)';
+   image.style.visibility='visible';
+ }
  makeGround(){
-   const ground=new T.Mesh(new T.PlaneGeometry(150,150),new T.MeshLambertMaterial({color:0xb2d2a1}));
+   const ground=new T.Mesh(new T.PlaneGeometry(150,150),new T.MeshLambertMaterial({color:0xc5dfa9}));
    ground.rotation.x=-Math.PI/2;ground.position.y=-.95;this.scene.add(ground);
  }
  resize(){
@@ -75,11 +116,8 @@ class World3DThree {
    }
    this.avatarGroup.clear?.();
    while(this.avatarGroup.children.length)this.avatarGroup.remove(this.avatarGroup.children[0]);
-   if(this.assets.girl){
-    let avatar=this.assets.girl.clone(true);
-    avatar.scale.setScalar(1.26);
-    this.avatarGroup.add(avatar);
-   }
+   // Keep the real girl.glb asset available, but draw ONLY the player as a stable
+   // 2D camera-facing figure; 3D NPCs and all other scene assets are unchanged.
    this.syncHotspots();
  }
  syncHotspots(){
@@ -169,6 +207,7 @@ class World3DThree {
    this.camera3D.position.set(xx+Math.sin(this.yaw)*Math.cos(this.pitch)*this.dist,1.15+Math.sin(this.pitch)*this.dist,zz+Math.cos(this.yaw)*Math.cos(this.pitch)*this.dist);
    this.camera3D.lookAt(target);
    this.renderer.render(this.scene,this.camera3D);
+   this.updatePlayerSprite();
  }
  project(x,y,z){
    const v=new T.Vector3(x,y,z).project(this.camera3D);
