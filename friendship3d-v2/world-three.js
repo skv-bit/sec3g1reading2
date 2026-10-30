@@ -12,7 +12,7 @@ class World3DThree {
     1:{bike:{x:-4.6,z:1.4,y:.02,s:1.6},watch:{x:4.2,z:1.4,y:0,s:1.13},lihua:{x:4.0,z:-4.5,y:0,s:1.35}},
     2:{mom:{x:-2.8,z:-.9,y:0,s:1.29},doorbell:{x:1.35,z:-4.8,y:1.12,s:1.18},lihua:{x:4.1,z:-3.6,y:0,s:1.36},evidence_station:{x:-5.2,z:2.2,y:0,s:1.34}}
   };
-  this.yaw=0;this.pitch=.55;this.dist=9.8;this.time=0;this.hotspots=[];
+  this.yaw=0;this.pitch=.72;this.dist=19;this.time=0;this.hotspots=[];this.padKeys=new Set();
   this.player={x:0,z:5.5,face:Math.PI,moving:false,bob:0};this.cursor={x:0,z:5.5};
   this.keys=new Set();this.joy={x:0,y:0};this.onMove=()=>{};this.onInteract=()=>{};
   this.renderer=new T.WebGLRenderer({canvas,alpha:false,antialias:false,powerPreference:"low-power"});
@@ -151,7 +151,7 @@ class World3DThree {
    if(!included.has(id)){this.hotspotGroup.remove(node.holder);this.modelNodes.delete(id);}
   }
  }
- resetCamera(){this.yaw=0;this.pitch=.55;this.dist=9.8;}
+ resetCamera(){this.yaw=0;this.pitch=.72;this.dist=19;}
  getNear(){
   let best=null,d=Infinity,active=null,activeDistance=Infinity;
   for(const h of this.hotspots){
@@ -178,6 +178,7 @@ class World3DThree {
   if(k.has('KeyS')||k.has('ArrowDown'))z++;
   if(k.has('KeyA')||k.has('ArrowLeft'))x--;
   if(k.has('KeyD')||k.has('ArrowRight'))x++;
+  if(this.padKeys.has('up'))z--;if(this.padKeys.has('down'))z++;if(this.padKeys.has('left'))x--;if(this.padKeys.has('right'))x++;
   x+=this.joy.x;z+=this.joy.y;
   const len=Math.hypot(x,z);this.player.moving=len>.08;
   if(len>.08){
@@ -208,8 +209,8 @@ class World3DThree {
    const p=this.player;
    this.avatarGroup.position.set(p.x,.03+(p.moving?Math.sin(p.bob)*.046:Math.sin(this.time*2)*.013),p.z);
    this.avatarGroup.rotation.y=p.face+Math.PI;
-   let xx=Number.isFinite(this.cursor.x)?this.cursor.x:0;
-   let zz=Number.isFinite(this.cursor.z)?this.cursor.z:5.5;
+   let xx=0; // hold the camera above the COURTYARD, not the character
+   let zz=.4; // now actual A/D/W/S world movement is visible on screen
    const target=new T.Vector3(xx,1.15,zz);
    this.camera3D.position.set(xx+Math.sin(this.yaw)*Math.cos(this.pitch)*this.dist,1.15+Math.sin(this.pitch)*this.dist,zz+Math.cos(this.yaw)*Math.cos(this.pitch)*this.dist);
    this.camera3D.lookAt(target);
@@ -232,14 +233,21 @@ class World3DThree {
       if(e.code==='KeyR'&&!e.repeat)this.resetCamera();
    });
    window.addEventListener('keyup',e=>this.keys.delete(e.code));
-   window.addEventListener('blur',()=>this.keys.clear());
+   window.addEventListener('blur',()=>{this.keys.clear();this.padKeys.clear()});
    let sx=0,sy=0,dragging=false;
    c.addEventListener('pointerdown',e=>{if(e.button===0||e.button===2){sx=e.clientX;sy=e.clientY;dragging=true;c.setPointerCapture?.(e.pointerId)}});
    c.addEventListener('pointermove',e=>{if(!dragging)return;let dx=e.clientX-sx,dy=e.clientY-sy;sx=e.clientX;sy=e.clientY;this.yaw-=dx*.0055;this.pitch=Math.max(.25,Math.min(1.18,this.pitch+dy*.0038));});
    c.addEventListener('pointerup',()=>dragging=false);
    c.addEventListener('pointercancel',()=>dragging=false);
    c.addEventListener('contextmenu',e=>e.preventDefault());
-   c.addEventListener('wheel',e=>{e.preventDefault();this.dist=Math.max(7.2,Math.min(20,this.dist+Math.sign(e.deltaY)*1.2))},{passive:false});
+   c.addEventListener('wheel',e=>{e.preventDefault();this.dist=Math.max(12,Math.min(28,this.dist+Math.sign(e.deltaY)*1.2))},{passive:false});
+   // Large on-screen arrows: can be held continuously with mouse or touch.
+   document.querySelectorAll('#movePad [data-dir]').forEach(el=>{
+     const dir=el.dataset.dir;
+     el.addEventListener('pointerdown',e=>{e.preventDefault();el.setPointerCapture?.(e.pointerId);this.padKeys.add(dir)});
+     const stop=()=>this.padKeys.delete(dir);
+     el.addEventListener('pointerup',stop);el.addEventListener('pointercancel',stop);el.addEventListener('lostpointercapture',stop);
+   });
    const stick=document.querySelector('#joystick');
    if(stick){
     let active=false;stick.addEventListener('pointerdown',e=>{active=true;stick.setPointerCapture(e.pointerId)});
