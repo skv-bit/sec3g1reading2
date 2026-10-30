@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="340" viewBox="0 0 1200 340" role="img" aria-label="妈妈生气地要求女儿去换回手表，女儿低头不情愿地听着">
+<defs>
+ <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff5d6"/><stop offset=".56" stop-color="#ffe5c7"/><stop offset="1" stop-color="#ffdabf"/></linearGradient>
+ <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e5bb96"/><stop offset="1" stop-color="#c58d6b"/></linearGradient>
+ <linearGradient id="sky" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#98dff6"/><stop offset="1" stop-color="#f6f3c9"/></linearGradient>
+ <linearGradient id="desk" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d8a57d"/><stop offset="1" stop-color="#c28664"/></linearGradient>
+ <filter id="shadow"><feGaussianBlur stdDeviation="7"/></filter>
+</defs>
+<rect width="1200" height="340" fill="url(#wall)"/>
+<!-- bright window and warm curtain -->
+<rect x="38" y="26" width="304" height="210" rx="14" fill="#f0cda5"/>
+<rect x="51" y="39" width="278" height="183" rx="7" fill="url(#sky)"/>
+<path d="M57 195 Q135 118 191 173 Q243 118 326 178 L326 219 H57Z" fill="#85b798" opacity=".6"/>
+<circle cx="271" cy="83" r="24" fill="#fff1ad" opacity=".88"/>
+<path d="M191 44 V220 M55 128 H328" stroke="#f3e3c8" stroke-width="13"/>
+<path d="M28 29 Q84 88 58 218 L21 220Z M351 29 Q301 87 331 220 L372 219Z" fill="#f0a9a6" opacity=".75"/>
+<!-- background home details -->
+<path d="M0 255 H1200 V340 H0Z" fill="url(#floor)"/>
+<path d="M0 256 H1200" stroke="#b48669" stroke-width="5"/>
+<rect x="1005" y="27" width="132" height="124" rx="10" fill="#e1b78b" stroke="#ba8864" stroke-width="7"/>
+<rect x="1018" y="39" width="104" height="97" rx="6" fill="#fff7e8"/>
+<path d="M1068 114 Q1042 79 1065 65 Q1075 48 1090 70 Q1115 74 1106 103Z" fill="#96bf7b"/>
+<path d="M1077 134 V93" stroke="#668d5c" stroke-width="5"/>
+<ellipse cx="315" cy="310" rx="180" ry="22" fill="#7b6851" opacity=".19" filter="url(#shadow)"/>
+<rect x="81" y="267" width="290" height="30" rx="9" fill="url(#desk)"/>
+<path d="M109 295 L92 338 M341 295 L354 338" stroke="#93674f" stroke-width="15" stroke-linecap="round"/>
+<rect x="158" y="240" width="95" height="28" rx="7" fill="#f4bcae"/><path d="M162 248 H253" stroke="#fff3d9" stroke-width="5"/>
+<path d="M283 243 L322 243 L331 270 L276 269Z" fill="#b8d8be"/><path d="M305 244 Q287 219 283 210 M305 245 Q328 222 338 203" stroke="#6e9e6c" stroke-width="5" fill="none"/>
+<circle cx="280" cy="211" r="9" fill="#f5aeaa"/><circle cx="338" cy="203" r="11" fill="#f8d588"/>
+<!-- Mother shows clear eyebrows and a frown, but remains school-appropriate. -->
+<g transform="translate(440,4) scale(1.20)">
+<defs><linearGradient id="ma_face" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe8cf"/><stop offset="1" stop-color="#edb89f"/></linearGradient><linearGradient id="ma_cardigan" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#f9d7c6"/><stop offset="1" stop-color="#dfac9e"/></linearGradient><linearGradient id="ma_hair" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#604333"/><stop offset="1" stop-color="#302521"/></linearGradient><linearGradient id="ma_skirt" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#655c63"/><stop offset="1" stop-color="#39343d"/></linearGradient></defs>
+<ellipse cx="97" cy="258" rx="47" ry="6" fill="#65786c" opacity=".22"/>
+<path d="M55 79 Q47 35 85 29 Q139 19 144 77 L151 148 Q137 177 118 165 L68 163 Q44 150 49 119Z" fill="url(#ma_hair)" stroke="#4c382f" stroke-width="2"/>
+<path d="M67 218 L65 244 L85 244 L88 211 M109 211 L110 244 L131 244 L129 216" fill="#edc4aa" stroke="#bd987f" stroke-width="2"/>
+<path d="M62 242 Q75 237 90 243 L90 255 Q74 259 61 254Z M106 243 Q123 238 136 244 L137 255 Q116 259 105 254Z" fill="#44434e" stroke="#302d39" stroke-width="2"/>
+<path d="M64 156 L129 155 Q150 213 146 241 Q93 254 49 241 Q45 209 64 156Z" fill="url(#ma_skirt)" stroke="#47404b" stroke-width="2"/>
+<path d="M59 117 Q45 130 39 172 L57 181 L71 153Z M126 118 Q143 126 153 170 L134 180 L118 150Z" fill="url(#ma_cardigan)" stroke="#d5a28c" stroke-width="2"/>
+<path d="M38 166 Q31 185 50 194 Q60 195 60 186 L55 178Z M152 166 Q160 185 145 194 Q134 194 133 185 L136 174Z" fill="url(#ma_face)" stroke="#cc9781" stroke-width="1.7"/>
+<path d="M64 116 Q93 108 128 118 L135 187 Q95 199 56 185Z" fill="url(#ma_cardigan)" stroke="#cda395" stroke-width="2.2"/>
+<path d="M83 117 L105 117 L114 168 L75 169Z" fill="#fff6e7"/>
+<path d="M94 134 L95 179" stroke="#fff2e2" stroke-width="3"/>
+<circle cx="94" cy="152" r="3" fill="#bd897a"/><circle cx="95" cy="167" r="3" fill="#bd897a"/>
+<path d="M75 109 L80 127 Q96 138 111 124 L114 105Z" fill="url(#ma_face)"/>
+<ellipse cx="49" cy="84" rx="10" ry="13" fill="url(#ma_face)" stroke="#c79c87" stroke-width="1.6"/>
+<ellipse cx="138" cy="84" rx="10" ry="13" fill="url(#ma_face)" stroke="#c79c87" stroke-width="1.6"/>
+<path d="M48 62 Q55 38 94 40 Q135 38 141 65 Q145 99 122 116 Q100 131 76 117 Q48 105 48 62Z" fill="url(#ma_face)" stroke="#ca9d87" stroke-width="2.2"/>
+<ellipse cx="68" cy="95" rx="12" ry="7" fill="#eaa395" opacity=".43"/><ellipse cx="120" cy="95" rx="12" ry="7" fill="#eaa395" opacity=".43"/>
+<ellipse cx="74" cy="80" rx="7.1" ry="9" fill="#292525"/><ellipse cx="114" cy="80" rx="7.1" ry="9" fill="#292525"/>
+<circle cx="72" cy="76" r="2.7" fill="#fff"/><circle cx="111" cy="76" r="2.7" fill="#fff"/>
+<path d="M62 62 L83 72 M105 72 L126 62" fill="none" stroke="#65443b" stroke-width="4.2" stroke-linecap="round"/>
+<path d="M84 108 Q94 95 104 108" fill="none" stroke="#b36e6d" stroke-width="2.4" stroke-linecap="round"/>
+<ellipse cx="94" cy="92" rx="2.6" ry="2.2" fill="#df9d89"/>
+<path d="M51 73 Q46 35 85 29 Q124 24 143 54 Q137 47 124 48 Q119 62 101 60 Q86 56 81 52 Q74 70 51 73Z" fill="url(#ma_hair)" stroke="#49382f" stroke-width="2"/>
+<path d="M55 58 Q66 59 76 42 M98 35 Q114 50 128 45" fill="none" stroke="#94725d" stroke-width="3" opacity=".45"/>
+<!-- worried, displeased but caring mother -->
+<path d="M146 30 l10 -10 m-3 17 l13 -2 m-18 8 l8 9" fill="none" stroke="#e58a74" stroke-width="5" stroke-linecap="round"/>
+<!-- gentle hands folded -->
+<path d="M52 184 Q68 164 94 178 Q112 168 139 184 Q138 201 114 199 Q93 198 91 190 Q72 202 53 198Z" fill="url(#ma_face)" stroke="#cb9985" stroke-width="1.8"/>
+<path d="M80 188 Q93 180 105 190" stroke="#dcad94" stroke-width="2" fill="none"/>
+</g>
+<!-- Girl with watch stands hesitantly nearby. -->
+<g transform="translate(735,44) scale(1.13)">
+<defs>
+ <linearGradient id="gi_skin" x1=".2" y1="0" x2=".85" y2="1"><stop stop-color="#ffe4ce"/><stop offset=".72" stop-color="#ffd2b8"/><stop offset="1" stop-color="#eab7a5"/></linearGradient>
+ <linearGradient id="gi_hair" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5c3a2f"/><stop offset=".5" stop-color="#3e2827"/><stop offset="1" stop-color="#68473d"/></linearGradient>
+ <linearGradient id="gi_hat" x1="0" y1="0" x2="1" y2=".9"><stop stop-color="#fffdf0"/><stop offset=".7" stop-color="#f3edda"/><stop offset="1" stop-color="#d8cfbc"/></linearGradient>
+ <linearGradient id="gi_shirt" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fffdf6"/><stop offset="1" stop-color="#e7e9e8"/></linearGradient>
+ <linearGradient id="gi_skirt" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#536f9a"/><stop offset="1" stop-color="#2c426c"/></linearGradient>
+ <filter id="gi_blur"><feGaussianBlur stdDeviation="2.2"/></filter>
+</defs>
+<ellipse cx="90" cy="244" rx="47" ry="7" fill="#293d29" opacity=".22" filter="url(#gi_blur)"/>
+<!-- backpack -->
+<rect x="116" y="146" width="39" height="66" rx="16" fill="#b58a67" stroke="#8d624e" stroke-width="2.2"/>
+<rect x="123" y="154" width="23" height="43" rx="8" fill="#d8b392"/>
+<path d="M120 171 Q142 182 153 167" stroke="#e7c8aa" fill="none" stroke-width="4"/>
+<!-- long hair -->
+<path d="M35 80 Q26 114 35 174 Q41 195 61 191 L72 147 L110 150 L127 188 Q145 183 149 161 Q158 107 137 78 Q113 51 89 55 Q50 53 35 80Z" fill="url(#gi_hair)" stroke="#48302d" stroke-width="2.3"/>
+<path d="M40 102 Q37 158 53 177" stroke="#81564a" stroke-width="4" opacity=".45" fill="none"/>
+<path d="M138 105 Q151 151 137 173" stroke="#a07860" stroke-width="4" opacity=".35" fill="none"/>
+<!-- shoes/legs -->
+<path d="M67 206 L68 231 Q77 236 83 231 L85 205" fill="url(#gi_skin)" stroke="#c89183" stroke-width="1.7"/>
+<path d="M98 206 L99 231 Q108 235 114 230 L116 204" fill="url(#gi_skin)" stroke="#c89183" stroke-width="1.7"/>
+<path d="M67 220 L83 221 L84 233 L67 233Z M99 221 L114 221 L116 233 L99 232Z" fill="#fafafa" stroke="#d4d8d9" stroke-width="1"/>
+<path d="M62 229 Q75 226 85 231 Q88 243 77 244 L59 244 Q55 239 62 229Z" fill="#35446b" stroke="#253452" stroke-width="2"/>
+<path d="M98 231 Q111 226 120 232 Q126 242 116 245 L100 244 Q93 241 98 231Z" fill="#35446b" stroke="#253452" stroke-width="2"/>
+<path d="M62 239 L82 240 M100 240 L119 240" stroke="#7a8ead" stroke-width="2" opacity=".7"/>
+<!-- blouse arms -->
+<path d="M49 145 Q36 149 28 171 L40 180 Q51 174 60 165Z" fill="url(#gi_shirt)" stroke="#c7cad0" stroke-width="1.7"/>
+<path d="M125 146 Q140 152 151 169 L139 180 Q128 174 119 164Z" fill="url(#gi_shirt)" stroke="#c7cad0" stroke-width="1.7"/>
+<path d="M28 170 Q27 188 39 196 Q45 196 47 189 Q47 184 40 182 L40 174Z" fill="url(#gi_skin)" stroke="#d6a592" stroke-width="1.5"/>
+<path d="M151 168 Q157 185 145 194 Q140 195 135 189 Q133 182 140 177Z" fill="url(#gi_skin)" stroke="#d6a592" stroke-width="1.5"/>
+<path d="M56 138 Q89 126 122 139 L130 191 L50 191Z" fill="url(#gi_shirt)" stroke="#c9cad0" stroke-width="2"/>
+<!-- skirt -->
+<path d="M52 187 L127 187 Q137 212 143 217 Q120 228 91 226 Q58 230 38 216Z" fill="url(#gi_skirt)" stroke="#334a73" stroke-width="2"/>
+<path d="M65 191 L56 219 M81 191 L78 224 M99 191 L104 224 M116 192 L126 220" stroke="#849cc1" stroke-width="3" opacity=".5"/>
+<path d="M52 189 Q89 194 127 188" stroke="#334a73" stroke-width="4" fill="none"/>
+<!-- neck -->
+<path d="M79 129 L79 148 Q89 157 100 147 L100 128Z" fill="url(#gi_skin)" stroke="#d7a897" stroke-width="1.5"/>
+<!-- ears face -->
+<ellipse cx="41" cy="110" rx="12" ry="15" fill="url(#gi_skin)" stroke="#ddad9a" stroke-width="2"/>
+<ellipse cx="136" cy="110" rx="11" ry="15" fill="url(#gi_skin)" stroke="#ddad9a" stroke-width="2"/>
+<path d="M44 78 Q53 59 85 57 Q117 54 135 82 Q147 111 128 136 Q112 153 89 156 Q59 156 44 134 Q32 111 44 78Z" fill="url(#gi_skin)" stroke="#c99987" stroke-width="2"/>
+<ellipse cx="59" cy="122" rx="15" ry="9" fill="#f4a8a0" opacity=".42"/>
+<ellipse cx="122" cy="122" rx="14" ry="9" fill="#f3a7a0" opacity=".42"/>
+<!-- eyes -->
+<ellipse cx="67" cy="111" rx="9" ry="13" fill="#292425"/>
+<ellipse cx="112" cy="111" rx="9" ry="13" fill="#292425"/>
+<ellipse cx="64" cy="107" rx="3.7" ry="5" fill="#fff"/>
+<ellipse cx="109" cy="107" rx="3.7" ry="5" fill="#fff"/>
+<path d="M81 133 Q90 140 98 133" stroke="#ba7771" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+<ellipse cx="90" cy="124" rx="3.3" ry="2.6" fill="#e7a18e"/>
+<!-- dark bangs -->
+<path d="M42 88 Q41 59 70 54 Q96 46 124 59 Q139 66 137 88 Q124 87 119 77 Q111 90 98 92 Q94 90 90 83 Q80 96 68 93 Q61 89 63 78 Q51 96 42 88Z" fill="url(#gi_hair)" stroke="#48302d" stroke-width="1.6"/>
+<path d="M66 61 Q64 80 59 85 M92 59 Q91 77 84 85 M115 62 Q117 76 111 84" fill="none" stroke="#795145" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<!-- bow and collar -->
+<path d="M58 139 L85 150 L73 160 L57 151Z M122 139 L93 150 L105 160 L122 150Z" fill="#fff" stroke="#d2d6d5" stroke-width="1.6"/>
+<path d="M88 155 Q70 145 68 156 Q68 166 87 161 L87 175 Q91 178 94 173 L94 160 Q111 167 114 156 Q114 149 94 155Z" fill="#3b567e" stroke="#2c3d65" stroke-width="1.8"/>
+<circle cx="91" cy="158" r="4.6" fill="#2d4266"/>
+<!-- hat crown and brim -->
+<path d="M41 57 Q46 15 74 11 Q90 6 105 10 Q134 13 142 59Z" fill="url(#gi_hat)" stroke="#d2c7b4" stroke-width="2.2"/>
+<path d="M43 50 Q89 43 139 50 L142 62 Q87 70 41 61Z" fill="#ece4d4" opacity=".7"/>
+<ellipse cx="90" cy="60" rx="78" ry="21" fill="url(#gi_hat)" stroke="#c9bfae" stroke-width="2.2"/>
+<path d="M17 63 Q87 82 163 61" stroke="#fffdf2" stroke-width="3.6" opacity=".7" fill="none"/>
+<path d="M52 48 Q87 58 131 49" stroke="#e9dfcc" stroke-width="3" opacity=".7" fill="none"/>
+<!-- flower on hat -->
+<g transform="translate(53 45)"><circle cx="-6" cy="0" r="5.5" fill="#fff"/><circle cx="6" cy="0" r="5.5" fill="#fff"/><circle cx="0" cy="-6" r="5.5" fill="#fff"/><circle cx="0" cy="6" r="5.5" fill="#fff"/><circle r="4.6" fill="#efc66a"/></g>
+</g>
+<!-- wristwatch icon in the story -->
+<g transform="translate(929,236) rotate(13)">
+ <rect x="0" y="-42" width="25" height="108" rx="9" fill="#89bdda" stroke="#6d9ab5" stroke-width="2"/>
+ <circle cx="12" cy="13" r="33" fill="#f4cb7b" stroke="#bd9254" stroke-width="5"/>
+ <circle cx="12" cy="13" r="25" fill="#fffbea"/>
+ <path d="M12 13 L12 -2 M12 13 L26 16" stroke="#766455" stroke-width="3.5" stroke-linecap="round"/>
+ </g>
+<!-- gentle textual context -->
+<g>
+ <path d="M700 53 Q692 23 719 21 H948 Q975 21 975 49 V105 Q975 130 946 130 H801 L776 148 780 130 H723 Q700 130 700 106Z" fill="#fffef4" stroke="#dfb18d" stroke-width="4"/>
+ <text x="831" y="70" font-size="28" font-weight="800" fill="#845844" text-anchor="middle" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">把手表换回来吧！</text>
+ <text x="831" y="104" font-size="17" fill="#af795f" text-anchor="middle" font-family="Noto Sans CJK SC,Microsoft YaHei,sans-serif">妈妈生气了……</text>
+</g>
+<circle cx="1137" cy="282" r="23" fill="#fff9d8" opacity=".8"/>
+<path d="M1130 281 L1136 289 1147 275" stroke="#6cbd8c" stroke-width="5" fill="none" stroke-linecap="round"/>
+</svg>
