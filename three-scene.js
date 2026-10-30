@@ -123,23 +123,214 @@ global.WatchThreeScene=function(options){
     g.traverse(m=>{if(m.isMesh){m.castShadow=true;m.receiveShadow=true;}});
     return g;
   }
+
+  // V23: flat, illustration-style children in the 3D world. Self-contained CanvasTextures
+  // avoid missing external PNG assets and keep the lesson's GLB props untouched.
+  const spriteCache=new Map();
+  function portraitTexture(who){
+    if(spriteCache.has(who))return spriteCache.get(who);
+    const paper=document.createElement('canvas');paper.width=512;paper.height=768;
+    const c=paper.getContext('2d');c.lineJoin='round';c.lineCap='round';
+    const isLihua=who==='lihua';
+    const brown=isLihua?'#634031':'#34251e',shine=isLihua?'#91634a':'#604334';
+    const skin='#ffddc2',pink='#ffaaa0',blue='#315b9a',blueShade='#25477f';
+    function fill(color){c.fillStyle=color;c.fill();}
+    function ell(x,y,rx,ry,color,rotation=0){
+      c.save();c.translate(x,y);c.rotate(rotation);c.beginPath();c.ellipse(0,0,rx,ry,0,0,Math.PI*2);fill(color);c.restore();
+    }
+    function path(points,color){
+      c.beginPath();c.moveTo(points[0][0],points[0][1]);
+      for(let i=1;i<points.length;i++){
+        const p=points[i];if(p.length===2)c.lineTo(p[0],p[1]);
+        else c.bezierCurveTo(p[0],p[1],p[2],p[3],p[4],p[5]);
+      }
+      c.closePath();fill(color);
+    }
+    function stroke(points,color,width){
+      c.beginPath();c.moveTo(points[0][0],points[0][1]);
+      for(let i=1;i<points.length;i++){
+        const p=points[i];if(p.length===2)c.lineTo(p[0],p[1]);
+        else c.bezierCurveTo(p[0],p[1],p[2],p[3],p[4],p[5]);
+      }
+      c.strokeStyle=color;c.lineWidth=width;c.stroke();
+    }
+    // Hair and accessories behind the body.
+    if(isLihua){
+      path([[312,170],[378,120,445,135,448,204],[480,254,440,337,392,322],[355,311,319,274,312,170]],brown);
+      ell(417,198,66,96,brown,-.18);
+      ell(432,200,51,78,shine,-.22);
+      ell(426,195,13,23,'#78a7df');
+    }else{
+      path([[150,246],[121,360,112,501,142,569],[167,592,192,593,215,569],[240,560,270,559,302,574],[330,599,377,594,392,550],[375,449,379,334,344,244]],brown);
+      stroke([[164,332],[153,420,154,494,164,555]],shine,9);
+      stroke([[349,334],[361,430,360,491,346,552]],shine,9);
+    }
+    // Two little shoes and white socks: maintain recognisable full-body silhouette.
+    ell(206,686,33,44,'#fff9ef');ell(312,686,33,44,'#fff9ef');
+    ell(205,721,47,24,'#2d3545',-.06);ell(314,721,47,24,'#2d3545',.06);
+    // School uniform skirt with folded triangular panels.
+    path([[183,470],[333,470],[379,643],[139,643]],blue);
+    path([[184,473],[210,642],[226,643],[227,477]],'#416eab');
+    path([[245,474],[250,642],[271,642],[268,474]],blueShade);
+    path([[315,475],[298,640],[325,641],[344,492]],'#4770ab');
+    stroke([[142,640],[207,646,309,648,377,640]],'#25477f',7);
+    // Beige backpack behind sleeve only, readable while walking.
+    if(!isLihua){
+      path([[162,418],[111,408,105,475,110,532],[115,570,148,587,166,562],[186,523,180,449,162,418]],'#d8c5aa');
+      stroke([[130,438],[110,477,113,529,126,550]],'#aa9377',8);
+      path([[126,516],[158,515],[157,550],[127,547]],'#c7ac8d');
+    }
+    // Arms, sleeves and torso.
+    ell(164,470,30,95,skin,.17);ell(351,470,30,95,skin,-.17);
+    path([[190,408],[319,408],[346,501],[170,501]],'#ffffff');
+    ell(178,435,35,40,'#fffdf7',-.36);ell(333,435,35,40,'#fffdf7',.36);
+    ell(152,530,24,29,skin);ell(365,530,24,29,skin);
+    // A readable bandage around Lihua's forearm in the classroom scene.
+    if(isLihua){
+      c.save();c.translate(352,507);c.rotate(-.23);c.fillStyle='#fffdf7';c.fillRect(-26,-19,52,38);
+      c.strokeStyle='#dad1c3';c.lineWidth=3;for(let k=-18;k<=16;k+=16){c.beginPath();c.moveTo(k,-18);c.lineTo(k+10,18);c.stroke();}
+      c.restore();
+    }
+    // Collar and bow with sharp blue wings, not vague circular beads.
+    path([[204,405],[251,433],[221,455]],'#f5f5f2');
+    path([[309,405],[263,433],[295,455]],'#f5f5f2');
+    path([[254,440],[210,428],[214,480],[254,453]],blue);
+    path([[259,440],[304,427],[301,479],[259,453]],blue);
+    ell(257,448,13,15,'#1e3f7a');
+    // Main soft rounded head.
+    ell(257,271,137,151,brown);
+    ell(256,283,126,137,skin);
+    ell(134,303,25,42,skin);ell(379,303,25,42,skin);
+    // Side locks and airy fringe.
+    path([[148,205],[181,157,223,166,236,186],[238,225,205,245,165,247],[147,261,142,236,148,205]],brown);
+    path([[213,154],[272,135,331,165,358,213],[348,246,337,260,313,241],[294,226,289,215,263,226],[235,237,209,220,213,154]],brown);
+    if(!isLihua){
+      path([[131,292],[135,403,128,476,146,552],[180,563,190,507,173,408],[167,347,161,313,131,292]],brown);
+      path([[371,285],[377,392,389,473,366,550],[326,550,321,483,339,399],[349,343,358,307,371,285]],brown);
+    }else{
+      stroke([[341,184],[365,212,379,254,374,294]],shine,11);
+      ell(371,169,21,17,'#6698d5');
+    }
+    // Big glossy, expressive eyes; soft cheeks and a subtle smile.
+    ell(207,302,17,26,'#271d1d');ell(305,302,17,26,'#271d1d');
+    ell(201,294,6,8,'#ffffff');ell(299,294,6,8,'#ffffff');
+    ell(179,338,27,13,pink,-.09);ell(332,338,27,13,pink,.09);
+    stroke([[241,359],[255,372,271,373,285,359]],'#c46b68',5);
+    if(!isLihua){
+      // The white bucket hat with a black flower: narrator's strongest identifier.
+      path([[141,204],[155,112,196,89,266,92],[332,93,365,132,372,204]],'#faf6ea');
+      path([[129,203],[161,184,344,183,391,204],[404,227,349,244,260,249],[176,245,115,227,129,203]],'#e9dfcb');
+      stroke([[132,207],[214,226,333,222,389,210]],'#d9cbb2',5);
+      // Four dark petals on the hat's left-facing front.
+      ell(189,151,9,16,'#313138');ell(189,151,9,16,'#313138',Math.PI/2);
+      ell(189,151,6,6,'#f7f1e3');
+    }
+    // Small soft contour accents keep the illustration readable at game scale.
+    const tex=new T.CanvasTexture(paper);tex.encoding=T.sRGBEncoding;
+    tex.minFilter=T.LinearFilter;tex.magFilter=T.LinearFilter;
+    tex.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+    spriteCache.set(who,tex);return tex;
+  }
+  function flatGirl(who,parent,x,z,height){
+    const mat=new T.SpriteMaterial({
+      map:portraitTexture(who),transparent:true,alphaTest:.035,
+      depthTest:false,depthWrite:false,toneMapped:false
+    });
+    const sprite=new T.Sprite(mat);
+    const h=height||2.55;
+    sprite.scale.set(h*512/768,h,1);
+    sprite.position.set(x,.21,z);
+    sprite.center.set(.5,0);sprite.renderOrder=45;
+    sprite.userData.baseHeight=h;sprite.userData.isFlatGirl=true;
+    parent.add(sprite);
+    // Thin contact shadow: the characters remain grounded despite billboard rendering.
+    const shadow=new T.Mesh(new T.CircleGeometry(.41,32),
+      new T.MeshBasicMaterial({color:0x344b35,transparent:true,opacity:.19,depthWrite:false}));
+    shadow.rotation.x=-Math.PI/2;shadow.scale.set(1.1,.56,1);
+    shadow.position.set(x,.205,z);parent.add(shadow);
+    return sprite;
+  }
+  // Build a genuine school, not the cottage baked into scene1_campus_clay.glb.
+  // All building and tree geometry stays behind the two reading clue points.
+  function createSchoolCampus(){
+    const group=new T.Group();root.add(group);
+    const mat=(hex)=>new T.MeshStandardMaterial({color:hex,roughness:.91,metalness:0});
+    const grass=mat(0xb6d883),walkway=mat(0xe3c996),schoolWall=mat(0xf7dbb1);
+    const trim=mat(0x6fa5c0),roof=mat(0x4e84ac),window=mat(0xa8d7ed);
+    const windowFrame=mat(0xfbf3df),door=mat(0xa86e45);
+    const treeBrown=mat(0x966a45),leaves=mat(0x84bc62);
+    function mesh(geometry,material,x,y,z){
+      const o=new T.Mesh(geometry,material);o.position.set(x,y,z);
+      o.castShadow=true;o.receiveShadow=true;group.add(o);return o;
+    }
+    function block(w,h,d,material,x,y,z){return mesh(new T.BoxGeometry(w,h,d),material,x,y,z);}
+    // Low, unobstructed garden and warm campus walk.
+    const lawn=mesh(new T.PlaneGeometry(14,13),grass,0,.194,-.15);
+    lawn.rotation.x=-Math.PI/2;lawn.castShadow=false;
+    function path(x1,z1,x2,z2,w){
+      const dx=x2-x1,dz=z2-z1,len=Math.hypot(dx,dz);
+      const p=mesh(new T.PlaneGeometry(w,len),walkway,(x1+x2)/2,.207,(z1+z2)/2);
+      p.rotation.set(-Math.PI/2,0,Math.atan2(dx,dz));p.castShadow=false;
+    }
+    path(-4.7,2.7,-2,-1.2,1.55);
+    path(-2,-1.2,2.8,-2.9,1.35);
+    // Proper rectangular school with blue fascia, windows and a corridor entrance.
+    // Front facade faces +z, toward the third-person camera.
+    block(5.7,2.8,1.65,schoolWall,2.1,1.62,-4.6);
+    block(6.0,.26,1.9,roof,2.1,3.13,-4.6);
+    block(5.7,.21,.19,trim,2.1,2.36,-3.72);
+    block(5.7,.12,.18,windowFrame,2.1,.51,-3.72);
+    for(const x of [-.05,1.30,2.65,4.0]){
+      block(.83,1.00,.055,windowFrame,x,1.83,-3.73);
+      block(.72,.88,.065,window,x,1.83,-3.69);
+      block(.067,.96,.075,windowFrame,x,1.83,-3.65);
+      block(.81,.063,.08,windowFrame,x,1.83,-3.63);
+    }
+    block(.89,1.70,.085,door,4.52,1.11,-3.67);
+    const knob=mesh(new T.SphereGeometry(.055,10,8),mat(0xe2c45c),4.83,1.18,-3.60);
+    block(2.5,.46,.09,windowFrame,2.05,2.69,-3.62);
+    // School sign painted on school facade, never treated as text evidence.
+    const nameCanvas=document.createElement('canvas');nameCanvas.width=640;nameCanvas.height=128;
+    const cx=nameCanvas.getContext('2d');
+    cx.fillStyle='#faf6e9';cx.fillRect(0,0,640,128);
+    cx.font='bold 64px sans-serif';cx.textAlign='center';cx.textBaseline='middle';
+    cx.fillStyle='#2d6a65';cx.fillText('校园 · 教学楼',320,70);
+    const signTex=new T.CanvasTexture(nameCanvas);signTex.encoding=T.sRGBEncoding;
+    const sign=mesh(new T.PlaneGeometry(2.32,.45),
+      new T.MeshBasicMaterial({map:signTex,side:T.DoubleSide}),2.05,2.69,-3.558);
+    sign.castShadow=false;
+    // Trees are at the far backdrop, not above Lihua's hotspot.
+    function tree(x,z){
+      mesh(new T.CylinderGeometry(.14,.18,1.4,12),treeBrown,x,.87,z);
+      for(const [ox,oy,oz,r] of [[0,1.75,0,.58],[-.40,1.65,0,.42],[.36,1.7,0,.45]])
+        mesh(new T.SphereGeometry(r,14,10),leaves,x+ox,oy,z+oz);
+    }
+    tree(-5.8,-5.2);
+    for(const [x,z] of [[-4.7,-.4],[-3.2,.9],[4.9,.55],[.2,1.4]]){
+      mesh(new T.SphereGeometry(.22,10,8),leaves,x,.30,z);
+    }
+    return group;
+  }
+
   function buildStage(index,items){
     const token=++requestToken;root.clear();rings.length=0;stage=index;visual=null;previous=null;
     playerGroup=new T.Group();root.add(playerGroup);
-    // Temporary unobstructed clay base is removed as soon as the uploaded GLB loads.
-    const base=new T.Mesh(new T.CylinderGeometry(5.65,5.45,.66,64),fallback.base);
-    base.position.y=-.16;base.castShadow=true;base.receiveShadow=true;root.add(base);
-    const turf=new T.Mesh(new T.CylinderGeometry(5.6,5.6,.06,64),fallback.turf);
-    turf.position.y=.18;turf.receiveShadow=true;root.add(turf);
-    const islandName=index===0?'scene1_campus_clay.glb':'scene2_house_clay.glb';
+    // The first level is now a school campus; the second keeps Lihua's house.
     loadingStatus='loading';
-    attach(islandName,0,0,0,1,0,token).then(o=>{
-      if(o&&token===requestToken){root.remove(base,turf);loadingStatus='island-ready';}
-    });
-    const placeholder=standin();playerGroup.add(placeholder);
-    attach('girl.glb',0,0,0,1,0,token,playerGroup).then(o=>{
-      if(o&&token===requestToken){playerGroup.remove(placeholder);visual=o;loadingStatus='player-ready';}
-    });
+    if(index===0){
+      createSchoolCampus();loadingStatus='school-ready';
+    }else{
+      const base=new T.Mesh(new T.CylinderGeometry(5.65,5.45,.66,64),fallback.base);
+      base.position.y=-.16;base.castShadow=true;base.receiveShadow=true;root.add(base);
+      const turf=new T.Mesh(new T.CylinderGeometry(5.6,5.6,.06,64),fallback.turf);
+      turf.position.y=.18;turf.receiveShadow=true;root.add(turf);
+      attach('scene2_house_clay.glb',0,0,0,1,0,token).then(o=>{
+        if(o&&token===requestToken){root.remove(base,turf);loadingStatus='house-ready';}
+      });
+    }
+    // Transparent flat protagonist is rendered immediately; no temporary 3D doll.
+    visual=flatGirl('girl',playerGroup,0,0,2.6);
+    loadingStatus='characters-ready';
     for(const item of items){
       // Flat ground rings only: no signs, fences or tall foliage.
       const mat=new T.MeshBasicMaterial({color:0xffd177,side:T.DoubleSide,transparent:true,opacity:.85,depthWrite:false});
@@ -148,11 +339,14 @@ global.WatchThreeScene=function(options){
       root.add(ring);rings.push({item,ring});
     }
     if(index===0){
-      attach('lihua.glb',-3.1,.22,-1.95,1,.5,token);
-      attach('bike.glb',-3.66,.41,-2.18,1,.55,token).then(o=>{if(o)o.rotation.z=-Math.PI*.45;});
+      // Visible open-space placement: no trunk or building overlaps Lihua.
+      flatGirl('lihua',root,-1.55,-1.25,2.5);
+      attach('bike.glb',-3.65,.32,-2.55,.78,.64,token).then(o=>{
+        if(o){o.rotation.z=-Math.PI*.34;o.traverse(m=>{if(m.isMesh)m.castShadow=true;});}
+      });
     }else{
-      attach('lihua.glb',-.1,.22,-3.4,1,Math.PI*.7,token);
-      attach('mom.glb',3.6,.22,-3.15,.92,-.75,token);
+      flatGirl('lihua',root,-.28,-2.52,2.5);
+      // Mother never appears at Lihua's doorway in paragraphs 7–8.
       const bell=items.find(o=>o.id==='bell')||{x:1.7,z:-3};
       const watch=items.find(o=>o.id==='watch')||{x:-3.5,z:-.9};
       attach('doorbell.glb',bell.x,.28,bell.z-.23,.73,Math.PI/2,token);
@@ -256,10 +450,14 @@ global.WatchThreeScene=function(options){
     const difference=Math.atan2(Math.sin(intended-playerGroup.rotation.y),Math.cos(intended-playerGroup.rotation.y));
     playerGroup.rotation.y+=difference*(1-Math.exp(-dt*(walks?11:3.6)));
     if(visual){
-      visual.position.y=walks?Math.abs(Math.sin(walkingPhase))*.038:Math.sin(idlePhase)*.008;
-      visual.rotation.z=walks?Math.sin(walkingPhase)*.027:Math.sin(idlePhase*.52)*.005;
-      visual.rotation.x=walks?Math.sin(walkingPhase)*.013:0;
-      visual.scale.y=1+(walks?0:Math.sin(idlePhase)*.004);
+      const base=visual.userData.baseHeight||1;
+      visual.position.y=walks?Math.abs(Math.sin(walkingPhase))*.05:Math.sin(idlePhase)*.008;
+      // Flat character remains a camera-facing billboard, never a thin edge-on card.
+      visual.scale.y=base*(1+(walks?Math.sin(walkingPhase)*.013:Math.sin(idlePhase)*.004));
+      if(!visual.isSprite){
+        visual.rotation.z=walks?Math.sin(walkingPhase)*.027:Math.sin(idlePhase*.52)*.005;
+        visual.rotation.x=walks?Math.sin(walkingPhase)*.013:0;
+      }
     }
   }
   let lastBubbleUpdate=0;
@@ -284,7 +482,9 @@ global.WatchThreeScene=function(options){
     renderer.render(scene,camera);softenLabels(player,items||[]);
   }
   function project(x,y,z){
-    projected.set(x,.75,z).project(camera);
+    // Lower hotspot labels to ground level and nudge the accident clue away from Lihua.
+    const nx=stage===0&&Math.abs(x+3)<.08&&Math.abs(z+1.7)<.12?x-.42:x;
+    projected.set(nx,.44,z).project(camera);
     if(projected.z<-1||projected.z>1||Math.abs(projected.x)>1.2||Math.abs(projected.y)>1.18)return null;
     return {x:(projected.x*.5+.5)*width,y:(-.5*projected.y+.5)*height,d:projected.z,s:1/Math.max(.03,projected.z+1)};
   }
