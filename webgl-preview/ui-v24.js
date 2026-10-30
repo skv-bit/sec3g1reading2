@@ -88,7 +88,8 @@ function patchCopy(){
    if(paintButton){paintButton.dataset.watchPinyinButton='true';paintButton.title='切换所有华文字的汉语拼音';}
  }
  if(paintButton){const desired='🔤 拼音：'+(enabled?'开':'关');if(paintButton.textContent!==desired)paintButton.textContent=desired;}
- installHints(body);
+ // V27: word hints are now inserted by the lesson's own question templates.
+ // Do not inject duplicate hints through the compatibility enhancer.
 }
 function installHints(root){
  if(!root)return;
@@ -116,7 +117,7 @@ function renderPinyin(){
  while(walker.nextNode()){
    const n=walker.currentNode,p=n.parentElement;
    if(!p||!HAN.test(n.nodeValue||''))continue;
-   if(p.closest('script,style,noscript,svg,canvas,textarea,select,option,ruby,rt,rb,[contenteditable]'))continue;
+   if(p.closest('script,style,noscript,svg,canvas,textarea,select,option,ruby,rt,rb,.vocab-inline,[contenteditable]'))continue;
    nodes.push(n);
    if(nodes.length>3800)break;
  }
