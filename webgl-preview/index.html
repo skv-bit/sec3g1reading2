@@ -159,7 +159,7 @@ html,body{background:#dbf2e5}
  <canvas id="world" aria-label="角色可移动的透视场景"></canvas><div id="painterly"></div><div id="artStamp" aria-hidden="true">✿　友谊阅读冒险　✿</div><div class="scene-ribbon" aria-hidden="true">🌼 找依据 · 作推论 · 联主题</div>
  <div id="topbar">
   <div class="topgroup"><div class="brand glass"><strong>⌚ 《手表》· 藏在言行里的心意</strong><small>《手表》· 友谊侦探 · 3D预览</small></div><div class="pill glass" id="chapterLabel">第一关 · 校园回忆</div></div>
-  <div class="topgroup"><button class="control" id="soundBtn" aria-pressed="false" title="轻微环境音，默认关闭">🔇 环境音：关</button><button class="control" id="paintBtn" aria-pressed="true">🎨 油画滤镜：开</button><button class="control" id="helperBtn">🧠 思维助手</button><button class="control" id="restartBtn">↺ 重置</button></div>
+  <div class="topgroup"><button class="control" id="soundBtn" aria-pressed="false" title="轻快校园音乐和柔和环境音，点击开启或关闭">🎵 背景音：关</button><button class="control" id="paintBtn" aria-pressed="true">🎨 油画滤镜：开</button><button class="control" id="helperBtn">🧠 思维助手</button><button class="control" id="restartBtn">↺ 重置</button></div>
  </div>
  <aside id="objective" class="glass"><div class="objective-tag">✦ 阅读任务</div><div class="objective-title" id="objectiveTitle"></div><div class="objective-sub" id="objectiveSub"></div></aside>
  <aside id="helper" class="glass closed" aria-label="阅读思维鹰架"><strong>🌼 我的阅读助手</strong><div class="step"><span class="num">1</span>找依据：人物说了什么？做了什么？</div><div class="step"><span class="num">2</span>作推论：说明什么特点？为什么？</div><div class="step"><span class="num">3</span>联主题：从表现明白什么道理？</div><p>根据 Project Zero「What Makes You Say That?」的证据提问理念改编；「联主题」为本课教学补充。</p><button class="hint-btn" id="glossBtn">📖 词汇 · 拼音 · English</button></aside>
@@ -316,7 +316,7 @@ function actualEnding(){
  $('continueBtn').onclick=close;
  draw();
 }
-function evidenceStation(){show(`<div class="eyebrow">WE DO · 证据整合站 · 第3–4、8段</div><h2>线索连连看：丽华到底是个怎样的人？</h2><p><strong>把丽华做过的两件事连起来看，猜猜她的性格。</strong></p><div class="quote">🔎 <strong>线索一（第3–4段）：</strong>丽华推开我，自己<strong>摔跤</strong>受伤了，却先问我有没有事。<br/><br/>🔎 <strong>线索二（第8段）：</strong>丽华把手表还给我，还<strong>拍拍我的肩膀，安慰</strong>我。</div><img class="story-illustration" src="${V11_IMG.pair}" alt="丽华归还手表的情境插图"/><h2 class="question-title">闯关题：从这两条线索可以看出，丽华是一个怎样的人？</h2><details class="support quiz-vocabulary"><summary>💡 词语提示（按需查看）</summary>${vocabHint([['线索','xiàn suǒ','clue'],['关心','guān xīn','care'],['体谅','tǐ liàng','be understanding'],['友善','yǒu shàn','friendly'],['无私','wú sī','selfless']])}</details>${optionsHTML(['她两次都先想到朋友。她不仅关心我，也很体谅我，是一个友善、无私的好朋友。','她只在乎那只手表贵不贵，所以才愿意跟我做朋友。','她心里其实很害怕我的妈妈生气，所以才赶紧把表还给我。'])}<div id="feedback" aria-live="polite"></div><div class="modal-actions compact"><div><button class="secondary" id="reviewBtn">回看线索</button></div><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="secondary" id="backBtn">返回</button><button class="primary" id="checkBtn">检查</button><button class="primary" id="continueBtn" style="display:none">完成</button></div></div>`);$('backBtn').onclick=close;$('reviewBtn').onclick=()=>clueCard({eyebrow:'WE DO · 线索回看',heading:'线索连连看',quote:"线索一（第3–4段）：丽华推开我，自己摔跤受伤了，却先问我有没有事。\n\n线索二（第8段）：丽华把手表还给我，还拍拍我的肩膀，安慰我。",image:lineImage(1),back:evidenceStation});choicesSetup([0],{id:'evidenceChoice',after:awardWeDoBadge},'请想一想：哪一个答案真正说明了丽华怎么对待朋友？');}
+function evidenceStation(){show(`<div class="eyebrow">WE DO · 证据整合站 · 第3–4、8段</div><h2>线索连连看：丽华到底是个怎样的人？</h2><p><strong>把丽华做过的两件事连起来看，猜猜她的性格。</strong></p><div class="quote">🔎 <strong>线索一（第3–4段）：</strong>丽华推开我，自己<strong>摔跤</strong>受伤了，却先问我有没有事。<br/><br/>🔎 <strong>线索二（第8段）：</strong>丽华把手表还给我，还<strong>拍拍我的肩膀，安慰</strong>我。</div><img class="story-illustration" src="${V11_IMG.pair}" alt="丽华归还手表的情境插图"/><h2 class="question-title">闯关题：从这两条线索可以看出，丽华是一个怎样的人？</h2><details class="support quiz-vocabulary"><summary>💡 词语提示（按需查看）</summary>${vocabHint([['线索','xiàn suǒ','clue'],['关心','guān xīn','care'],['体谅','tǐ liàng','be understanding'],['友善','yǒu shàn','friendly'],['无私','wú sī','selfless']])}</details>${optionsHTML(['她总是先想到别人，是一个友善、无私的好朋友。','她只在乎手表贵不贵，是一个贪心的人。','她只是害怕我妈妈生气，是一个胆小的人。'])}<div id="feedback" aria-live="polite"></div><div class="modal-actions compact"><div><button class="secondary" id="reviewBtn">回看线索</button></div><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="secondary" id="backBtn">返回</button><button class="primary" id="checkBtn">检查</button><button class="primary" id="continueBtn" style="display:none">完成</button></div></div>`);$('backBtn').onclick=close;$('reviewBtn').onclick=()=>clueCard({eyebrow:'WE DO · 线索回看',heading:'线索连连看',quote:"线索一（第3–4段）：丽华推开我，自己摔跤受伤了，却先问我有没有事。\n\n线索二（第8段）：丽华把手表还给我，还拍拍我的肩膀，安慰我。",image:lineImage(1),back:evidenceStation});choicesSetup([0],{id:'evidenceChoice',after:awardWeDoBadge},'请想一想：哪一个答案真正说明了丽华怎么对待朋友？');}
 
 const NOTEBOOK_TEMPLATES={
 1:"丽华把手表还给‘我’，还________，说明她是一个________的人，因为她________。",
@@ -442,65 +442,118 @@ modal.addEventListener('click',ev=>{if(ev.target.id==='cancelBtn')close();if(ev.
 window.addEventListener('keydown',ev=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(ev.key)&&!state.activeModal)ev.preventDefault();if(ev.target?.matches('textarea,input'))return;keydown.add(ev.key.toLowerCase());if((ev.key.toLowerCase()==='e'||ev.key==='Enter')&&!state.activeModal){ev.preventDefault();triggerNearest();}if(ev.key==='Escape'&&state.activeModal){close();}});
 window.addEventListener('keyup',ev=>keydown.delete(ev.key.toLowerCase()));
 document.querySelectorAll('.dpad button').forEach(el=>{const dir=el.dataset.dir;const down=e=>{e.preventDefault();touchDirections.add(dir)};const up=e=>{e.preventDefault();touchDirections.delete(dir)};el.addEventListener('pointerdown',down);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);el.addEventListener('pointerleave',up)});window.addEventListener('blur',()=>{keydown.clear();touchDirections.clear()});
-// V28 opt-in campus ambience: soft wind through leaves + occasional distant birds.
-// Offline Web Audio synthesis (no downloaded soundtrack), begins only after explicit click.
-let ambientEnabled=false,ambientBirdClock=0;
+// V29: Original cheerful campus soundtrack (132 BPM) and subtle outdoor ambience.
+// All sound is generated by Web Audio. No external media, no copyrighted melodies.
+// The user must press the background-audio button before any sound is started.
+const MUSIC_BPM=132,MUSIC_STEP=60/MUSIC_BPM/2;
+const MUSIC_LEAD=[
+ [74,null,76,78,81,null,78,null],
+ [78,null,76,74,71,null,74,null],
+ [79,null,78,76,74,null,71,null],
+ [69,null,74,76,78,null,76,null],
+ [78,null,81,83,81,null,78,null],
+ [76,null,78,81,78,null,76,null],
+ [79,null,78,76,74,null,76,null],
+ [71,null,69,null,74,null,74,null]
+];
+const MUSIC_ROOTS=[50,50,55,55,47,47,57,57];
+let ambientEnabled=false,ambientBirdClock=0,musicStepIndex=0,musicNextTime=0;
+function hz(midi){return 440*Math.pow(2,(midi-69)/12)}
+function musicNote(midi,when,duration,volume,kind='triangle'){
+ if(!ambient||ambient.ac.state!=='running')return;
+ const ctx=ambient.ac,osc=ctx.createOscillator(),g=ctx.createGain();
+ osc.type=kind;osc.frequency.setValueAtTime(hz(midi),when);
+ g.gain.setValueAtTime(.0001,when);
+ g.gain.exponentialRampToValueAtTime(volume,when+.009);
+ g.gain.exponentialRampToValueAtTime(.0001,when+duration);
+ osc.connect(g).connect(ambient.musicGain);
+ osc.start(when);osc.stop(when+duration+.012);
+}
+function musicTick(){
+ if(!ambient||!ambientEnabled||document.hidden||ambient.ac.state!=='running')return;
+ const ctx=ambient.ac;
+ if(musicNextTime<ctx.currentTime-.22)musicNextTime=ctx.currentTime+.06;
+ let guard=0;
+ while(musicNextTime<ctx.currentTime+.22&&guard++<5){
+   const index=musicStepIndex%64,bar=Math.floor(index/8),beat=index%8;
+   const lead=MUSIC_LEAD[bar][beat];
+   if(lead!==null)musicNote(lead,musicNextTime,MUSIC_STEP*.82,.081,'triangle');
+   if(beat===0){
+     musicNote(MUSIC_ROOTS[bar],musicNextTime,MUSIC_STEP*3.2,.059,'sine');
+     musicNote(MUSIC_ROOTS[bar]+12,musicNextTime,MUSIC_STEP*2.1,.025,'triangle');
+   }
+   if(beat===4)musicNote(MUSIC_ROOTS[bar]+7,musicNextTime,MUSIC_STEP*2,.037,'sine');
+   // Gentle woodblock-like pulse suggests motion without overpowering narration.
+   if(beat%2===1)musicNote(86,musicNextTime,MUSIC_STEP*.18,.009,'sine');
+   musicNextTime+=MUSIC_STEP;musicStepIndex++;
+ }
+}
 function ambientLevel(){
  if(!ambient)return;
- const value=ambientEnabled&&!document.hidden?(state.activeModal?.024:.070):0;
- ambient.gain.gain.setTargetAtTime(value,ambient.ac.currentTime,.18);
+ const ctx=ambient.ac,active=ambientEnabled&&!document.hidden;
+ ambient.musicGain.gain.setTargetAtTime(active?(state.activeModal?.085:.43):0,ctx.currentTime,.12);
+ ambient.gain.gain.setTargetAtTime(active?(state.activeModal?.018:.055):0,ctx.currentTime,.16);
 }
 function startAmbient(){
  if(ambient)return true;
  try{
    const AC=window.AudioContext||window.webkitAudioContext;
    if(!AC)return false;
-   const ac=new AC();
-   const buffer=ac.createBuffer(1,ac.sampleRate*4,ac.sampleRate);
-   const samples=buffer.getChannelData(0);
-   // Smooth, softly shaped outdoor air, not a harsh unfiltered white-noise burst.
+   const ac=new AC(),musicGain=ac.createGain();
+   musicGain.gain.value=0;musicGain.connect(ac.destination);
+   // Filtered natural air; deliberately quiet relative to the main melody.
+   const buffer=ac.createBuffer(1,ac.sampleRate*3,ac.sampleRate),
+         samples=buffer.getChannelData(0);
    let last=0;
    for(let i=0;i<samples.length;i++){
-     last=.88*last+.12*(Math.random()*2-1);
-     samples[i]=last*.92;
+     last=.89*last+.11*(Math.random()*2-1);samples[i]=last*.82;
    }
    const src=ac.createBufferSource(),high=ac.createBiquadFilter(),
          low=ac.createBiquadFilter(),gain=ac.createGain();
    src.buffer=buffer;src.loop=true;
-   high.type='highpass';high.frequency.value=85;
-   low.type='lowpass';low.frequency.value=1600;
+   high.type='highpass';high.frequency.value=95;
+   low.type='lowpass';low.frequency.value=1150;
    gain.gain.value=0;
    src.connect(high).connect(low).connect(gain).connect(ac.destination);
    src.start();
-   ambient={ac,src,gain};
+   ambient={ac,src,gain,musicGain};
    return true;
- }catch(e){console.warn('Environment audio unavailable',e);ambient=null;return false;}
+ }catch(e){console.warn('Campus audio unavailable',e);ambient=null;return false;}
 }
 function distantBird(){
  if(!ambient||!ambientEnabled||state.activeModal||document.hidden)return;
  const ac=ambient.ac;if(ac.state!=='running')return;
- const t=ac.currentTime+.01;
+ const at=ac.currentTime+.01;
  for(let i=0;i<2;i++){
-   const o=ac.createOscillator(),g=ac.createGain(),at=t+i*.19;
+   const t=at+i*.16,o=ac.createOscillator(),g=ac.createGain();
    o.type='sine';
-   o.frequency.setValueAtTime(1500+i*180,at);
-   o.frequency.exponentialRampToValueAtTime(1950+i*220,at+.10);
-   o.frequency.exponentialRampToValueAtTime(1350+i*150,at+.25);
-   g.gain.setValueAtTime(.0001,at);
-   g.gain.exponentialRampToValueAtTime(.007,at+.045);
-   g.gain.exponentialRampToValueAtTime(.0001,at+.28);
-   o.connect(g).connect(ac.destination);o.start(at);o.stop(at+.29);
+   o.frequency.setValueAtTime(1450+i*110,t);
+   o.frequency.exponentialRampToValueAtTime(1870+i*120,t+.095);
+   o.frequency.exponentialRampToValueAtTime(1370+i*110,t+.22);
+   g.gain.setValueAtTime(.0001,t);
+   g.gain.exponentialRampToValueAtTime(.004,t+.04);
+   g.gain.exponentialRampToValueAtTime(.0001,t+.25);
+   o.connect(g).connect(ac.destination);
+   o.start(t);o.stop(t+.26);
  }
 }
-setInterval(()=>{if(ambientEnabled&&++ambientBirdClock%2===0)distantBird();},6500);
-document.addEventListener('visibilitychange',ambientLevel);
-$('soundBtn').onclick=()=>{
- if(!startAmbient()){toast('浏览器暂不支持环境音');return;}
- ambientEnabled=!ambientEnabled;
- if(ambientEnabled)ambientBirdClock=1;
- ambient.ac.resume().then(ambientLevel).catch(()=>{ambientEnabled=false;ambientLevel();});
+setInterval(musicTick,65);
+setInterval(()=>{if(ambientEnabled&&++ambientBirdClock%2===0)distantBird();},9000);
+document.addEventListener('visibilitychange',()=>{
+ if(ambientEnabled&&ambient)musicNextTime=ambient.ac.currentTime+.09;
  ambientLevel();
- $('soundBtn').textContent=ambientEnabled?'🔈 环境音：开':'🔇 环境音：关';
+});
+$('soundBtn').onclick=()=>{
+ if(!startAmbient()){toast('浏览器暂不支持背景音');return;}
+ ambientEnabled=!ambientEnabled;
+ if(ambientEnabled){musicNextTime=ambient.ac.currentTime+.07;ambientBirdClock=1;musicStepIndex=0;}
+ ambient.ac.resume().then(()=>{musicNextTime=ambient.ac.currentTime+.06;ambientLevel();musicTick();}).catch(()=>{
+   ambientEnabled=false;ambientLevel();
+   $('soundBtn').textContent='🎵 背景音：关';
+   $('soundBtn').setAttribute('aria-pressed','false');
+ });
+ ambientLevel();
+ $('soundBtn').textContent=ambientEnabled?'🎵 背景音：开':'🎵 背景音：关';
  $('soundBtn').setAttribute('aria-pressed',String(ambientEnabled));
 };
 
