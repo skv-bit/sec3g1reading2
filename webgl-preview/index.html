@@ -178,7 +178,7 @@ document.documentElement.style.setProperty("--v6-hero",`url("${V6_ART.hero}")`);
 
 const $=id=>document.getElementById(id), canvas=$('world');
 const app=$('app'),overlay=$('overlay'),modal=$('modal'),markers=$('hotspots');
-const STAGE=[{name:'第一关 · 校园回忆',title:'先找两处线索',sub:'看线索1，再看线索2，最后完成出口任务。'},{name:'第二关 · 丽华家门口',title:'走近门铃与手表，寻找丽华体谅朋友的证据',sub:'按线索依次闯关：理解心情 → 珍惜友谊 → 丽华回应 → 整合前后证据。'},{name:'第三幕 · 新故事挑战',title:'把阅读方法用在新故事',sub:'这次走近的是小杰的故事；你扮演旁观的阅读侦探，而不是小杰。完成任务后获得徽章。'}];
+const STAGE=[{name:'第一关 · 校园回忆',title:'先找两处线索',sub:'看线索1，再看线索2，最后完成出口任务。'},{name:'第二关 · 丽华家门口',title:'证据：找两个证据',sub:''},{name:'第三幕 · 新故事挑战',title:'把阅读方法用在新故事',sub:'这次走近的是小杰的故事；你扮演旁观的阅读侦探，而不是小杰。完成任务后获得徽章。'}];
 const ITEMS=[
 [{id:'accident',x:-3,z:-1.7,label:'找依据1：脚踏车事件',next:'bandage'},{id:'bandage',x:2.1,z:-3.0,label:'找依据2：纱布',next:'exit'},{id:'exit',x:4.4,z:-.6,label:'进入第二关'}],
 [{id:'bell',x:1.7,z:-3,label:'找依据：门铃前的犹豫停顿',next:'watch'},{id:'watch',x:-3.5,z:-.9,label:'找依据：送别的手表',next:'door'},{id:'door',x:0,z:-4.4,label:'找依据：丽华的回应',next:'evidence'},{id:'evidence',x:-3.0,z:1.5,label:'作推论：丽华是个怎样的人',next:'classExit'},{id:'classExit',x:4.6,z:-1.5,label:'联主题：从《手表》明白的友谊道理'}],
@@ -195,8 +195,8 @@ function stageItems(){return ITEMS[state.scene]}
 function isLocked(id){if(state.scene===0)return id==='bandage'&&!isDone('accident')||id==='exit'&&!isDone('bandage');if(state.scene===1)return id==='watch'&&!isDone('bell')||id==='door'&&!isDone('watch')||id==='evidence'&&!isDone('door')||id==='classExit'&&!isDone('evidence');return id==='repair'&&!isDone('display')||id==='finish'&&!isDone('repair');}
 function nextTarget(){return stageItems().find(x=>!isDone(x.id))||stageItems().at(-1)}
 function esc(x){return String(x||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function show(html){overlay.classList.remove('hidden');state.activeModal=true;modal.innerHTML=html;const focus=modal.querySelector('button');if(focus)focus.focus();}
-function close(){overlay.classList.add('hidden');state.activeModal=false;modal.innerHTML='';try{speechSynthesis.cancel()}catch(e){}}
+function show(html){overlay.classList.remove('hidden');state.activeModal=true;modal.innerHTML=html;ambientLevel();const focus=modal.querySelector('button');if(focus)focus.focus();}
+function close(){overlay.classList.add('hidden');state.activeModal=false;modal.innerHTML='';ambientLevel();try{speechSynthesis.cancel()}catch(e){}}
 function speakText(t){
  try{
    if(!('speechSynthesis' in window)){toast('当前浏览器不支持语音');return}
@@ -213,10 +213,10 @@ function speakText(t){
 }
 function lineImage(scene=state.scene){return (V6_ART.cards&&V6_ART.cards[Math.min(scene,V6_ART.cards.length-1)])||''}
 function vocabHint(items){return `<p class="vocab-inline">${items.map(([w,p,e])=>`<span class="vocab-piece"><strong>${esc(w)}</strong> <span class="vocab-pinyin">${esc(p)}</span> <span class="vocab-english">(${esc(e)})</span></span>`).join('<span class="vocab-dot" aria-hidden="true"> · </span>')}</p>`}
-function awardWeDoBadge(){show(`<div class="eyebrow">🏅 第二关完成奖励</div><div class="award-wrap"><span class="award-badge">🎖️</span><h2>恭喜你闯关成功！</h2><p class="award-sub">你太棒了！你已经找齐了所有重要线索，成功解开了人物的内心密码。</p><div class="success-note">现在进入最后一步，记下你的“侦探笔记”吧！</div><div class="modal-actions" style="justify-content:center"><button class="primary" id="goWriteBtn">翻开“侦探笔记” →</button></div></div>`);$('goWriteBtn').onclick=evidenceWrite;}
+function awardWeDoBadge(){window.WatchSoundFx?.celebrate?.('chapter');show(`<div class="eyebrow">🏅 第二关完成奖励</div><div class="award-wrap"><span class="award-badge">🎖️</span><h2>恭喜你闯关成功！</h2><p class="award-sub">你太棒了！你已经找齐了所有重要线索，成功解开了人物的内心密码。</p><div class="success-note">现在进入最后一步，记下你的“侦探笔记”吧！</div><div class="modal-actions" style="justify-content:center"><button class="primary" id="goWriteBtn">翻开“侦探笔记” →</button></div></div>`);$('goWriteBtn').onclick=evidenceWrite;}
 function clueCard({eyebrow='线索回看',heading='重看线索',quote='',image='',audioText='',back}){show(`<div class="eyebrow">${esc(eyebrow)}</div><h2>${esc(heading)}</h2>${quote?`<div class="quote">${esc(quote)}</div>`:''}${image?`<img class="story-illustration" src="${image}" alt="线索插图"/>`:''}${audioText?`<div class="audio-row"><button class="secondary" id="playLineAudio">▶ 播放线索语音</button><span class="audio-note">不显示示范文字，可点按钮听。</span></div>`:''}<div class="modal-actions"><button class="secondary" id="backLineBtn">返回题目</button></div>`);if(audioText){$('playLineAudio').onclick=()=>speakText(audioText)}$('backLineBtn').onclick=back;}
 function toast(msg){let t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1900)}
-function renderUI(){const st=STAGE[state.scene];$('chapterLabel').textContent=st.name;$('objectiveTitle').textContent=st.title;$('objectiveSub').textContent=st.sub;let target=nextTarget();$('statusTitle').textContent=target&&isDone(target.id)?'🏅 本幕已完成':'✨ 下一个线索：'+(target?.label||'任务');$('statusInfo').textContent='走近任务点，点击或按 E 互动。';const items=stageItems();document.querySelectorAll('#keys .key').forEach((el,i)=>el.classList.toggle('on',i<items.filter(it=>isDone(it.id)).length));}
+function renderUI(){const st=STAGE[state.scene];$('chapterLabel').textContent=st.name;$('objectiveTitle').textContent=st.title;$('objectiveSub').textContent=st.sub;$('objectiveSub').style.display=st.sub?'':'none';let target=nextTarget();$('statusTitle').textContent=target&&isDone(target.id)?'🏅 本幕已完成':'✨ 下一个线索：'+(target?.label||'任务');$('statusInfo').textContent='走近任务点，点击或按 E 互动。';const items=stageItems();document.querySelectorAll('#keys .key').forEach((el,i)=>el.classList.toggle('on',i<items.filter(it=>isDone(it.id)).length));}
 function sceneStart(scene){state.scene=scene;state.highest=Math.max(state.highest,scene);state.player={...starts[scene]};state.insideHotspotId=null;state.autowalk=null;persist();renderUI();renderMarkers();$('scene-fade').classList.add('on');setTimeout(()=>$('scene-fade').classList.remove('on'),360);toast(['📖 第一关：友谊的回忆','🚪 第二关：丽华家门口','📚 第三幕：新故事挑战'][scene]);}
 function optionsHTML(opts,multi=false){return '<div class="choices" id="answers">'+opts.map((o,i)=>`<button type="button" class="choice" data-choice="${i}"><span class="mark">${multi?'□':String.fromCharCode(65+i)}</span>${esc(o)}</button>`).join('')+'</div>'}
 function choicesSetup(correct,ok, wrongText,multi=false){let selected=new Set();document.querySelectorAll('#answers .choice').forEach(b=>b.addEventListener('click',()=>{let i=Number(b.dataset.choice);if(!multi)selected.clear();if(multi&&selected.has(i))selected.delete(i);else selected.add(i);document.querySelectorAll('#answers .choice').forEach(c=>{let on=selected.has(Number(c.dataset.choice));c.classList.toggle('selected',on);c.querySelector('.mark').textContent=multi?(on?'☑':'□'):String.fromCharCode(65+Number(c.dataset.choice))})}));$('checkBtn').addEventListener('click',()=>{let pass=selected.size===correct.length&&correct.every(x=>selected.has(x));if(pass){$('feedback').className='feedback ok';$('feedback').innerHTML='✓ 阅读证据正确！关卡已解锁。';$('checkBtn').disabled=true;mark(ok.id);const done=$('continueBtn');if(done){done.style.display='inline-block';done.addEventListener('click',()=>{close();if(ok.after)ok.after()})}toast('✨ 线索解锁！');}else{$('feedback').className='feedback';$('feedback').textContent=wrongText;toast('再找一找原文线索');}});}
@@ -427,7 +427,7 @@ function homeGate(){show(`<div class="eyebrow">课后独立挑战 · You Do</div
 function homeTraitQuest(){show(`<div class="eyebrow">课后独立挑战 · 作推论</div><h2>结合刚才两处言行，可以看出小杰怎样的特点？</h2><details class="support quiz-vocabulary"><summary>💡 词语提示（按需查看）</summary>${vocabHint([['承担责任','chéng dān zé rèn','take responsibility'],['补救','bǔ jiù','make amends'],['主动','zhǔ dòng','take initiative'],['承认','chéng rèn','admit']])}<p>回看小杰主动承认错误、修补作品的行动，再判断他的特点。</p></details>${optionsHTML(['勇于承担责任，愿意补救错误。','从不犯错误，所以不用道歉。','只关心自己的东西，从不帮助别人。'])}<div id="feedback"></div><div class="modal-actions"><button class="secondary" id="backBtn">返回</button><button class="primary" id="checkBtn">核对推论</button><button class="primary" id="continueBtn" style="display:none">独立表达主题 →</button></div>`);$('backBtn').onclick=close;choicesSetup([0],{id:'homeTraitGate',after:homeWriting},'请解释他的行动为什么体现承担责任，而不只是看到“错误”就作判断。');}
 function homeWriting(){show(`<div class="eyebrow">课后独立挑战 · 联主题</div><h2>阅读侦探的最后一关</h2><p>请用自己的话写出故事让你明白的一个道理，并说出小杰的哪一个行为支持你的理解。</p><details class="support quiz-vocabulary"><summary>💡 词语提示（按需查看）</summary>${vocabHint([['承担责任','chéng dān zé rèn','take responsibility'],['修补','xiū bǔ','repair'],['道理','dào lǐ','lesson']])}<p>句式：“这个故事让我明白________。因为小杰________，可以看出________。”</p></details><textarea id="homeWrite" class="text-entry" placeholder="我明白……因为小杰……">${esc(state.homeAnswer||'')}</textarea><div class="note">开放式答案不会由游戏自动判断好坏。完成后请按教师要求提交课堂平台，让教师查看你的解释。</div><div class="modal-actions"><button class="secondary" id="backBtn">返回</button><button class="primary" id="saveBtn">保存我的回答 →</button></div>`);$('backBtn').onclick=close;$('homeWrite').addEventListener('input',e=>state.homeAnswer=e.target.value);$('saveBtn').onclick=()=>{let a=$('homeWrite').value.trim();if(a.length<8){toast('请写出至少一句有意义的解释');$('homeWrite').focus();return}state.homeAnswer=a;persist();homeSelfCheck();};}
 function homeSelfCheck(){show(`<div class="eyebrow">元认知自评 · 检查与修正</div><h2>我怎样让自己的解释更有依据？</h2><div class="quote" id="draftView">${esc(state.homeAnswer)}</div><div class="checklist"><label><input type="checkbox" id="check1"> 我引用了文本中的具体言行。</label><label><input type="checkbox" id="check2"> 我解释了人物特点或故事道理。</label><label><input type="checkbox" id="check3"> 我的理由和证据有关系。</label></div><p>现在请尝试改进自己的初稿（如果已经清楚，可以保留并说明理由）。</p><textarea id="homeRevise" class="text-entry" placeholder="我的修改稿……">${esc(state.homeDraft||state.homeAnswer)}</textarea><label style="display:block;font-size:13px;font-weight:bold">我的反思（例如：我原本……后来……）</label><textarea id="homeReflect" class="text-entry" style="min-height:56px" placeholder="我检查了……，并……">${esc(state.homeReflect||'')}</textarea><div class="modal-actions"><button class="secondary" id="backBtn">返回修改前</button><button class="primary" id="finishBtn">完成课后挑战 ✦</button></div>`);$('backBtn').onclick=homeWriting;$('finishBtn').onclick=()=>{let draft=$('homeRevise').value.trim(),reflect=$('homeReflect').value.trim();if(draft.length<8||reflect.length<5){toast('请填写修改稿与简短反思');return}state.homeDraft=draft;state.homeReflect=reflect;mark('finish');state.badge=true;persist();showBadge();};}
-function showBadge(){show(`<div style="text-align:center"><span class="badge-icon">🏅</span><span class="chapter-done">课后游戏已完成</span><h2>阅读侦探徽章已点亮！</h2><p>你已经体验了在新文本中<strong>找依据 → 作推论 → 联主题</strong>，并尝试自评和修改。</p><div class="note">徽章代表完成学习流程，并不等于开放式阅读答案已由教师评定为正确。</div></div><div class="modal-actions"><button class="secondary" id="closeBtn">回到故事</button><button class="secondary" id="copyBtn">复制回答</button><button class="primary" id="exportBtn">导出文字记录</button></div>`);$('closeBtn').onclick=close;$('copyBtn').onclick=async()=>{const v=homeReport();try{await navigator.clipboard.writeText(v);toast('已复制回答')}catch(e){let ta=document.createElement('textarea');ta.value=v;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove();toast('已尝试复制')}};$('exportBtn').onclick=()=>{let blob=new Blob([homeReport()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='watch_reading_homework.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};}
+function showBadge(){window.WatchSoundFx?.celebrate?.('final');show(`<div style="text-align:center"><span class="badge-icon">🏅</span><span class="chapter-done">课后游戏已完成</span><h2>阅读侦探徽章已点亮！</h2><p>你已经体验了在新文本中<strong>找依据 → 作推论 → 联主题</strong>，并尝试自评和修改。</p><div class="note">徽章代表完成学习流程，并不等于开放式阅读答案已由教师评定为正确。</div></div><div class="modal-actions"><button class="secondary" id="closeBtn">回到故事</button><button class="secondary" id="copyBtn">复制回答</button><button class="primary" id="exportBtn">导出文字记录</button></div>`);$('closeBtn').onclick=close;$('copyBtn').onclick=async()=>{const v=homeReport();try{await navigator.clipboard.writeText(v);toast('已复制回答')}catch(e){let ta=document.createElement('textarea');ta.value=v;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove();toast('已尝试复制')}};$('exportBtn').onclick=()=>{let blob=new Blob([homeReport()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='watch_reading_homework.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};}
 function homeReport(){return '《手表》阅读侦探 · 课后新故事挑战\n\n原文：'+NEWTEXT+'\n\n初稿：\n'+state.homeAnswer+'\n\n修改稿：\n'+state.homeDraft+'\n\n反思：\n'+state.homeReflect+'\n\n说明：请通过教师指定的平台提交，网页不会自动上传。'}
 function glossary(){show(`<div class="eyebrow">差异化词汇支架 · 按需开启</div><h2>认读与表达小帮手</h2><p>拼音和英文仅帮助理解关键词，人物分析仍需用课文原句作依据。</p><div class="checklist"><strong>体谅</strong>　tǐ liàng　— considerate; understanding<br>理解别人处境，愿意为对方着想。<br><br><strong>犹豫</strong>　yóu yù　— hesitate<br>拿不定主意，不能马上决定。<br><br><strong>珍惜</strong>　zhēn xī　— cherish; value<br>重视并好好对待人或事。<br><br><strong>心意</strong>　xīn yì　— thoughtfulness; sincere feelings<br>想对别人表达的关心或感情。<br><br><strong>推论</strong>　tuī lùn　— inference<br>根据所知信息提出合理解释。</div><div class="modal-actions"><button class="primary" id="closeBtn">回到游戏</button></div>`);$('closeBtn').onclick=close;}
 function interact(item){if(!item)return;if(isLocked(item.id)){toast('🔒 先完成前一个阅读任务');return}if(isDone(item.id)){if(item.id==='classExit')return classroomCheckpoint();if(item.id==='evidence')return evidenceWrite();if(item.id==='finish')return showBadge();toast('✓ 此线索已完成，继续寻找下一处');return}
@@ -442,9 +442,67 @@ modal.addEventListener('click',ev=>{if(ev.target.id==='cancelBtn')close();if(ev.
 window.addEventListener('keydown',ev=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(ev.key)&&!state.activeModal)ev.preventDefault();if(ev.target?.matches('textarea,input'))return;keydown.add(ev.key.toLowerCase());if((ev.key.toLowerCase()==='e'||ev.key==='Enter')&&!state.activeModal){ev.preventDefault();triggerNearest();}if(ev.key==='Escape'&&state.activeModal){close();}});
 window.addEventListener('keyup',ev=>keydown.delete(ev.key.toLowerCase()));
 document.querySelectorAll('.dpad button').forEach(el=>{const dir=el.dataset.dir;const down=e=>{e.preventDefault();touchDirections.add(dir)};const up=e=>{e.preventDefault();touchDirections.delete(dir)};el.addEventListener('pointerdown',down);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);el.addEventListener('pointerleave',up)});window.addEventListener('blur',()=>{keydown.clear();touchDirections.clear()});
-// 可选、极轻微环境声：浏览器必须先由用户点击开启，不包含人物配音。
-function startAmbient(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ac=new AC(),buffer=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*.23;const src=ac.createBufferSource(),low=ac.createBiquadFilter(),gain=ac.createGain();src.buffer=buffer;src.loop=true;low.type='lowpass';low.frequency.value=340;gain.gain.value=.035;src.connect(low).connect(gain).connect(ac.destination);src.start();ambient={ac,src,gain};}catch(e){ambient=null;}}
-$('soundBtn').onclick=()=>{if(!ambient)startAmbient();if(!ambient){toast('浏览器不支持环境音');return}state.muted=!state.muted;ambient.ac.resume();ambient.gain.gain.setTargetAtTime(state.muted?0:.035,ambient.ac.currentTime,.09);$('soundBtn').textContent=state.muted?'🔇 环境音：关':'🔈 环境音：开';$('soundBtn').setAttribute('aria-pressed',String(!state.muted));};
+// V28 opt-in campus ambience: soft wind through leaves + occasional distant birds.
+// Offline Web Audio synthesis (no downloaded soundtrack), begins only after explicit click.
+let ambientEnabled=false,ambientBirdClock=0;
+function ambientLevel(){
+ if(!ambient)return;
+ const value=ambientEnabled&&!document.hidden?(state.activeModal?.014:.052):0;
+ ambient.gain.gain.setTargetAtTime(value,ambient.ac.currentTime,.18);
+}
+function startAmbient(){
+ if(ambient)return true;
+ try{
+   const AC=window.AudioContext||window.webkitAudioContext;
+   if(!AC)return false;
+   const ac=new AC();
+   const buffer=ac.createBuffer(1,ac.sampleRate*4,ac.sampleRate);
+   const samples=buffer.getChannelData(0);
+   // Smooth, softly shaped outdoor air, not a harsh unfiltered white-noise burst.
+   let last=0;
+   for(let i=0;i<samples.length;i++){
+     last=.965*last+.035*(Math.random()*2-1);
+     samples[i]=last*.92;
+   }
+   const src=ac.createBufferSource(),high=ac.createBiquadFilter(),
+         low=ac.createBiquadFilter(),gain=ac.createGain();
+   src.buffer=buffer;src.loop=true;
+   high.type='highpass';high.frequency.value=85;
+   low.type='lowpass';low.frequency.value=1600;
+   gain.gain.value=0;
+   src.connect(high).connect(low).connect(gain).connect(ac.destination);
+   src.start();
+   ambient={ac,src,gain};
+   return true;
+ }catch(e){console.warn('Environment audio unavailable',e);ambient=null;return false;}
+}
+function distantBird(){
+ if(!ambient||!ambientEnabled||state.activeModal||document.hidden)return;
+ const ac=ambient.ac;if(ac.state!=='running')return;
+ const t=ac.currentTime+.01;
+ for(let i=0;i<2;i++){
+   const o=ac.createOscillator(),g=ac.createGain(),at=t+i*.19;
+   o.type='sine';
+   o.frequency.setValueAtTime(1500+i*180,at);
+   o.frequency.exponentialRampToValueAtTime(1950+i*220,at+.10);
+   o.frequency.exponentialRampToValueAtTime(1350+i*150,at+.25);
+   g.gain.setValueAtTime(.0001,at);
+   g.gain.exponentialRampToValueAtTime(.007,at+.045);
+   g.gain.exponentialRampToValueAtTime(.0001,at+.28);
+   o.connect(g).connect(ac.destination);o.start(at);o.stop(at+.29);
+ }
+}
+setInterval(()=>{if(ambientEnabled&&++ambientBirdClock%2===0)distantBird();},6500);
+document.addEventListener('visibilitychange',ambientLevel);
+$('soundBtn').onclick=()=>{
+ if(!startAmbient()){toast('浏览器暂不支持环境音');return;}
+ ambientEnabled=!ambientEnabled;
+ ambient.ac.resume().then(ambientLevel).catch(()=>{ambientEnabled=false;ambientLevel();});
+ ambientLevel();
+ $('soundBtn').textContent=ambientEnabled?'🔈 环境音：开':'🔇 环境音：关';
+ $('soundBtn').setAttribute('aria-pressed',String(ambientEnabled));
+};
+
 function welcome(initial=true){show(`<div class="eyebrow">欢迎进入 · 友谊侦探</div><h1>《手表》：走进故事，寻找言行线索</h1><div class="home-cards two-stage"><div class="home-card"><img src="${V11_IMG.accident}" alt="第一关：脚踏车事件"/><strong>🌿 第一关 · I Do</strong><small>老师示范：整合言行</small></div><div class="home-card"><img src="${V11_IMG.response}" alt="第二关：丽华归还手表"/><strong>⌚ 第二关 · We Do</strong><small>门铃、手表、人物回应</small></div></div><div class="welcome-form"><div><label for="studentName">输入名字</label><input class="field-input" id="studentName" placeholder="例如：学生姓名" value="${esc(state.studentName||'')}"/></div><div><label for="classCode">课堂代码</label><input class="field-input" id="classCode" placeholder="例如：3G1" value="${esc(state.classCode||'')}"/></div></div><div class="mini-note">先找依据，再作推论，最后联系主题。</div><div class="modal-actions"><button class="primary" id="startBtn">${state.highest>0?'继续学习 →':'开始行走探索 →'}</button></div>`);$('startBtn').onclick=()=>{state.studentName=$('studentName').value.trim();state.classCode=$('classCode').value.trim();persist();close();};}
 // ======================= Three.js r128 真3D渲染桥接 =======================
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
