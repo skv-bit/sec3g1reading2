@@ -123,6 +123,7 @@ function injectStyles(){
 }
 function showOriginal(modal,nums){
  if(modal.querySelector('.reading-source-panel'))return;
+ window.speechSynthesis?.cancel();playing=false;
  const root=document.createElement('section');root.className='reading-source-panel';root.setAttribute('aria-label','看回完整原文');
  root.innerHTML='<h2>📖 看回原文 · 完整段落</h2><p>这里显示完整原文。与上方“朗读本题原文”的摘录朗读不同。</p>'+
  nums.map(p=>'<blockquote><b>第'+p+'段</b><p>'+escapeText(FULL[p])+'</p></blockquote>').join('')+
