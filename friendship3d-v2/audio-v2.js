@@ -5,7 +5,7 @@
     constructor(){
       this.ctx=null; this.master=null; this.musicBus=null; this.fxBus=null;
       this.playing=false; this.musicEnabled=true; this.effectsEnabled=true;
-      this.muted=false; this.tick=0; this.nextAt=0; this.timer=null; this.volume=.30;
+      this.muted=false; this.tick=0; this.nextAt=0; this.timer=null; this.volume=.23;
       this.voices=[]; this.preferredVoiceName=localStorage.getItem('watchVoice')||'';
       this.onVoicesChanged=()=>this.voices=window.speechSynthesis?.getVoices()||[];
       if ('speechSynthesis' in window) {
@@ -39,24 +39,19 @@
     freq(n){return 440*Math.pow(2,(n-69)/12)}
     musicStep(n,t){
       if(!this.musicEnabled||this.muted)return;
-      // Original 136 BPM playful pentatonic sequence, gentle plucks plus quiet pulse.
-      const lead=[72,null,76,79,76,null,74,72,69,null,72,76,74,null,69,67,
-                  72,null,76,81,79,null,76,74,72,69,67,69,72,null,74,76];
-      const pitch=lead[n%lead.length];
-      if(pitch!=null){this.tone(this.freq(pitch),t,.145,.065,'triangle');
-        this.tone(this.freq(pitch-12),t,.11,.018,'sine')}
-      if(n%4===0){
-        const roots=[48,53,50,55];
-        let root=roots[Math.floor(n/8)%4];
-        this.tone(this.freq(root),t,.27,.075,'sine');
-        this.tone(this.freq(root+7),t+.04,.19,.025,'triangle');
-      }
-      if(n%2===0)this.tone(this.freq(84),t,.025,.018,'sine');
-      if(n%8===4)this.tone(this.freq(79),t,.04,.026,'triangle');
+      // Original 154 BPM upbeat classroom-game motif (not a copy of any existing soundtrack).
+      const melody=[76,79,null,83,79,76,74,79,81,null,79,76,74,71,74,null,
+                    76,83,81,79,76,null,74,72,74,76,79,null,81,79,76,null];
+      const bass=[52,57,50,55][Math.floor(n/8)%4],note=melody[n%melody.length];
+      if(note!=null){this.tone(this.freq(note),t,.125,.082,'triangle');this.tone(this.freq(note+12),t+.008,.075,.016,'sine');}
+      if(n%4===0){this.tone(this.freq(bass),t,.17,.095,'sine');this.tone(this.freq(bass+7),t+.016,.11,.034,'triangle');}
+      if(n%4===2)this.tone(this.freq(bass-12),t,.10,.033,'triangle');
+      if(n%2===0)this.tone(this.freq(91),t,.020,.024,'sine');
+      if(n%8===4)this.tone(this.freq(58),t,.055,.030,'triangle');
     }
     schedule(){
       if(!this.ctx||!this.playing)return;
-      const stepSeconds=60/136/2;
+      const stepSeconds=60/154/2;
       while(this.nextAt<this.ctx.currentTime+.23){
         this.musicStep(this.tick,this.nextAt);
         this.tick++;this.nextAt+=stepSeconds;
@@ -110,16 +105,7 @@
       const b=document.createElement('button');b.id='musicBtn';b.type='button';b.className='iconbtn';b.title='开启或关闭轻快的校园背景音乐';b.innerHTML='🎵<span>音乐</span>';
       b.onclick=()=>{this.toggleMusic();window.toast?.(this.musicEnabled?'🎵 已开启轻快校园音乐':'已暂停背景音乐')};
       host.insertBefore(b,document.getElementById('audioBtn'));this.musicBtn=b;this.updateButton();
-      const voice=document.createElement('button');voice.className='iconbtn';voice.id='voicePickerBtn';voice.title='选择中文女声';voice.innerHTML='👩<span>女声</span>';
-      voice.onclick=()=>{
-        this.onVoicesChanged();
-        const v=this.voices.filter(x=>/zh|chinese|mandarin|中文|汉语/i.test(x.lang+' '+x.name));
-        if(!v.length){alert('此设备没有安装中文语音。请在操作系统的语音设置中添加中文女声。');return}
-        const names=v.map((x,i)=>(i+1)+'. '+x.name+' ('+x.lang+')').join('\n');
-        const ask=prompt('请选择中文女声（输入序号）：\n'+names+'\n\n推荐选择名称含 Xiaoxiao／Ting-Ting／女 的声音。');
-        const n=parseInt(ask,10);if(n>=1&&n<=v.length){this.preferredVoiceName=v[n-1].name;localStorage.setItem('watchVoice',this.preferredVoiceName);this.speak('你好！欢迎来到《手表》友情侦探！')}
-      };
-      host.insertBefore(voice,document.getElementById('audioBtn'));
+      
     }
     updateButton(){if(this.musicBtn){this.musicBtn.innerHTML=(this.musicEnabled?'🎵':'🔇')+'<span>音乐</span>';this.musicBtn.setAttribute('aria-pressed',String(this.musicEnabled))}}
   }
