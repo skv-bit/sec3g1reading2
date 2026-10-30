@@ -8,7 +8,7 @@ const HAN=/[\u3400-\u9fff]/;
 const HAN_RUN=/[\u3400-\u9fff]+/g;
 const successPattern=/(阅读证据正确|回答正确|答案正确|答对了|闯关成功|全部正确|恭喜.{0,6}(完成|答对)|关卡已解锁|解锁成功)/;
 let enabled=false,libraryLoading=null,lastEval=0,lastSuccess=0,hasAudio=false,audioContext=null;
-let scheduled=false,processing=false,paintButton=null,observer=null;
+let scheduled=false,processing=false,paintButton=null,observer=null,lastCompletedScan=0,retryTimer=null;
 const watchMutationOptions={childList:true,subtree:true,characterData:true};
 function isControl(el){return !!(el&&el.closest&&el.closest('input,textarea,select,[contenteditable="true"],[role="textbox"]'));}
 function ensureStyle(){
@@ -16,11 +16,11 @@ function ensureStyle(){
  const st=document.createElement('style');st.id='watch-v24-style';
  st.textContent=[
  'body.reading-pinyin-on ruby{ruby-position:over;ruby-align:center;white-space:nowrap;}',
- 'body.reading-pinyin-on ruby rt{font-size:.45em;font-weight:500;line-height:1.05;color:#357a75;letter-spacing:0;}',
+ 'body.reading-pinyin-on ruby rt{font-size:clamp(13px,.72em,20px);font-weight:650;line-height:1.12;color:#276f66;letter-spacing:.005em;}',
  '.watch-v24-wordhint{padding:11px 14px;border:1px dashed #91c8a0;border-radius:13px;background:#eef8e9;margin:14px 0;color:#346452;font-size:.84em;line-height:1.55;}',
  '.watch-v24-wordhint summary{cursor:pointer;font-weight:700;list-style:revert;}',
  '.watch-v24-wordhint p{margin:8px 0 0;}',
- '@media(max-width:740px){body.reading-pinyin-on ruby rt{font-size:.42em}.watch-v24-wordhint{font-size:.76em}}'
+ '@media(max-width:740px){body.reading-pinyin-on ruby rt{font-size:clamp(12px,.70em,17px)}.watch-v24-wordhint{font-size:.76em}}'
  ].join('\n');
  document.head.appendChild(st);
 }
@@ -164,12 +164,12 @@ function loadLibrary(){
  return libraryLoading.catch(e=>{libraryLoading=null;throw e;});
 }
 async function togglePinyin(){
- if(enabled){enabled=false;document.body.classList.remove('reading-pinyin-on');clearPinyin();schedule();return;}
+ if(enabled){enabled=false;document.body.classList.remove('reading-pinyin-on');clearPinyin();schedule(true);return;}
  try{
    if(paintButton)paintButton.textContent='🔤 拼音：加载中';
    await loadLibrary();
    enabled=true;document.body.classList.add('reading-pinyin-on');
-   schedule();
+   schedule(true);
  }catch(e){
    enabled=false;
    if(paintButton){paintButton.textContent='🔤 拼音：重试';paintButton.title='拼音资源未加载，请检查网络后重试';}
@@ -218,13 +218,28 @@ function detectSuccess(){
    }
  }
 }
-function schedule(){
+function schedule(immediate=false){
+ // Do not repeatedly erase and redraw ruby labels as the 3D camera moves.
+ // At most one incremental scan per 140ms; newly-added text gets annotated
+ // without touching existing ruby nodes or modifying their measured layout.
  if(scheduled||processing)return;
+ if(!immediate&&Date.now()-lastCompletedScan<140){
+   if(!retryTimer)retryTimer=setTimeout(()=>{retryTimer=null;schedule(true);},150);
+   return;
+ }
  scheduled=true;requestAnimationFrame(()=>{
-   scheduled=false;if(processing)return;processing=true;
+   scheduled=false;if(processing||!document.body)return;
+   processing=true;
    if(observer)observer.disconnect();
-   try{if(enabled)clearPinyin();patchCopy();if(enabled)renderPinyin();detectSuccess();}
-   finally{processing=false;if(observer)observer.observe(document.body,watchMutationOptions);}
+   try{
+     patchCopy();
+     if(enabled)renderPinyin(); // Existing <ruby> nodes are explicitly excluded.
+     detectSuccess();
+   }finally{
+     lastCompletedScan=Date.now();
+     processing=false;
+     if(observer)observer.observe(document.body,watchMutationOptions);
+   }
  });
 }
 function onClickCapture(e){
@@ -259,7 +274,7 @@ function init(){
    schedule();
  });
  observer.observe(document.body,watchMutationOptions);
- schedule();
+ schedule(true);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
