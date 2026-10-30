@@ -152,7 +152,7 @@ html,body{background:#dbf2e5}
  </div>
  <aside id="objective" class="glass"><div class="objective-tag">✦ 现在的阅读任务 / READING QUEST</div><div class="objective-title" id="objectiveTitle"></div><div class="objective-sub" id="objectiveSub"></div></aside>
  <aside id="helper" class="glass closed" aria-label="阅读思维鹰架"><strong>🌼 我的阅读助手</strong><div class="step"><span class="num">1</span>找依据：人物说了什么？做了什么？</div><div class="step"><span class="num">2</span>作推论：说明什么特点？为什么？</div><div class="step"><span class="num">3</span>联主题：从表现明白什么道理？</div><p>根据 Project Zero「What Makes You Say That?」的证据提问理念改编；「联主题」为本课教学补充。</p><button class="hint-btn" id="glossBtn">📖 词汇 · 拼音 · English</button></aside>
- <div id="hotspots" aria-live="polite"></div>
+ <div id="hotspots" aria-live="off"></div>
  <div id="bottom"><div id="status" class="glass"><div class="status-top" id="statusTitle">🚶 用方向键移动，靠近光圈探索</div><div class="status-bottom" id="statusInfo">WASD / 方向键移动 · E 互动 · 点击黄色任务标记</div><div id="keys"><span class="key"></span><span class="key"></span><span class="key"></span><span class="key"></span><span class="key"></span></div></div><div id="moving"><div class="dpad"><button class="up" data-dir="up" aria-label="向前">↑</button><button class="left" data-dir="left" aria-label="向左">←</button><button class="down" data-dir="down" aria-label="向后">↓</button><button class="right" data-dir="right" aria-label="向右">→</button></div><button class="secondary tiny" id="jumpBtn" title="仅快速到达，不跳过阅读任务">快速到达</button><button class="primary" id="interactBtn">✦ 互动 (E)</button></div></div>
  <div id="toast"></div><div id="scene-fade"></div><div id="overlay"><div id="modal" class="modal" role="dialog" aria-modal="true" aria-live="polite"></div></div>
 </main>
@@ -453,7 +453,35 @@ $('paintBtn').addEventListener('click',()=>{
 });
 let lastMove=0;
 function renderMarkers(){markers.innerHTML='';for(let it of stageItems()){let b=document.createElement('button');b.className='hotspot';b.dataset.id=it.id;b.type='button';b.textContent=it.label;b.addEventListener('click',()=>{const d=Math.hypot(state.player.x-it.x,state.player.z-it.z);if(d<2.3)interact(it);else{toast('先走近任务点（可按方向键）');state.autowalk={x:it.x,z:it.z,id:it.id};}});markers.append(b);}}
-function updateMarkers(){for(let it of stageItems()){let el=markers.querySelector(`[data-id="${it.id}"]`);if(!el)continue;let p=project([it.x,2.42,it.z]);let d=Math.hypot(state.player.x-it.x,state.player.z-it.z);if(p){el.style.display='block';el.style.left=p.x+'px';el.style.top=p.y+'px';el.classList.toggle('near',d<2.3);el.classList.toggle('locked',isLocked(it.id));el.classList.toggle('done',isDone(it.id));el.textContent=(isDone(it.id)?'✓ ':isLocked(it.id)?'🔒 ':'✦ ')+it.label;}else el.style.display='none';}}
+function updateMarkers(){
+ // V26 fix: DO NOT reassign textContent on every animation frame.
+ // Replacing button text destroys <ruby> pinyin and triggers MutationObserver
+ // repeatedly, which was the actual cause of flashing/flickering markers.
+ for(const it of stageItems()){
+   const el=markers.querySelector(`[data-id="${it.id}"]`);
+   if(!el)continue;
+   const p=project([it.x,2.42,it.z]);
+   const d=Math.hypot(state.player.x-it.x,state.player.z-it.z);
+   if(!p){
+     if(el.style.display!=='none')el.style.display='none';
+     continue;
+   }
+   if(el.style.display!=='block')el.style.display='block';
+   const x=Math.round(p.x)+'px',y=Math.round(p.y)+'px';
+   if(el.style.left!==x)el.style.left=x;
+   if(el.style.top!==y)el.style.top=y;
+   const near=d<2.3,locked=isLocked(it.id),done=isDone(it.id);
+   el.classList.toggle('near',near);
+   el.classList.toggle('locked',locked);
+   el.classList.toggle('done',done);
+   // Use the same label but only update it if completion/locking actually changes.
+   const title=(done?'':locked?'🔒 ':'')+it.label;
+   if(el.dataset.currentLabel!==title){
+     el.dataset.currentLabel=title;
+     el.textContent=title;
+   }
+ }
+}
 function move(dt){if(state.activeModal)return;let x=0,z=0;if(keydown.has('w')||keydown.has('arrowup')||touchDirections.has('up'))z--;if(keydown.has('s')||keydown.has('arrowdown')||touchDirections.has('down'))z++;if(keydown.has('a')||keydown.has('arrowleft')||touchDirections.has('left'))x--;if(keydown.has('d')||keydown.has('arrowright')||touchDirections.has('right'))x++;if(!x&&!z&&state.autowalk){let dx=state.autowalk.x-state.player.x,dz=state.autowalk.z-state.player.z,d=Math.hypot(dx,dz);if(d>1.5){x=dx/d;z=dz/d}else{let target=stageItems().find(t=>t.id===state.autowalk.id);state.autowalk=null;if(target)interact(target);}}if(x||z){let inv=1/(Math.hypot(x,z)||1),step=dt*3.15;state.player.x=clamp(state.player.x+x*inv*step,-6.25,6.25);state.player.z=clamp(state.player.z+z*inv*step,-5.2,5.35);lastMove=1;}else lastMove=0;let n=nearest();if(n&&n.dist>1.32)state.insideHotspotId=null;if(n&&n.dist<.79&&!isLocked(n.id)&&!isDone(n.id)&&state.insideHotspotId!==n.id){state.insideHotspotId=n.id;interact(n)}}
 function resize(){const r=app.getBoundingClientRect();W=r.width;H=r.height;
  canvas.style.width=W+'px';canvas.style.height=H+'px';if(threeView)threeView.resize(W,H);
