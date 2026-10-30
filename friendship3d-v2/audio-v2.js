@@ -87,17 +87,38 @@
       const female=/(female|女|xiaoxiao|xiaoyi|xiaohan|xiaomeng|huihui|ting.?ting|mei.?jia|samantha|sin.?ji|lili|yaoyao|hanhan|xiaobei|yating|xiaoyun|yunxi|zhiyu|mei-ling)/i;
       return zh.find(x=>female.test(x.name))||zh.find(x=>female.test(x.voiceURI||''))||zh[0]||null;
     }
+    stopSpeech(){
+      this.voiceSession=(this.voiceSession||0)+1;
+      try{window.speechSynthesis?.cancel()}catch(e){}
+      if(this.musicBus&&this.ctx)this.musicBus.gain.setTargetAtTime(this.volume,this.ctx.currentTime,.2);
+    }
     speak(text,notify){
       if(!('speechSynthesis' in window)){notify?.('当前设备没有中文朗读功能。');return}
-      speechSynthesis.cancel();
-      const u=new SpeechSynthesisUtterance(text);
+      this.stopSpeech();
+      const content=String(text||'').trim();
+      if(!content)return;
+      const token=this.voiceSession;
       const choice=this.chooseVoice();
-      u.lang=choice?.lang||'zh-CN';
-      if(choice)u.voice=choice;
-      else notify?.('设备没有提供中文女声音色，可能使用系统默认声音。');
-      u.rate=.88;u.pitch=1.13;u.volume=1;
-      if(this.musicBus&&this.ctx){this.musicBus.gain.setTargetAtTime(.045,this.ctx.currentTime,.08);u.onend=u.onerror=()=>this.musicBus?.gain.setTargetAtTime(this.volume,this.ctx.currentTime,.2)}
-      speechSynthesis.speak(u);
+      if(!choice)notify?.('设备未提供中文女声音色，将使用系统默认声音。');
+      // One utterance per sentence: pauses at full stops and questions are
+      // more natural than reading an entire paragraph as a single breath.
+      const chunks=(content.match(/[^。！？!?\n]+[。！？!?]?/g)||[])
+        .map(x=>x.trim()).filter(Boolean);
+      let index=0;
+      if(this.musicBus&&this.ctx)this.musicBus.gain.setTargetAtTime(.045,this.ctx.currentTime,.08);
+      const restore=()=>{if(token===this.voiceSession&&this.musicBus&&this.ctx)this.musicBus.gain.setTargetAtTime(this.volume,this.ctx.currentTime,.2)};
+      const readNext=()=>{
+        if(token!==this.voiceSession)return;
+        if(index>=chunks.length){restore();return}
+        const u=new SpeechSynthesisUtterance(chunks[index++]);
+        u.lang=choice?.lang||'zh-CN';
+        if(choice)u.voice=choice;
+        u.rate=.86;u.pitch=1.09;u.volume=1;
+        u.onend=readNext;
+        u.onerror=event=>{if(event?.error!=='canceled'&&event?.error!=='interrupted')notify?.('朗读暂时中断，可再点击播放。');restore()};
+        speechSynthesis.speak(u);
+      };
+      readNext();
       return choice;
     }
     mountUI(){
