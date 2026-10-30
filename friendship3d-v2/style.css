@@ -24,3 +24,28 @@
 .scene-recovery{position:relative;max-width:min(430px,86vw);padding:24px 28px;background:#fff9e9f5;border:3px solid #eccd90;border-radius:25px;text-align:center;box-shadow:0 14px 40px #1d3e3048}
 .scene-recovery strong{display:block;color:#356754;font-size:22px}.scene-recovery p{font-size:14px;line-height:1.7;color:#62786b}
 #musicBtn[aria-pressed="false"]{opacity:.55}
+
+/* 2026-10-30: pastel-bright student-friendly palette, while retaining the teacher's original layout */
+:root{--deep:#295e50;--forest:#248263;--teal:#30af86;--mint:#dcf9e1;--mint2:#ecfbef;--cream:#fffdf4;--sand:#fff1d4;--line:#b6e4ca;--ink:#2e6152;--muted:#63877a;--gold:#f6bf61;--coral:#f3a8a4;--shadow:0 12px 34px #4d89702e,0 3px 8px #3479631b}
+#app{background:linear-gradient(180deg,#b5eafa 0%,#d3f7db 53%,#f6f5ca 100%)}
+.sky-vignette{opacity:0!important}
+.topbar{background:#fffdf4f5;border-color:#fff1cd;box-shadow:0 8px 25px #74a58a4d}
+.panel{background:#fffef7f3;border-color:#e6e7bb;box-shadow:0 10px 26px #67947a29}
+.quest-row.current{background:#ddf8e8;border-color:#51c798}
+.topcenter span{background:#def6e5;border-color:#a8dec1;color:#246e58}
+.topcenter span:last-child{background:#fff2d0;border-color:#edce8e;color:#9a6b36}
+.primary{background:linear-gradient(180deg,#63d19b,#2eaa80);box-shadow:0 5px 0 #217d62,0 7px 17px #28765a25}
+.hotspot.available{background:linear-gradient(#fffdec,#ffebb7);border-color:#ffc257;box-shadow:0 0 0 5px #ffe7a177,0 6px 18px #8f793433}
+.evidence-box{background:#e4f9e8;border-left-color:#53c78b}
+.vocab-panel{background:#eafbf1;border-color:#9adeb6}
+.topbuttons #helpBtn,.topbuttons #teacherBtn,.topbuttons #audioBtn,.topbuttons #voicePickerBtn{display:none!important}
+.topbuttons #pinyinBtn{background:#e9f9f0;border:1px solid #a4dbba;border-radius:12px;padding:9px 15px;color:#2b8464;font-weight:900;font-size:14px}
+.topbuttons #pinyinBtn[aria-pressed="true"]{background:#38b786;color:white;border-color:#29966d}
+.topbuttons #resetProgressBtn{background:#fff2df;border:1px solid #f3d39f;color:#996335;border-radius:12px;padding:9px 13px;font-weight:900;font-size:14px}
+.topbuttons #resetProgressBtn:hover{background:#ffe7c5}
+.topbuttons #musicBtn{background:#edf9ee;border:1px solid #acdcbf;color:#288260;border-radius:12px;padding:9px 13px}
+.mapcoords{padding:5px 7px 2px;color:#276f87;font-size:12px;font-weight:800;text-align:center;letter-spacing:.04em}
+.pinyin-enabled ruby,.pinyin-enabled .dialog ruby,.pinyin-enabled .panel-body ruby{ruby-position:over;white-space:nowrap;display:inline-ruby;vertical-align:baseline;line-height:1.95}
+.pinyin-enabled rt{font-size:.57em;line-height:1.1;color:#407b99;font-weight:750;text-align:center}
+.dialog-scroll ruby{margin-inline:1px}
+@media(max-width:650px){.topbuttons #pinyinBtn,.topbuttons #resetProgressBtn,.topbuttons #musicBtn{font-size:12px;padding:6px 8px}.topbar{gap:5px}.topcenter #levelTag{font-size:10px}.mapcoords{display:none}}
