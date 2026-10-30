@@ -9,7 +9,7 @@ class World3DThree {
  constructor(canvas){
   this.canvas=canvas;this.contextLost=false;this.assets={};this.level=1;
   this.positions={
-    1:{bike:{x:-4.6,z:1.4,y:.02,s:1.6},watch:{x:4.2,z:1.4,y:0,s:1.13},lihua:{x:4.0,z:-4.5,y:0,s:1.35}},
+    1:{bike:{x:-4.6,z:1.4,y:.02,s:1.6},watch:{x:4.2,z:1.4,y:0,s:1.13},lihua:{x:4.0,z:-4.5,y:0,s:1.35},inference:{x:-2.9,z:-2.35,y:0,s:1.05}},
     2:{mom:{x:-2.8,z:-.9,y:0,s:1.29},doorbell:{x:1.35,z:-4.8,y:1.12,s:1.18},lihua:{x:4.1,z:-3.6,y:0,s:1.36},evidence_station:{x:-5.2,z:2.2,y:0,s:1.34}}
   };
   this.yaw=0;this.pitch=.72;this.dist=19;this.time=0;this.hotspots=[];this.padKeys=new Set();
@@ -35,6 +35,7 @@ class World3DThree {
   this.playerSprite=this.createPlayerSprite(); // only the moving protagonist is 2D; all NPCs, props and scenes remain 3D
   this.modelNodes=new Map();
   this.lihuaTexture=new T.TextureLoader().load('assets/lihua-chibi.svg',undefined,undefined,err=>console.warn('Lihua 2D asset:',err));
+  this.momTexture=new T.TextureLoader().load('assets/mom-chibi.svg',undefined,undefined,err=>console.warn('Mother 2D asset:',err));
   this.lastRender=0;
   this.makeGround();
   this.bindControls();
@@ -136,6 +137,12 @@ class World3DThree {
       npc.scale.set(1.63*p.s,2.45*p.s,1);
       npc.position.set(0,1.18*p.s-p.y,0);
       holder.add(npc);
+     } else if(h.hotspotId==='mom'){
+      // Matching 2D character style, while all physical scene objects remain 3D.
+      const mother=new T.Sprite(new T.SpriteMaterial({map:this.momTexture,transparent:true,depthWrite:false,alphaTest:.05}));
+      mother.scale.set(1.58*p.s,2.65*p.s,1);
+      mother.position.set(0,1.3*p.s-p.y,0);
+      holder.add(mother);
      } else if(this.assets[key]){const obj=this.assets[key].clone(true);obj.scale.setScalar(p.s);holder.add(obj);}
      const ring=new T.Mesh(new T.TorusGeometry(.94,.055,9,48),new T.MeshBasicMaterial({color:0xffc966,transparent:true,opacity:.93,depthWrite:false}));
      ring.rotation.x=-Math.PI/2;ring.position.y=.06-p.y;holder.add(ring);
@@ -168,7 +175,7 @@ class World3DThree {
  collision(x,z){
   if(Math.abs(x)>10.3||Math.abs(z)>10.3)return true; // walk to every reachable courtyard corner
   if(this.level===1&&Math.abs(x)<6.6&&z<-5.85)return true;
-  const colliders=this.level===1?[[-4.6,1.4,.92],[4.2,1.4,.85]]:[[-5.2,2.2,1.35],[.8,-5.7,1.05]];
+  const colliders=this.level===1?[[-4.6,1.4,.92],[4.2,1.4,.85],[-2.9,-2.35,.65]]:[[-5.2,2.2,1.35],[.8,-5.7,1.05]];
   return colliders.some(([a,b,r])=>Math.hypot(x-a,z-b)<r);
  }
  update(dt,allow){
