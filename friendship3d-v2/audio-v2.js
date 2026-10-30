@@ -5,7 +5,7 @@
     constructor(){
       this.ctx=null; this.master=null; this.musicBus=null; this.fxBus=null;
       this.playing=false; this.musicEnabled=true; this.effectsEnabled=true;
-      this.muted=false; this.tick=0; this.nextAt=0; this.timer=null; this.volume=.19;
+      this.muted=false; this.tick=0; this.nextAt=0; this.timer=null; this.volume=.30;
       this.voices=[]; this.preferredVoiceName=localStorage.getItem('watchVoice')||'';
       this.onVoicesChanged=()=>this.voices=window.speechSynthesis?.getVoices()||[];
       if ('speechSynthesis' in window) {
@@ -18,7 +18,7 @@
       if(!C)return false;
       if(!this.ctx){
         this.ctx=new C();
-        this.master=this.ctx.createGain();this.master.gain.value=.36;
+        this.master=this.ctx.createGain();this.master.gain.value=.48;
         this.musicBus=this.ctx.createGain();this.musicBus.gain.value=this.volume;
         this.fxBus=this.ctx.createGain();this.fxBus.gain.value=.62;
         this.musicBus.connect(this.master);this.fxBus.connect(this.master);
