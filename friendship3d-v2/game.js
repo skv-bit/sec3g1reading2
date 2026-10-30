@@ -230,7 +230,7 @@ function showReview(){panel('📚 我的证据收藏',`${allNodes.slice(0,state.
 function exportRecord(){let report={'作品':'《手表》3D友情侦探','代号':state.alias,'班级':state.classCode,'已完成任务':state.done,'已完成题目及答案':state.answers,'尝试次数':state.attempts,'使用提示次数':state.hints,'回看证据次数':state.reviewCount,'支架':state.supportLevel,'我的初稿':state.originalDraft,'修改稿':state.revisedDraft,'生活迁移':state.lifeResponse,'自评项目':state.selfChecks};let blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json;charset=utf-8'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`手表_侦探笔记_${(state.alias||'学生').replace(/[\\/:*?"<>|]/g,'_')}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(link.href),500);toast('已准备导出本机学习记录。')}
 function showReadingAssistant(){
  const current=currentNode(),first=world.level===1;
- const focus=state.current===FIRST_LEVEL_COUNT&&first?'你已经完成第一关四项任务。请走向教学楼大门，开启第二关。':current?.label||'你已经收集全部线索！';
+ const focus=state.current===FIRST_LEVEL_COUNT&&first?'你已经完成第一关三项任务。请走向教学楼大门，开启第二关。':current?.label||'你已经收集全部线索！';
  const evidence=(current?.evidence||[]).slice(0,2).map(e=>'<p class="helper-evidence"><b>第'+e.paragraph+'段：</b>'+escapeHtml(e.excerpt||e.fullText)+'</p>').join('');
  panel('🌻 我的阅读助手',`
  <p class="note-card"><b>当前学习任务：</b>${escapeHtml(focus)}</p>
@@ -274,7 +274,7 @@ async function init(){try{DATA=await loadData();allNodes=DATA.nodes;world=window
 function resetAllProgress(){
  if(!window.confirm('确定重新开始吗？两关进度、已答题目和侦探笔记将被清空。'))return;
  stopSpeech();
- state={alias:state.alias,classCode:state.classCode,current:0,done:[],answers:{},attempts:{},hints:{},reviewCount:{},supportLevel:'S2',originalDraft:'',revisedDraft:'',lifeResponse:'',selfChecks:[],started:true,completed:false,enteredLevel2:false,contentVersion:'2026-gate-v2'};
+ state={alias:state.alias,classCode:state.classCode,current:0,done:[],answers:{},attempts:{},hints:{},reviewCount:{},supportLevel:'S2',originalDraft:'',revisedDraft:'',lifeResponse:'',selfChecks:[],started:true,completed:false,enteredLevel2:false,contentVersion:'2026-watch-level2-v1'};
  task=null;selection=[];categorize={};picked=null;hintIndex=0;feedback='';teacherMode=false;transitioning=false;paused=false;
  hide('overlay');hide('panelOverlay');hide('intro');save();world.keys?.clear();world.setLevel(1);refreshProgress();buildHotspots();
  toast('🔄 已重置！从第一关第一步「脚踏车」重新开始。');
