@@ -4,8 +4,21 @@
 global.WatchThreeScene=function(options){
   const T=options.THREE||global.THREE;if(!T)throw Error('Three.js r128 missing');
   const canvas=options.canvas,scene=new T.Scene();
-  scene.background=new T.Color(0xe5e7eb);scene.fog=null;
-  const camera=new T.PerspectiveCamera(45,1,.1,120);
+  // V22: full-bleed pastel sky instead of empty gray photography backdrop.
+  // The floor below extends the clay island's garden into a navigable 3D landscape.
+  const skyCanvas=document.createElement('canvas');
+  skyCanvas.width=64;skyCanvas.height=512;
+  const skyCtx=skyCanvas.getContext('2d');
+  const skyGradient=skyCtx.createLinearGradient(0,0,0,512);
+  skyGradient.addColorStop(0,'#a7cdeb');
+  skyGradient.addColorStop(.52,'#c6e0ef');
+  skyGradient.addColorStop(.85,'#e5ebd7');
+  skyGradient.addColorStop(1,'#dfe8c4');
+  skyCtx.fillStyle=skyGradient;skyCtx.fillRect(0,0,64,512);
+  const skyTexture=new T.CanvasTexture(skyCanvas);
+  skyTexture.encoding=T.sRGBEncoding;
+  scene.background=skyTexture;scene.fog=null;
+  const camera=new T.PerspectiveCamera(50,1,.08,180);
   const renderer=new T.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(global.devicePixelRatio||1,1.6));
   renderer.setSize(1,1,false);renderer.outputEncoding=T.sRGBEncoding;
@@ -17,17 +30,42 @@ global.WatchThreeScene=function(options){
   sun.shadow.camera.left=-16;sun.shadow.camera.right=16;sun.shadow.camera.top=16;sun.shadow.camera.bottom=-16;
   sun.shadow.camera.near=.5;sun.shadow.camera.far=60;sun.shadow.bias=-.00025;sun.shadow.normalBias=.015;
   scene.add(sun);const fill=new T.DirectionalLight(0xdceaff,.25);fill.position.set(9,8,-8);scene.add(fill);
-  const studioMat=new T.MeshStandardMaterial({color:0xe5e7eb,roughness:1,metalness:0});
-  const floor=new T.Mesh(new T.PlaneGeometry(160,160),studioMat);
-  floor.rotation.x=-Math.PI/2;floor.position.y=-.50;floor.receiveShadow=true;scene.add(floor);
+  // Seamless, low-profile outdoor clay garden surrounding both 11x11 GLB islands.
+  // This is not a distant backdrop: it is actual 3D ground that fills the viewport.
+  const soilCanvas=document.createElement('canvas');
+  soilCanvas.width=512;soilCanvas.height=512;
+  const soilCtx=soilCanvas.getContext('2d');
+  soilCtx.fillStyle='#b8d987';soilCtx.fillRect(0,0,512,512);
+  let seed=73127;
+  const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+  const blades=['#acd17b','#c8e5a2','#a5cb72','#d5e5af','#b2d486'];
+  for(let i=0;i<1350;i++){
+    const x=rand()*512,y=rand()*512;
+    soilCtx.fillStyle=blades[Math.floor(rand()*blades.length)];
+    soilCtx.globalAlpha=.18+rand()*.21;
+    soilCtx.beginPath();
+    soilCtx.ellipse(x,y,1.2+rand()*3,.7+rand()*2,rand()*Math.PI,0,Math.PI*2);
+    soilCtx.fill();
+  }
+  soilCtx.globalAlpha=1;
+  const soilMap=new T.CanvasTexture(soilCanvas);
+  soilMap.encoding=T.sRGBEncoding;
+  soilMap.wrapS=soilMap.wrapT=T.RepeatWrapping;
+  soilMap.repeat.set(12,12);
+  soilMap.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+  const outdoorMat=new T.MeshStandardMaterial({map:soilMap,roughness:1,metalness:0});
+  const floor=new T.Mesh(new T.PlaneGeometry(160,160),outdoorMat);
+  floor.rotation.x=-Math.PI/2;floor.position.y=-.11;
+  floor.receiveShadow=true;scene.add(floor);
   const root=new T.Group();scene.add(root);
   let stage=-1,requestToken=0,width=1,height=1,disposed=false,playerGroup=null,visual=null;
   let previous=null,idlePhase=0,walkingPhase=0,cameraReady=false,filterOn=false,loadingStatus='pending';
-  // A camera close enough to fill the viewport, with optional zoom and 3D orbit.
-  const defaultDistance=16.6,minDistance=5.4,maxDistance=25;
-  let zoomDistance=defaultDistance,orbitYaw=.54,orbitElevation=.62;
+  // Full-screen, player-following third-person view (about 28-35 degrees elevation).
+  // '⌂' retains a separate whole-island overview, so the default can be truly immersive.
+  const defaultDistance=6.5,overviewDistance=13.6,minDistance=4.4,maxDistance=22;
+  let zoomDistance=defaultDistance,orbitYaw=.42,orbitElevation=.55;
   const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
-  const defaultYaw=.54,defaultElevation=.62;
+  const defaultYaw=.42,defaultElevation=.55;
   const rings=[],projected=new T.Vector3(),cameraTarget=new T.Vector3(0,.38,0);
   const fallback={
     base:new T.MeshStandardMaterial({color:0xd8c6ac,roughness:.96}),
@@ -136,10 +174,13 @@ global.WatchThreeScene=function(options){
     zoomWidget.appendChild(btn);return btn;
   }
   function setZoom(d){zoomDistance=clamp(d,minDistance,maxDistance);}
-  function resetView(){setZoom(defaultDistance);orbitYaw=defaultYaw;orbitElevation=defaultElevation;}
+  function resetView(){setZoom(overviewDistance);orbitYaw=defaultYaw;orbitElevation=defaultElevation;}
+  function returnToPlayer(){setZoom(defaultDistance);orbitYaw=defaultYaw;orbitElevation=defaultElevation;}
   zoomButton('＋','放大3D场景',()=>setZoom(zoomDistance*.83));
   zoomButton('－','缩小3D场景',()=>setZoom(zoomDistance*1.2));
-  zoomButton('⌂','返回完整岛屿全景',resetView);
+  zoomButton('⌂','查看完整岛屿全景',resetView);
+  const personButton=zoomButton('人','回到人物近景',returnToPlayer);
+  personButton.style.fontSize='18px';
   document.body.appendChild(zoomWidget);
   function onWheel(e){e.preventDefault();setZoom(zoomDistance*Math.exp(clamp(e.deltaY,-140,140)*.0017));}
   canvas.addEventListener('wheel',onWheel,{passive:false});
@@ -182,21 +223,26 @@ global.WatchThreeScene=function(options){
   canvas.addEventListener('pointercancel',onPointerUp);
   canvas.addEventListener('contextmenu',onContextMenu);
   function updateCamera(dt,p){
-    // Old camera radius ≈24 for an 11-wide island: dramatically underfilled the viewport.
-    const aspect=Math.max(width/height,.32),responsive=Math.max(1,1.12/aspect);
+    const aspect=Math.max(width/height,.32);
+    // On desktop the avatar occupies about 25-35% of viewport height, not 2-4%.
+    // Narrow phone screens back the camera away slightly to keep navigation usable.
+    const responsive=Math.max(1,Math.sqrt(1.12/aspect));
     const distance=zoomDistance*responsive;
-    const close=clamp((defaultDistance-zoomDistance)/(defaultDistance-minDistance),0,1);
-    const focusWeight=close*.85;
-    const px=clamp(p&&Number.isFinite(p.x)?p.x:0,-4.1,4.1);
-    const pz=clamp(p&&Number.isFinite(p.z)?p.z:0,-4.1,4.1);
-    const focus=new T.Vector3(px*focusWeight,.40,pz*focusWeight);
+    // Close-up: follow actual player x/z. Overview: frame the island centre.
+    const followWeight=1-clamp((zoomDistance-8.9)/(overviewDistance-8.9),0,1);
+    const px=p&&Number.isFinite(p.x)?p.x:0;
+    const pz=p&&Number.isFinite(p.z)?p.z:0;
+    const focus=new T.Vector3(px*followWeight,.94*followWeight+.40*(1-followWeight),pz*followWeight);
     const horizontal=Math.cos(orbitElevation)*distance;
-    const goal=new T.Vector3(focus.x+Math.sin(orbitYaw)*horizontal,
+    const goal=new T.Vector3(
+      focus.x+Math.sin(orbitYaw)*horizontal,
       focus.y+Math.sin(orbitElevation)*distance,
       focus.z+Math.cos(orbitYaw)*horizontal);
     if(!cameraReady){camera.position.copy(goal);cameraTarget.copy(focus);cameraReady=true;}
-    const t=1-Math.exp(-dt*4.5);
-    camera.position.lerp(goal,t);cameraTarget.lerp(focus,t);camera.lookAt(cameraTarget);
+    const blend=1-Math.exp(-dt*5.8);
+    camera.position.lerp(goal,blend);
+    cameraTarget.lerp(focus,blend);
+    camera.lookAt(cameraTarget);
   }
   function updatePlayer(p,dt,moving){
     if(!playerGroup)return;
