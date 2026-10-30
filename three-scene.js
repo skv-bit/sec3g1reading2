@@ -239,7 +239,9 @@ global.WatchThreeScene=function(options){
     const sprite=new T.Sprite(mat);
     const h=height||2.55;
     sprite.scale.set(h*512/768,h,1);
-    sprite.position.set(x,.21,z);
+    // Player group's origin is already y=.22, while NPCs live directly under the root.
+    const localGround=parent===playerGroup?0:.21;
+    sprite.position.set(x,localGround,z);
     sprite.center.set(.5,0);sprite.renderOrder=45;
     sprite.userData.baseHeight=h;sprite.userData.isFlatGirl=true;
     parent.add(sprite);
@@ -247,7 +249,7 @@ global.WatchThreeScene=function(options){
     const shadow=new T.Mesh(new T.CircleGeometry(.41,32),
       new T.MeshBasicMaterial({color:0x344b35,transparent:true,opacity:.19,depthWrite:false}));
     shadow.rotation.x=-Math.PI/2;shadow.scale.set(1.1,.56,1);
-    shadow.position.set(x,.205,z);parent.add(shadow);
+    shadow.position.set(x,parent===playerGroup?0:.205,z);parent.add(shadow);
     return sprite;
   }
   // Build a genuine school, not the cottage baked into scene1_campus_clay.glb.
