@@ -60,7 +60,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.shadowMap.enable
 const camera=new THREE.PerspectiveCamera(54,1,.1,120);camera.position.set(0,5,12);
 const hemi=new THREE.HemisphereLight(0xffffff,0x83b2a2,2.3);scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xffe4ae,3.1);sun.position.set(-10,24,12);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-28;sun.shadow.camera.right=28;sun.shadow.camera.top=28;sun.shadow.camera.bottom=-28;sun.shadow.bias=-.0002;scene.add(sun);
-let world=null,avatar=null,markers=[],targets=[],colliders=[],npcs=[],effects=[];
+let world=null,avatar=null,markers=[],targets=[],colliders=[],npcs=[],effects=[],evidenceModel=null;
 const mat=(color,rough=.96,metal=0)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
 const M={grass:mat(0x91bd91),lawn:mat(0xa9cf9d),path:mat(0xf2d9b6),stone:mat(0xeacda9),wood:mat(0xa97052),woodLite:mat(0xd29f72),brick:mat(0xe9bda2),wall:mat(0xffe8c5),white:mat(0xfffaf0),blue:mat(0x80b9d4),skyblue:mat(0xa9d9ed),navy:mat(0x516d93),pink:mat(0xe9abb0),skin:mat(0xffd4ae),hair:mat(0x50372e),leaf:mat(0x73ac76),leaf2:mat(0x8fc58b),flower:mat(0xfffbec),yellow:mat(0xf3ca79),deep:mat(0x4a655a),dark:mat(0x2f393d),gold:mat(0xecc274,.35,.25)};
 function mesh(geo,material,parent=world){const o=new THREE.Mesh(geo,material);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
@@ -107,7 +107,7 @@ function makeChibi(kind="girl"){const root=new THREE.Group();const body=new THRE
  root.userData={arms,legs,body};root.scale.setScalar(height);return root;}
 function addDecor(){const positions=[[-16,-11],[-17,9],[-12,12],[15,11],[16,-10],[-14,-2],[12,-2]];for(const [x,z] of positions)tree(x,z,.85+(Math.abs(x)%4)*.07);for(let i=0;i<50;i++){const x=-18+(i*13.73)%36,z=-14+(i*7.31)%29;if(Math.abs(x)<6&&z>-10)continue;if(i%3===0)plantPatch(x,z,.55);else flower(x,z,i%2?M.pink:M.flower);}}
 function campus(){schoolBuilding();bench(8,-4);bench(-7,2);bench(11,7);addDecor();for(let i=0;i<8;i++)plantPatch(-12+i*.45,-3,.62);lightPost(-5,-8);lightPost(5,-8);colliders.push({x1:-13,x2:13,z1:-17,z2:-11.9});}
-function courtyard(){houseBuilding();bench(-10,4);makeEvidence(10,3);addDecor();for(let i=0;i<12;i++)flower(-13+i*.5,-7,M.pink);colliders.push({x1:-11,x2:11,z1:-17,z2:-10.95});colliders.push({x1:8.2,x2:11.7,z1:1.8,z2:4});}
+function courtyard(){houseBuilding();bench(-10,4);evidenceModel=makeEvidence(10,3);addDecor();for(let i=0;i<12;i++)flower(-13+i*.5,-7,M.pink);colliders.push({x1:-11,x2:11,z1:-17,z2:-10.95});colliders.push({x1:8.2,x2:11.7,z1:1.8,z2:4});}
 function addHotspot(task,point,object){const ring=new THREE.Mesh(new THREE.TorusGeometry(.86,.045,8,52),new THREE.MeshBasicMaterial({color:0xffdb83,transparent:true,opacity:.9}));ring.rotation.x=-Math.PI/2;ring.position.set(point[0],.13,point[2]);world.add(ring);
  const pillar=new THREE.Mesh(new THREE.CylinderGeometry(.12,.34,1,12,1,true),new THREE.MeshBasicMaterial({color:0xf5cb6c,transparent:true,opacity:.11,depthWrite:false}));pillar.position.set(point[0],.53,point[2]);world.add(pillar);
  const btn=document.createElement("button");btn.className="marker";btn.type="button";btn.innerHTML=task.icon+" "+task.name;btn.setAttribute("aria-label","调查"+task.name);btn.addEventListener("click",()=>openTask(task.id));$("markers").append(btn);
@@ -120,8 +120,7 @@ function setupLevel(next){if(world){scene.remove(world);world.traverse(o=>{if(o.
  if(first){campus();const bike=makeBike(-10,0);const watch=makeWatch(.5,1);const n=makeChibi("lihua");n.position.set(10,0,-5);world.add(n);npcs.push(n);
   addHotspot(TASKS[0],[-10,0,0],bike);addHotspot(TASKS[1],[.5,0,1],watch);addHotspot(TASKS[2],[10,0,-5],n);
  }else{courtyard();const mom=makeChibi("mom");mom.position.set(-9,0,-5);world.add(mom);npcs.push(mom);const bell=makeBell(3,-10.2);const lihua=makeChibi("lihua");lihua.position.set(7,0,-9.8);world.add(lihua);npcs.push(lihua);
-  addHotspot(TASKS[3],[-9,0,-5],mom);addHotspot(TASKS[4],[3,0,-10.2],bell);addHotspot(TASKS[5],[7,0,-9.8],lihua);addHotspot(TASKS[6],[10,0,3],null);
-  const stationTarget=targets.find(t=>t.task.id==="station");if(stationTarget){stationTarget.obj=world.children.find(ch=>ch.isGroup&&Math.abs(ch.position.x-10)<.01&&Math.abs(ch.position.z-3)<.01);}
+  addHotspot(TASKS[3],[-9,0,-5],mom);addHotspot(TASKS[4],[3,0,-10.2],bell);addHotspot(TASKS[5],[7,0,-9.8],lihua);addHotspot(TASKS[6],[10,0,3],evidenceModel);
  }
  if(!avatar){avatar=makeChibi("girl");scene.add(avatar);}avatar.position.set(0,0,13);avatar.rotation.y=Math.PI;yaw=0;
  $("phase").textContent=first?"I DO · 校园线索":"WE DO · 门前抉择";updateQuest();notify(first?"第一关：沿路寻找发光的故事线索。":"第二关：来到丽华家，理解友情背后的心意。");}
