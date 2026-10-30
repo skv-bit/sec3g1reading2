@@ -35,7 +35,7 @@ class World3DThree {
   this.playerSprite=this.createPlayerSprite(); // only the moving protagonist is 2D; all NPCs, props and scenes remain 3D
   this.modelNodes=new Map();
   this.lihuaTexture=new T.TextureLoader().load('assets/lihua-chibi.svg',undefined,undefined,err=>console.warn('Lihua 2D asset:',err));
-  this.momTexture=new T.TextureLoader().load('assets/mom-chibi.svg',undefined,undefined,err=>console.warn('Mother 2D asset:',err));
+  this.momTexture=new T.TextureLoader().load('assets/mom-angry-chibi.svg',undefined,undefined,err=>console.warn('Mother 2D asset:',err));
   this.lastRender=0;
   this.makeGround();
   this.bindControls();
