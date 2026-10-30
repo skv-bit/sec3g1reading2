@@ -1,10 +1,7 @@
 name: Deploy friendship 3D site to GitHub Pages
+# Keep manual emergency deployment, but avoid fighting the built-in
+# GitHub Pages branch publisher (both previously deployed on every push).
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'friendship3d-v2/**'
-      - '.github/workflows/deploy-friendship3d.yml'
   workflow_dispatch:
 permissions:
   contents: read
