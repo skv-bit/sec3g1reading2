@@ -19,14 +19,14 @@ class World3DThree {
   this.renderer.setPixelRatio(Math.min(1.1,window.devicePixelRatio||1));
   this.renderer.outputEncoding=T.sRGBEncoding;
   this.renderer.toneMapping=T.ACESFilmicToneMapping;
-  this.renderer.toneMappingExposure=1.42; // slightly brighter while preserving original GLB colors
-  this.renderer.setClearColor(0xe1f1e7,1);
+  this.renderer.toneMappingExposure=1.40; // brighten pastel without flattening colours
+  this.renderer.setClearColor(0xc7eff5,1);
   this.gl=this.renderer.getContext();
-  this.scene=new T.Scene();this.scene.background=new T.Color(0xe2f0e4);
-  this.scene.fog=new T.Fog(0xe6f1df,16,46);
-  this.scene.add(new T.HemisphereLight(0xfff7df,0xb3c9b3,1.52));
-  const sun=new T.DirectionalLight(0xffefce,2.15);sun.position.set(-7,13,8);this.scene.add(sun);
-  const fill=new T.DirectionalLight(0xd3f2f4,.7);fill.position.set(8,8,-7);this.scene.add(fill);
+  this.scene=new T.Scene();this.scene.background=new T.Color(0xc7eff5);
+  this.scene.fog=new T.Fog(0xdbf2e0,36,88);
+  this.scene.add(new T.HemisphereLight(0xfff7df,0xb0d9a9,1.62));
+  const sun=new T.DirectionalLight(0xfff5d4,2.05);sun.position.set(-7,13,8);this.scene.add(sun);
+  const fill=new T.DirectionalLight(0xc2f0ff,.80);fill.position.set(8,8,-7);this.scene.add(fill);
   this.camera3D=new T.PerspectiveCamera(54,1,.1,120);
   this.loader=new T.GLTFLoader();
   this.worldGroup=new T.Group();this.scene.add(this.worldGroup);
@@ -34,6 +34,7 @@ class World3DThree {
   this.avatarGroup=new T.Group();this.scene.add(this.avatarGroup);
   this.playerSprite=this.createPlayerSprite(); // only the moving protagonist is 2D; all NPCs, props and scenes remain 3D
   this.modelNodes=new Map();
+  this.lihuaTexture=new T.TextureLoader().load('assets/lihua-chibi.svg',undefined,undefined,err=>console.warn('Lihua 2D asset:',err));
   this.lastRender=0;
   this.makeGround();
   this.bindControls();
@@ -84,7 +85,7 @@ class World3DThree {
    image.style.visibility='visible';
  }
  makeGround(){
-   const ground=new T.Mesh(new T.PlaneGeometry(150,150),new T.MeshLambertMaterial({color:0xc5dfa9}));
+   const ground=new T.Mesh(new T.PlaneGeometry(150,150),new T.MeshLambertMaterial({color:0xabe294}));
    ground.rotation.x=-Math.PI/2;ground.position.y=-.95;this.scene.add(ground);
  }
  resize(){
@@ -129,7 +130,13 @@ class World3DThree {
      const holder=new T.Group();
      holder.position.set(p.x,p.y,p.z);
      const key=h.hotspotId==='watch'&&this.level===1?'watch_display_v2':h.model.replace('.glb','');
-     if(this.assets[key]){const obj=this.assets[key].clone(true);obj.scale.setScalar(p.s);obj.rotation.y=(this.level===1&&h.hotspotId==='lihua')?-.65:(this.level===2&&h.hotspotId==='lihua')?-.45:0;holder.add(obj);}
+     if(h.hotspotId==='lihua'){
+      // A 2D camera-facing Lihua with her blue ponytail ribbon and bandage.
+      const npc=new T.Sprite(new T.SpriteMaterial({map:this.lihuaTexture,transparent:true,depthWrite:false,alphaTest:.05}));
+      npc.scale.set(1.63*p.s,2.45*p.s,1);
+      npc.position.set(0,1.18*p.s-p.y,0);
+      holder.add(npc);
+     } else if(this.assets[key]){const obj=this.assets[key].clone(true);obj.scale.setScalar(p.s);holder.add(obj);}
      const ring=new T.Mesh(new T.TorusGeometry(.94,.055,9,48),new T.MeshBasicMaterial({color:0xffc966,transparent:true,opacity:.93,depthWrite:false}));
      ring.rotation.x=-Math.PI/2;ring.position.y=.06-p.y;holder.add(ring);
      this.hotspotGroup.add(holder);this.modelNodes.set(h.id,{holder,ring});
@@ -159,7 +166,7 @@ class World3DThree {
   return {hotspot:best,dist:d};
  }
  collision(x,z){
-  if(Math.abs(x)>9.8||Math.abs(z)>9.8)return true;
+  if(Math.abs(x)>10.3||Math.abs(z)>10.3)return true; // walk to every reachable courtyard corner
   if(this.level===1&&Math.abs(x)<6.6&&z<-5.85)return true;
   const colliders=this.level===1?[[-4.6,1.4,.92],[4.2,1.4,.85]]:[[-5.2,2.2,1.35],[.8,-5.7,1.05]];
   return colliders.some(([a,b,r])=>Math.hypot(x-a,z-b)<r);
