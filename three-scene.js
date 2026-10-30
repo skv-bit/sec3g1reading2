@@ -23,6 +23,11 @@ global.WatchThreeScene=function(options){
   const root=new T.Group();scene.add(root);
   let stage=-1,requestToken=0,width=1,height=1,disposed=false,playerGroup=null,visual=null;
   let previous=null,idlePhase=0,walkingPhase=0,cameraReady=false,filterOn=false,loadingStatus='pending';
+  // A camera close enough to fill the viewport, with optional zoom and 3D orbit.
+  const defaultDistance=13.0,minDistance=5.4,maxDistance=25;
+  let zoomDistance=defaultDistance,orbitYaw=.54,orbitElevation=.62;
+  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+  const defaultYaw=.54,defaultElevation=.62;
   const rings=[],projected=new T.Vector3(),cameraTarget=new T.Vector3(0,.38,0);
   const fallback={
     base:new T.MeshStandardMaterial({color:0xd8c6ac,roughness:.96}),
@@ -117,12 +122,81 @@ global.WatchThreeScene=function(options){
     }
     cameraReady=false;
   }
-  function updateCamera(dt){
-    const aspect=Math.max(width/height,.35),distanceFactor=1.08*Math.max(1,.95/aspect);
-    const target=new T.Vector3(8.4,12.7,16.4).multiplyScalar(distanceFactor);
-    if(!cameraReady){camera.position.copy(target);cameraTarget.set(0,.38,0);cameraReady=true;}
-    const blend=1-Math.exp(-dt*3);
-    camera.position.lerp(target,blend);camera.lookAt(cameraTarget);
+  
+  // Separate zoom UI is appended by the renderer; existing lesson UI DOM stays unchanged.
+  const zoomWidget=document.createElement('div');
+  zoomWidget.setAttribute('role','group');zoomWidget.setAttribute('aria-label','3D场景缩放控制');
+  zoomWidget.style.cssText='position:fixed;right:14px;top:clamp(110px,17vh,160px);z-index:35;display:flex;flex-direction:column;gap:6px;padding:7px;border-radius:17px;background:rgba(255,252,244,.90);box-shadow:0 4px 16px rgba(35,72,60,.19);backdrop-filter:blur(6px);pointer-events:auto';
+  function zoomButton(label,description,callback){
+    const btn=document.createElement('button');btn.type='button';btn.textContent=label;btn.title=description;
+    btn.setAttribute('aria-label',description);
+    btn.style.cssText='min-width:43px;min-height:42px;padding:5px;border:1px solid #c1d9c7;border-radius:12px;background:#f5faef;color:#235a49;font-size:23px;font-weight:700;line-height:1;cursor:pointer;touch-action:manipulation';
+    btn.addEventListener('pointerdown',e=>e.stopPropagation());
+    btn.addEventListener('click',e=>{e.stopPropagation();callback();});
+    zoomWidget.appendChild(btn);return btn;
+  }
+  function setZoom(d){zoomDistance=clamp(d,minDistance,maxDistance);}
+  function resetView(){setZoom(defaultDistance);orbitYaw=defaultYaw;orbitElevation=defaultElevation;}
+  zoomButton('＋','放大3D场景',()=>setZoom(zoomDistance*.83));
+  zoomButton('－','缩小3D场景',()=>setZoom(zoomDistance*1.2));
+  zoomButton('⌂','返回完整岛屿全景',resetView);
+  document.body.appendChild(zoomWidget);
+  function onWheel(e){e.preventDefault();setZoom(zoomDistance*Math.exp(clamp(e.deltaY,-140,140)*.0017));}
+  canvas.addEventListener('wheel',onWheel,{passive:false});
+  // Right-mouse drag or Shift+left drag to orbit; normal left-click navigation remains untouched.
+  let rotating=false,rotatePointerId=null,lastPointerX=0,lastPointerY=0;
+  const touchPointers=new Map();let lastPinchDistance=0;
+  function onPointerDown(e){
+    if(e.pointerType==='touch'){
+      touchPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(touchPointers.size===2){const pts=[...touchPointers.values()];lastPinchDistance=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);}
+    }else if(e.button===2||(e.button===0&&e.shiftKey)){
+      rotating=true;rotatePointerId=e.pointerId;lastPointerX=e.clientX;lastPointerY=e.clientY;
+      e.preventDefault();try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+    }
+  }
+  function onPointerMove(e){
+    if(e.pointerType==='touch'&&touchPointers.has(e.pointerId)){
+      touchPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(touchPointers.size===2){
+        const pts=[...touchPointers.values()];
+        const d=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+        if(lastPinchDistance>0&&d>15){setZoom(zoomDistance*lastPinchDistance/d);e.preventDefault();}
+        lastPinchDistance=d;
+      }
+      return;
+    }
+    if(!rotating||e.pointerId!==rotatePointerId)return;
+    orbitYaw+=clamp(e.clientX-lastPointerX,-120,120)*.006;
+    orbitElevation=clamp(orbitElevation+(e.clientY-lastPointerY)*.005,.30,1.12);
+    lastPointerX=e.clientX;lastPointerY=e.clientY;e.preventDefault();
+  }
+  function onPointerUp(e){
+    if(e.pointerType==='touch'){touchPointers.delete(e.pointerId);if(touchPointers.size<2)lastPinchDistance=0;}
+    else if(rotating&&e.pointerId===rotatePointerId){rotating=false;rotatePointerId=null;try{canvas.releasePointerCapture(e.pointerId)}catch(_){}}
+  }
+  function onContextMenu(e){e.preventDefault();}
+  canvas.addEventListener('pointerdown',onPointerDown);
+  canvas.addEventListener('pointermove',onPointerMove);
+  canvas.addEventListener('pointerup',onPointerUp);
+  canvas.addEventListener('pointercancel',onPointerUp);
+  canvas.addEventListener('contextmenu',onContextMenu);
+  function updateCamera(dt,p){
+    // Old camera radius ≈24 for an 11-wide island: dramatically underfilled the viewport.
+    const aspect=Math.max(width/height,.32),responsive=Math.max(1,1.12/aspect);
+    const distance=zoomDistance*responsive;
+    const close=clamp((defaultDistance-zoomDistance)/(defaultDistance-minDistance),0,1);
+    const focusWeight=close*.85;
+    const px=clamp(p&&Number.isFinite(p.x)?p.x:0,-4.1,4.1);
+    const pz=clamp(p&&Number.isFinite(p.z)?p.z:0,-4.1,4.1);
+    const focus=new T.Vector3(px*focusWeight,.40,pz*focusWeight);
+    const horizontal=Math.cos(orbitElevation)*distance;
+    const goal=new T.Vector3(focus.x+Math.sin(orbitYaw)*horizontal,
+      focus.y+Math.sin(orbitElevation)*distance,
+      focus.z+Math.cos(orbitYaw)*horizontal);
+    if(!cameraReady){camera.position.copy(goal);cameraTarget.copy(focus);cameraReady=true;}
+    const t=1-Math.exp(-dt*4.5);
+    camera.position.lerp(goal,t);cameraTarget.lerp(focus,t);camera.lookAt(cameraTarget);
   }
   function updatePlayer(p,dt,moving){
     if(!playerGroup)return;
@@ -155,7 +229,7 @@ global.WatchThreeScene=function(options){
     if(disposed)return;
     if(index!==stage)buildStage(index,items||[]);
     dt=Math.min(Math.max(dt||0,0),.06);
-    updateCamera(dt);updatePlayer(player,dt,moving);
+    updateCamera(dt,player);updatePlayer(player,dt,moving);
     for(const {item,ring} of rings){
       const done=isDone(item.id),locked=isLocked(item.id);
       ring.material.color.setHex(done?0x83cfad:locked?0xb7bdc1:0xffd177);
@@ -171,7 +245,16 @@ global.WatchThreeScene=function(options){
   function resize(w,h){width=Math.max(1,w);height=Math.max(1,h);camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height,false);}
   const oldOverlay=document.getElementById('painterly');if(oldOverlay)oldOverlay.style.opacity='0';
   function toggleFilter(){filterOn=!filterOn;if(oldOverlay)oldOverlay.style.opacity='0';return filterOn;}
-  function dispose(){disposed=true;requestToken++;renderer.dispose();}
+  function dispose(){
+    disposed=true;requestToken++;
+    canvas.removeEventListener('wheel',onWheel);
+    canvas.removeEventListener('pointerdown',onPointerDown);
+    canvas.removeEventListener('pointermove',onPointerMove);
+    canvas.removeEventListener('pointerup',onPointerUp);
+    canvas.removeEventListener('pointercancel',onPointerUp);
+    canvas.removeEventListener('contextmenu',onContextMenu);
+    zoomWidget.remove();renderer.dispose();
+  }
   return {render,resize,project,toggleFilter,dispose,get scene(){return scene;},get camera(){return camera;},get loadingStatus(){return loadingStatus;}};
 };
 })(window);
