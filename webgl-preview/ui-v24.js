@@ -8,7 +8,8 @@ const HAN=/[\u3400-\u9fff]/;
 const HAN_RUN=/[\u3400-\u9fff]+/g;
 const successPattern=/(阅读证据正确|回答正确|答案正确|答对了|闯关成功|全部正确|恭喜.{0,6}(完成|答对)|关卡已解锁|解锁成功)/;
 let enabled=false,libraryLoading=null,lastEval=0,lastSuccess=0,hasAudio=false,audioContext=null;
-let scheduled=false,processing=false,paintButton=null;
+let scheduled=false,processing=false,paintButton=null,observer=null;
+const watchMutationOptions={childList:true,subtree:true,characterData:true};
 function isControl(el){return !!(el&&el.closest&&el.closest('input,textarea,select,[contenteditable="true"],[role="textbox"]'));}
 function ensureStyle(){
  if(document.getElementById('watch-v24-style'))return;
@@ -217,8 +218,9 @@ function schedule(){
  if(scheduled||processing)return;
  scheduled=true;requestAnimationFrame(()=>{
    scheduled=false;if(processing)return;processing=true;
+   if(observer)observer.disconnect();
    try{if(enabled)clearPinyin();patchCopy();if(enabled)renderPinyin();detectSuccess();}
-   finally{processing=false;}
+   finally{processing=false;if(observer)observer.observe(document.body,watchMutationOptions);}
  });
 }
 function onClickCapture(e){
@@ -246,13 +248,13 @@ function init(){
  document.addEventListener('click',onClickCapture,true);
  document.addEventListener('keydown',onKeydown,true);
  document.addEventListener('drop',()=>{lastEval=Date.now();getAudio();requestAnimationFrame(detectSuccess)},true);
- const observer=new MutationObserver(records=>{
+ observer=new MutationObserver(records=>{
    if(processing)return;
    // Do not reprocess a batch of only our own pinyin ruby changes.
    if(!enabled&&records.every(r=>(r.target.closest?.('ruby.watch-pinyin-char'))))return;
    schedule();
  });
- observer.observe(document.body,{childList:true,subtree:true,characterData:true});
+ observer.observe(document.body,watchMutationOptions);
  schedule();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
