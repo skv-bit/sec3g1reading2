@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="zh-SG"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#edf5e8"><title>《手表》· 3D友情侦探 V2</title><link rel="stylesheet" href="style.css?v=restored3d-20261030"></head>
+<html lang="zh-SG"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#edf5e8"><title>《手表》· 3D友情侦探 V2</title><link rel="stylesheet" href="style.css?v=restore-1736-20261030"></head>
 <body>
 <main id="app">
  <canvas id="world" aria-label="真实三维游戏场景，可用方向键或WASD操控人物"></canvas>
  <div id="sceneBackup" class="scene-backup" hidden><img src="assets/art/campus.webp" alt="3D恢复期间显示的校园场景图"><div class="scene-recovery"><strong>3D 画面暂时中断</strong><p>已保留作答进度。点击下面按钮重新加载3D场景。</p><button class="primary" onclick="location.reload()">↻ 恢复 3D 场景</button></div></div>
  <div class="sky-vignette" aria-hidden="true"></div>
- <header class="topbar"><div class="brand"><span class="brand-icon">⌚</span><div><strong>《手表》· 友情侦探</strong><small>走进故事 · 寻找言行线索</small></div></div><div class="topcenter"><span id="modeTag">I DO · 教师示范</span><span id="levelTag">第一关 · 校园线索</span></div><div class="topbuttons"><button class="iconbtn" id="sceneReset" title="恢复3D画面与初始镜头">↺<span>恢复画面</span></button><button class="iconbtn" id="helpBtn" title="操作说明">❔<span>帮助</span></button><button class="iconbtn" id="teacherBtn" title="教师控制台">◈<span>教师</span></button><button class="iconbtn" id="audioBtn" title="朗读开关">🔊<span>语音</span></button></div></header>
+ <header class="topbar"><div class="brand"><span class="brand-icon">⌚</span><div><strong>《手表》· 友情侦探</strong><small>走进故事 · 寻找言行线索</small></div></div><div class="topcenter"><span id="modeTag">I DO · 教师示范</span><span id="levelTag">第一关 · 校园线索</span></div><div class="topbuttons"><button id="sceneReset" type="button" hidden tabindex="-1" aria-hidden="true"></button><button class="iconbtn" id="helpBtn" title="操作说明">❔<span>帮助</span></button><button class="iconbtn" id="teacherBtn" title="教师控制台">◈<span>教师</span></button><button class="iconbtn" id="audioBtn" title="朗读开关">🔊<span>语音</span></button></div></header>
  <aside class="quest panel" id="questPanel"><div class="quest-header"><div><small>我的探险任务</small><h2 id="questLevelTitle">第一关 · 校园线索</h2></div><button class="mini-btn" id="questToggle" title="折叠任务">−</button></div><div id="questItems"></div><div class="quest-footer"><div class="progress-label"><span>探索进度</span><strong id="progressCount">0 / 7</strong></div><div class="progress-track"><div id="progressBar"></div></div><div class="evidence-summary" id="evidenceSummary">先找到脚踏车，看看发生了什么。</div></div></aside>
  <div id="hotspotLayer" aria-label="可交互的任务触发点"></div>
  <div class="map panel" id="map"><div class="maphead"><span>🧭 探索地图</span><button id="camReset" title="镜头恢复初始">↺ 重置镜头</button></div><canvas id="miniMap" width="210" height="160"></canvas><div class="maplegend"><span>● 我的位置</span><span>★ 当前任务</span></div></div>
@@ -19,7 +19,7 @@
  </main>
  <script src="../vendor/three.min.js"></script>
  <script src="../webgl-preview/vendor/GLTFLoader.r128.js"></script>
- <script src="world-three.js?v=restored3d-20261030"></script>
- <script src="audio-v2.js?v=restored3d-20261030" defer></script>
- <script type="module" src="game.js?v=restored3d-20261030"></script>
+ <script src="world-three.js?v=restore-1736-20261030"></script>
+ <script src="audio-v2.js?v=restore-1736-20261030" defer></script>
+ <script type="module" src="game.js?v=restore-1736-20261030"></script>
 </body></html>
