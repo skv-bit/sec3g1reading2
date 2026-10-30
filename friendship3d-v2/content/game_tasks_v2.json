@@ -1,9 +1,9 @@
 {
-  "schemaVersion": "2.2",
+  "schemaVersion": "2.3",
   "title": "《手表》3D友情侦探｜I Do＋We Do",
   "language": "zh-SG",
   "purpose": "中三G1华文阅读二读，证据→推论→主题，7热点内含多步骤题目，严格保留截图的I Do/We Do和三级侦探笔记",
-  "reviewStatus": "教师最终审阅前的交接稿；源引文取自教师提供课文，游戏引导句为原创",
+  "reviewStatus": "按2026-10-30课堂图片调整：第一关手表两题（P1/P5），第二关妈妈只用P6；双栏言行分类；单一侦探笔记输入框",
   "sourcePriority": [
     "content/《手表》原文九段_核对资料.md",
     "references/legacy_ui_screenshots",
@@ -325,7 +325,10 @@
         "studentFollowup": "两处证据为什么能支持“关心朋友”这一特点？"
       },
       "unlockNext": "L1_WATCH",
-      "completionText": "收集了两处言行证据，接着到手表旁看看故事的重要物品。"
+      "completionText": "收集了两处言行证据，接着到手表旁看看故事的重要物品。",
+      "displayEvidenceParagraphs": [
+        4
+      ]
     },
     {
       "id": "L1_WATCH",
@@ -333,7 +336,7 @@
       "order": 3,
       "hotspotId": "watch",
       "model": "watch.glb",
-      "role": "object_preparation",
+      "role": "object_origin_and_gift_reason",
       "label": "手表：故事的重要物品",
       "sceneMode": "I_DO_BRIEF_BRIDGE",
       "originalScreenshotRefs": [
@@ -341,8 +344,8 @@
         "09"
       ],
       "beforeQuestion": {
-        "teacherGuide": "第一关的手表只是线索道具，不提前讲出结局。第5段送礼动机留在第二关探讨。",
-        "onScreen": "先认识重要物品：这只手表原本属于谁？",
+        "teacherGuide": "先看第1段确定手表来源，之后依据第5段理解送表动机。第6段属于第二关妈妈生气的情节，不在本触发点出现。",
+        "onScreen": "先找出手表原来的主人，再思考“我”为什么把它送给丽华。",
         "sourceType": "game_written"
       },
       "evidence": [
@@ -351,6 +354,12 @@
           "sourceType": "verbatim",
           "fullText": "我把叔叔给我的名贵手表转送给丽华，妈妈知道了很生气。其实，我这么做是有原因的。",
           "excerpt": "我把叔叔给我的名贵手表转送给丽华，妈妈知道了很生气。"
+        },
+        {
+          "paragraph": 5,
+          "sourceType": "verbatim",
+          "fullText": "上个星期，丽华说她要随父母移居海外，我非常难过。我想送她一份珍贵的礼物，想来想去，最后选择了叔叔给我的那只手表。",
+          "excerpt": "上个星期，丽华说她要随父母移居海外，我非常难过。我想送她一份珍贵的礼物，想来想去，最后选择了叔叔给我的那只手表。"
         }
       ],
       "collectCard": {
@@ -387,6 +396,36 @@
           "hints": [
             "请看第1段的开头。",
             "“我把叔叔给我的名贵手表……”"
+          ]
+        },
+        {
+          "id": "L2Q1",
+          "type": "singleChoice",
+          "stem": "“我”为什么把叔叔送的名贵手表送给丽华？",
+          "options": [
+            {
+              "id": "a",
+              "text": "为了让丽华知道“我”有名贵手表。"
+            },
+            {
+              "id": "b",
+              "text": "因为“我”很珍惜“我”和丽华的友谊。"
+            },
+            {
+              "id": "c",
+              "text": "因为丽华要求“我”送她名贵手表。"
+            }
+          ],
+          "correctIds": [
+            "b"
+          ],
+          "grading": "exactChoice",
+          "sourceParagraphs": [
+            5
+          ],
+          "hints": [
+            "第5段提到“移居海外”和“非常难过”。",
+            "“我”希望用一份珍贵的礼物表达什么？"
           ]
         }
       ],
@@ -474,25 +513,19 @@
       "order": 5,
       "hotspotId": "mom",
       "model": "mom.glb",
-      "role": "virtual_guidance_not_in_story",
-      "label": "妈妈引导：手表的心意",
+      "role": "angry_mom_request",
+      "label": "妈妈生气：换回手表",
       "sceneMode": "WE_DO_GUIDED",
       "originalScreenshotRefs": [
         "09",
         "10"
       ],
       "beforeQuestion": {
-        "teacherGuide": "妈妈 NPC 是教学引导角色，并非原文写妈妈陪“我”到丽华家。补充第5、6段的情境。",
-        "onScreen": "回忆手表的故事：送礼的原因与妈妈的要求",
+        "teacherGuide": "只看第6段妈妈说的话和“我”的回应；第5段送表原因已放到第一关手表任务。",
+        "onScreen": "妈妈知道“我”把叔叔送的手表转送给丽华，十分生气。她要求“我”怎样做？",
         "sourceType": "game_written"
       },
       "evidence": [
-        {
-          "paragraph": 5,
-          "sourceType": "verbatim",
-          "fullText": "上个星期，丽华说她要随父母移居海外，我非常难过。我想送她一份珍贵的礼物，想来想去，最后选择了叔叔给我的那只手表。",
-          "excerpt": "上个星期，丽华说她要随父母移居海外，我非常难过。我想送她一份珍贵的礼物，想来想去，最后选择了叔叔给我的那只手表。"
-        },
         {
           "paragraph": 6,
           "sourceType": "verbatim",
@@ -502,51 +535,21 @@
       ],
       "steps": [
         {
-          "id": "L2Q1",
-          "type": "singleChoice",
-          "stem": "“我”为什么把叔叔送的名贵手表送给丽华？",
-          "options": [
-            {
-              "id": "a",
-              "text": "为了让丽华知道“我”有名贵手表。"
-            },
-            {
-              "id": "b",
-              "text": "因为“我”很珍惜“我”和丽华的友谊。"
-            },
-            {
-              "id": "c",
-              "text": "因为丽华要求“我”送她名贵手表。"
-            }
-          ],
-          "correctIds": [
-            "b"
-          ],
-          "grading": "exactChoice",
-          "sourceParagraphs": [
-            5
-          ],
-          "hints": [
-            "第5段提到“移居海外”和“非常难过”。",
-            "“我”希望用一份珍贵的礼物表达什么？"
-          ]
-        },
-        {
           "id": "L2Q2",
           "type": "singleChoice",
-          "stem": "根据第6段，妈妈要求“我”怎样做？“我”有什么反应？",
+          "stem": "根据第6段，妈妈叫“我”怎样做？“我”有什么反应？",
           "options": [
             {
               "id": "a",
-              "text": "妈妈要“我”换回叔叔送的手表，“我”虽然不愿意，却只好照做。"
+              "text": "妈妈叫“我”去把手表换回来，“我”虽然不愿意，但只好照做。"
             },
             {
               "id": "b",
-              "text": "丽华向妈妈抱怨手表太便宜。"
+              "text": "妈妈叫“我”把便宜的手表丢掉，“我”马上就答应了。"
             },
             {
               "id": "c",
-              "text": "妈妈亲自陪“我”到丽华家。"
+              "text": "妈妈说她要亲自去丽华家拿手表，“我”吓得不敢说话。"
             }
           ],
           "correctIds": [
@@ -564,7 +567,11 @@
         }
       ],
       "unlockNext": "L2_DOORBELL",
-      "completionText": "你知道了手表背后的心意与主角的为难。"
+      "completionText": "已找出妈妈的要求和“我”的反应。继续到门铃前，观察“我”的犹豫。",
+      "displayEvidenceParagraphs": [
+        6
+      ],
+      "art": "mom_angry"
     },
     {
       "id": "L2_DOORBELL",
@@ -658,7 +665,7 @@
         {
           "id": "L2Q4",
           "type": "categorize",
-          "stem": "哪两条是丽华在第8段的动作和语言？把卡片放进合适的框，另有一张不属于丽华。",
+          "stem": "在第8段中，哪些是丽华的“动作”和“语言”？把两张正确证据卡分类，另一张不属于丽华，请留在原处。",
           "items": [
             {
               "id": "a",
@@ -681,15 +688,10 @@
             {
               "id": "speech",
               "label": "语言 Speech"
-            },
-            {
-              "id": "other",
-              "label": "不是丽华的言行"
             }
           ],
           "answerKey": {
             "a": "action",
-            "b": "other",
             "c": "speech"
           },
           "grading": "allMappedExactly",
@@ -698,10 +700,13 @@
             8
           ],
           "hints": [
-            "先想清楚：是“我”做的，还是丽华做的？",
-            "第8段“把表还给我，拍拍我的肩膀”是动作；“对我说”后是语言。"
+            "找出丽华自己做的动作或说的话。注意：有一张卡片说的是“我”的动作，不需要放进任何框。",
+            "把手表还给“我”、拍拍肩膀是动作；丽华说的“礼物是一份心意”是语言。"
           ],
-          "interactionFallback": "点击卡片→点击分类框；支持键盘焦点操作，不依赖只能拖动的DOM事件"
+          "interactionFallback": "点击卡片，再点击动作或语言两个分类框；干扰卡留在原处即可。",
+          "distractorIds": [
+            "b"
+          ]
         }
       ],
       "unlockNext": "L2_STATION",
@@ -802,10 +807,9 @@
           "saveFields": [
             "supportLevel",
             "originalDraft",
-            "revisedDraft",
             "submittedAt"
           ],
-          "completion": "requireAttemptOrTeacherAcknowledge",
+          "completion": "完成独立说明并保存初稿；三项自评可以继续保留",
           "grading": "NO_AUTOMATED_SEMANTIC_GRADE",
           "teacherFeedback": "根据证据具体性、推论合理性、解释因果关系人工审核",
           "supportLevels": [
@@ -842,16 +846,9 @@
               "text": "联主题：我结合故事说明朋友相处时值得重视的心意。"
             }
           ],
-          "selfCheckRequiresRevisionPrompt": true,
-          "optionalTransfer": {
-            "stem": "如果朋友送你一份亲手做的礼物，但你不喜欢，你会怎样回应？为什么？",
-            "openToEmotion": true,
-            "answerValidation": "teacher_review_only",
-            "saveField": "lifeResponse"
-          },
           "hints": [
-            "根据第3、4、8段找事实，再问：丽华为什么这样做？",
-            "想想第8段“礼物是一份心意”，第9段“我”流泪。不要把没有写出的心理当成原文事实。"
+            "结合第3、4、8段两处以上言行，说明丽华怎样对待朋友。",
+            "再想想第9段“我”为什么流泪：她的体谅与珍惜友谊如何打动“我”？"
           ]
         }
       ],
