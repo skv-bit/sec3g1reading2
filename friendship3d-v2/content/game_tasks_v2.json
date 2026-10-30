@@ -369,7 +369,7 @@
         "09"
       ],
       "beforeQuestion": {
-        "teacherGuide": "手表两题统一呈现第1段和第5段：第一题找出叔叔送表的事实，第二题联系移居海外与珍贵礼物的情节理解友情；题目的答案标准不变。",
+        "teacherGuide": "两题统一显示第5段原文：第一题找出原本是谁送给“我”的手表，第二题理解“我”为什么珍惜这段友谊。第1段不显示在本触发点的原文依据区。",
         "onScreen": "先找出手表原来的主人，再思考“我”为什么把它送给丽华。",
         "sourceType": "game_written"
       },
@@ -396,7 +396,7 @@
         {
           "id": "L1Q2",
           "type": "singleChoice",
-          "stem": "根据第1段，这只手表原来是谁送给“我”的？",
+          "stem": "根据第5段，这只手表原来是谁送给“我”的？",
           "options": [
             {
               "id": "a",
@@ -416,11 +416,11 @@
           ],
           "grading": "exactChoice",
           "sourceParagraphs": [
-            1
+            5
           ],
           "hints": [
-            "请看第1段的开头。",
-            "“我把叔叔给我的名贵手表……”"
+            "请看第5段结尾：最后选择了谁给“我”的那只手表？",
+            "第5段有“叔叔给我的那只手表”这一线索。"
           ]
         },
         {
@@ -458,7 +458,6 @@
       "completionText": "手表线索已收集。现在去推论站，运用两处证据判断丽华的特点。",
       "renderModel": "watch_display_v2.glb",
       "sharedEvidenceParagraphs": [
-        1,
         5
       ],
       "vocabWords": [
