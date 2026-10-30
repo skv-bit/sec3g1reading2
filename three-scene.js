@@ -386,8 +386,8 @@ global.WatchThreeScene=function(options){
   zoomButton('＋','放大3D场景',()=>setZoom(zoomDistance*.83));
   zoomButton('－','缩小3D场景',()=>setZoom(zoomDistance*1.2));
   zoomButton('⌂','查看完整岛屿全景',resetView);
-  const personButton=zoomButton('人','回到人物近景',returnToPlayer);
-  personButton.style.fontSize='18px';
+  const focusButton=zoomButton('🔍','放大并聚焦人物',returnToPlayer);
+  focusButton.style.fontSize='23px';
   document.body.appendChild(zoomWidget);
   function onWheel(e){e.preventDefault();setZoom(zoomDistance*Math.exp(clamp(e.deltaY,-140,140)*.0017));}
   canvas.addEventListener('wheel',onWheel,{passive:false});
