@@ -283,7 +283,153 @@
       inner.rotation.x=-Math.PI/2;
       stageRings.push({ring,item});
     }
+    
+    // V16: narrator-only clean clay character. Scene painterly materials and Lihua NPC are unchanged.
+    function characterMaterial(color,roughness=.8,extra={}){
+      return new T.MeshStandardMaterial({color,roughness,metalness:0,...extra});
+    }
+    function createNarratorV16(){
+      const g=new T.Group();
+      g.name='Narrator_WhiteHat_LongHair_V16';
+      g.userData={type:'narrator',walkPhase:0,arms:[],legs:[],hairLocks:[],characterVersion:'V16'};
+      const skin=characterMaterial('#ffe0bd',.87);
+      const blush=characterMaterial('#ffb0a6',.92);
+      const whiteShirt=characterMaterial('#ffffff',.88);
+      const navy=characterMaterial('#1e3f7a',.84);
+      const skirt=characterMaterial('#284b8a',.87);
+      const skirtShade=characterMaterial('#203d70',.91);
+      const sock=characterMaterial('#fffdf6',.91);
+      const shoe=characterMaterial('#29313b',.55);
+      const hair=characterMaterial('#302019',.86);
+      const hairLight=characterMaterial('#513625',.8);
+      const hat=characterMaterial('#f7f1e3',.94);
+      const hatShade=characterMaterial('#e6dbc8',.94);
+      const flower=characterMaterial('#29282b',.86);
+      const backpack=characterMaterial('#d9c6a5',.91);
+      const backpackDark=characterMaterial('#b8a283',.94);
+      const eye=new T.MeshPhysicalMaterial({
+        color:0x17151a,roughness:.16,metalness:0,clearcoat:1,clearcoatRoughness:.1
+      });
+      const sparkle=new T.MeshBasicMaterial({color:0xffffff});
+      function oval(r,mat,x,y,z,sx=1,sy=1,sz=1,parent=g,detail=28){
+        const o=ball(r,mat,x,y,z,parent,detail);o.scale.set(sx,sy,sz);return o;
+      }
+      // Keep the locomotion pivots in exactly the format expected by updatePlayer().
+      cyl(.285,.315,.47,whiteShirt,0,1.12,0,g,24);
+      cyl(.13,.15,.12,skin,0,1.40,0,g,16);
+      cyl(.30,.49,.51,skirt,0,.72,0,g,32);
+      for(let i=0;i<14;i++){
+        const a=(i+.5)*2*Math.PI/14;
+        const x=Math.cos(a)*.41,z=Math.sin(a)*.41;
+        const pleat=box(.027,.34,.040,i%2?skirtShade:skirt,x,.655,z,g);
+        pleat.rotation.y=-a;
+      }
+      // Short white sleeves, rounded arms, white socks and small dark school shoes.
+      for(const side of [-1,1]){
+        const leg=new T.Group();add(g,leg,side*.185,.565,0);
+        oval(.12,skin,0,-.17,0,.83,1.79,.82,leg);
+        oval(.112,sock,0,-.375,0,.87,.72,.88,leg);
+        oval(.15,shoe,0,-.485,-.13,1.1,.62,1.33,leg,18);
+        g.userData.legs.push(leg);
+        const arm=new T.Group();add(g,arm,side*.335,1.31,0);
+        oval(.18,whiteShirt,0,-.076,0,.86,.77,.90,arm,20);
+        oval(.105,skin,0,-.295,0,.77,1.72,.75,arm);
+        oval(.09,skin,0,-.50,0,.83,.89,.77,arm);
+        arm.rotation.z=side*.15;
+        g.userData.arms.push(arm);
+      }
+      // A shaped collar and two crisp navy bow wings (not round ball buttons).
+      for(const side of [-1,1]){
+        const collar=new T.Shape();
+        collar.moveTo(0,0);
+        collar.lineTo(side*.17,.052);
+        collar.lineTo(side*.09,-.14);
+        collar.closePath();
+        const panel=mesh(new T.ExtrudeGeometry(collar,{depth:.014,bevelEnabled:false}),whiteShirt,0,1.39,-.291,g);
+        panel.rotation.z=0;
+        const shape=new T.Shape();
+        shape.moveTo(0,0);
+        shape.lineTo(side*.21,.065);
+        shape.lineTo(side*.26,-.035);
+        shape.lineTo(side*.18,-.115);
+        shape.closePath();
+        mesh(new T.ExtrudeGeometry(shape,{depth:.030,bevelEnabled:true,bevelSize:.008,bevelThickness:.007,bevelSegments:2}),navy,0,1.29,-.326,g);
+      }
+      oval(.047,navy,0,1.29,-.373,1,1,.75);
+      // Hair behind the face: a smooth cap and long narrow locks, instead of chunky curls.
+      oval(.555,hair,0,1.88,.105,1.08,1.06,.91,g,36);
+      const longHair=new T.Group();add(g,longHair,0,2.03,0);
+      const backStrands=[[-.39,-.02,.29],[-.255,-.10,.35],[-.09,-.12,.39],[.09,-.10,.39],[.255,-.08,.35],[.39,-.02,.28]];
+      backStrands.forEach(([x,y,z],i)=>{
+        const t=oval(.22,i===0||i===5?hair:hairLight,x,-.51+y,z,.60,2.55,.64,longHair,24);
+        t.rotation.z=(i-2.5)*-.016;
+        oval(.13,hair,x+(i-2.5)*.008,-.97+y,z,.83,1.12,.95,longHair,18);
+      });
+      // Foreground strands frame the cheeks; low ends are straight, not spiral curls.
+      for(const side of [-1,1]){
+        oval(.198,hair,side*.445,1.79,-.09,.59,1.45,.73,g,24);
+        const strand=oval(.154,hair,side*.445,1.39,-.065,.73,2.20,.72,g,24);
+        strand.rotation.z=-side*.025;
+        oval(.13,hair,side*.438,1.14,-.06,.83,.83,.79,g,18);
+      }
+      g.userData.hairLocks.push(longHair);
+      // A smooth oval face with warm skin, deliberately without painterly texture.
+      oval(.52,skin,0,1.83,-.10,1.045,1.045,.94,g,48);
+      // Fine fringe stays above eye line.
+      for(let j=0;j<5;j++){
+        const x=(j-2)*.174;
+        const bang=oval(.123,hair,x,2.235,-.492,.82,1.02,.46,g,20);
+        bang.rotation.z=(j-2)*.085;
+      }
+      for(const side of [-1,1]){
+        // Large dark eyes, with two separate specular dots.
+        oval(.111,eye,side*.212,1.91,-.584,.81,1.23,.51,g,24);
+        oval(.037,sparkle,side*.193,1.956,-.630,.78,.86,.48,g,14);
+        oval(.016,sparkle,side*.235,1.878,-.636,.8,.8,.6,g,10);
+        const brow=oval(.071,hair,side*.216,2.064,-.565,1.07,.23,.23,g,14);
+        brow.rotation.z=-side*.15;
+        oval(.115,blush,side*.37,1.71,-.541,.94,.44,.15,g,18);
+      }
+      oval(.044,characterMaterial('#d9534f',.8),0,1.655,-.594,1.06,.67,.42,g,18);
+      // Soft white bucket hat: custom LatheGeometry for a drooping fabric brim.
+      const profile=[
+        new T.Vector2(.45,2.302),new T.Vector2(.515,2.29),
+        new T.Vector2(.586,2.272),new T.Vector2(.598,2.284),
+        new T.Vector2(.583,2.321),new T.Vector2(.488,2.355),
+        new T.Vector2(.424,2.385),new T.Vector2(.399,2.553),
+        new T.Vector2(.365,2.603),new T.Vector2(.20,2.631),
+        new T.Vector2(0,2.637)
+      ];
+      const hatMesh=mesh(new T.LatheGeometry(profile,48),hat,0,0,0,g);
+      hatMesh.castShadow=true;
+      const seam=torus(.477,.011,hatShade,0,2.349,0,g);
+      seam.rotation.x=Math.PI/2;
+      seam.scale.z=.94;
+      // Signature black four-petal flower on the hat's front-left.
+      const flowerX=-.25,flowerY=2.49,flowerZ=-.355;
+      for(let k=0;k<4;k++){
+        const a=k*Math.PI/2;
+        const petal=oval(.052,flower,flowerX+Math.cos(a)*.046,flowerY+Math.sin(a)*.048,flowerZ,.79,1.11,.38,g,14);
+        petal.rotation.z=a-Math.PI/2;
+      }
+      oval(.025,hat,flowerX,flowerY,flowerZ-.025,1,1,.65);
+      // Rounded beige school backpack, deliberately small and behind the hair.
+      const sh=new T.Shape(),w=.44,h=.47,r=.075;
+      sh.moveTo(-w/2+r,-h/2);sh.lineTo(w/2-r,-h/2);
+      sh.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r);
+      sh.lineTo(w/2,h/2-r);sh.quadraticCurveTo(w/2,h/2,w/2-r,h/2);
+      sh.lineTo(-w/2+r,h/2);sh.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r);
+      sh.lineTo(-w/2,-h/2+r);sh.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2);
+      mesh(new T.ExtrudeGeometry(sh,{depth:.14,bevelEnabled:true,bevelSize:.024,bevelThickness:.022,bevelSegments:3,curveSegments:8}),backpack,0,1.02,.42,g);
+      box(.29,.11,.035,backpackDark,0,.925,.605,g);
+      for(const side of [-1,1]){
+        tube([side*.21,1.31,.26],[side*.20,.87,.49],.025,backpackDark,g);
+      }
+      g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+      return g;
+    }
     function createGirl(type='narrator'){
+ if(type==='narrator') return createNarratorV16();
  const g=new T.Group();g.userData={type,walkPhase:0};const isLi=type==='lihua';
  const skin=material('#ffe0bd','#f3b79e'),shirt=material('#ffffff','#d7e2e9'),skirt=material('#284b8a','#456dad'),hair=material('#3b2314','#65432c'),navy=material('#1e3f7a','#3a679b'),shoes=material('#272c34','#49505e'),socks=material('#fffdf6','#d7e1e7');
  cyl(.28,.32,.48,shirt,0,1.11,0,g,16);cyl(.14,.16,.11,skin,0,1.39,0,g);
@@ -376,6 +522,7 @@
       const swing=Math.sin(ud.walkPhase)*movingAmt;
       ud.legs.forEach((l,i)=>l.rotation.x=(i===0?1:-1)*swing*.44);
       ud.arms.forEach((a,i)=>a.rotation.x=(i===0?-1:1)*swing*.34);
+      if(ud.hairLocks){ud.hairLocks.forEach(h=>{h.rotation.z=Math.sin(ud.walkPhase*.62)*(moving?.018:.007);h.rotation.x=Math.sin(ud.walkPhase*.45)*(moving?.014:.004);});}
       // Body bob is small, and all pieces remain a single coherent Three.Group.
       const base=moving?Math.abs(Math.sin(ud.walkPhase))*0.043:Math.sin(ud.walkPhase)*.013;
       currentPlayer.position.y=base;
