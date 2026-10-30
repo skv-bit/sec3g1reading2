@@ -10,7 +10,7 @@ class World3DThree {
   this.canvas=canvas;this.contextLost=false;this.assets={};this.level=1;
   this.positions={
     1:{bike:{x:-4.6,z:1.4,y:.02,s:1.6},lihua:{x:4.0,z:-4.5,y:0,s:1.35},inference:{x:-2.9,z:-2.35,y:0,s:1.05}},
-    2:{watch:{x:3.7,z:2.3,y:0,s:1.12},mom:{x:-2.8,z:-.9,y:0,s:1.29},doorbell:{x:1.35,z:-4.8,y:1.12,s:1.18},lihua:{x:4.1,z:-3.6,y:0,s:1.36},evidence_station:{x:-5.2,z:2.2,y:0,s:1.34}}
+    2:{watch:{x:3.7,z:2.3,y:0,s:1.12},mom:{x:-2.8,z:-.9,y:0,s:1.29},doorbell:{x:1.35,z:-4.8,y:1.12,s:1.18},lihua:{x:5.8,z:-0.35,y:0,s:1.36},evidence_station:{x:-5.2,z:2.2,y:0,s:1.34}}
   };
   this.yaw=0;this.pitch=.72;this.dist=19;this.time=0;this.hotspots=[];this.padKeys=new Set();
   this.player={x:0,z:5.5,face:Math.PI,moving:false,bob:0};this.cursor={x:0,z:5.5};
@@ -133,7 +133,8 @@ class World3DThree {
      const key=h.renderModel?.replace('.glb','')||(h.hotspotId==='watch'?'watch_display_v2':h.model.replace('.glb',''));
      if(h.hotspotId==='lihua'){
       // A 2D camera-facing Lihua with her blue ponytail ribbon and bandage.
-      const npc=new T.Sprite(new T.SpriteMaterial({map:this.lihuaTexture,transparent:true,depthWrite:false,alphaTest:.05}));
+      const npc=new T.Sprite(new T.SpriteMaterial({map:this.lihuaTexture,transparent:true,depthWrite:false,depthTest:false,alphaTest:.05}));
+      npc.renderOrder=10; // Make Lihua visible against the house and trees
       npc.scale.set(1.63*p.s,2.45*p.s,1);
       npc.position.set(0,1.18*p.s-p.y,0);
       holder.add(npc);
