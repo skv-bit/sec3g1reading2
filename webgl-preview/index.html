@@ -142,6 +142,17 @@ html,body{background:#dbf2e5}
 .review-prompt ul{margin:8px 0 0;padding-left:24px}.review-short{min-height:82px}
 
 </style>
+<style id="v27-word-hints">
+#modal .quiz-vocabulary{display:block;margin:16px 0 18px;border:2px dashed #9dcda8;border-radius:19px;background:#eaf7e8;padding:17px 21px;color:#3d6356;line-height:1.75;box-shadow:none}
+#modal .quiz-vocabulary>summary{font-size:clamp(17px,1.55vw,22px);font-weight:750;cursor:pointer;color:#315b4c;list-style:revert}
+#modal .quiz-vocabulary .vocab-inline{margin:15px 0 2px;font-size:clamp(17px,1.45vw,22px);line-height:1.85}
+#modal .quiz-vocabulary .vocab-piece{display:inline;white-space:normal}
+#modal .quiz-vocabulary .vocab-pinyin{letter-spacing:.015em;color:#466c66}
+#modal .quiz-vocabulary .vocab-english{color:#536c67}
+#modal .quiz-vocabulary .vocab-dot{padding:0 3px;color:#65966a}
+#modal .quiz-vocabulary+.choices{margin-top:18px}
+@media(max-width:720px){#modal .quiz-vocabulary{padding:13px 15px;margin:12px 0 16px}#modal .quiz-vocabulary .vocab-inline{font-size:17px}}
+</style>
 </head>
 <body>
 <main id="app" aria-label="《手表》友谊侦探互动场景">
@@ -201,7 +212,7 @@ function speakText(t){
  }catch(e){toast('语音播放暂不可用')}
 }
 function lineImage(scene=state.scene){return (V6_ART.cards&&V6_ART.cards[Math.min(scene,V6_ART.cards.length-1)])||''}
-function vocabHint(items){return `<div class="vocab-list">${items.map(([w,p,e])=>`<div class="vocab-item"><strong>${w}</strong>（${p}）— ${e}</div>`).join('')}</div>`}
+function vocabHint(items){return `<p class="vocab-inline">${items.map(([w,p,e])=>`<span class="vocab-piece"><strong>${esc(w)}</strong> <span class="vocab-pinyin">${esc(p)}</span> <span class="vocab-english">(${esc(e)})</span></span>`).join('<span class="vocab-dot" aria-hidden="true"> · </span>')}</p>`}
 function awardWeDoBadge(){show(`<div class="eyebrow">🏅 第二关完成奖励</div><div class="award-wrap"><span class="award-badge">🎖️</span><h2>恭喜你闯关成功！</h2><p class="award-sub">你太棒了！你已经找齐了所有重要线索，成功解开了人物的内心密码。</p><div class="success-note">现在进入最后一步，记下你的“侦探笔记”吧！</div><div class="modal-actions" style="justify-content:center"><button class="primary" id="goWriteBtn">翻开“侦探笔记” →</button></div></div>`);$('goWriteBtn').onclick=evidenceWrite;}
 function clueCard({eyebrow='线索回看',heading='重看线索',quote='',image='',audioText='',back}){show(`<div class="eyebrow">${esc(eyebrow)}</div><h2>${esc(heading)}</h2>${quote?`<div class="quote">${esc(quote)}</div>`:''}${image?`<img class="story-illustration" src="${image}" alt="线索插图"/>`:''}${audioText?`<div class="audio-row"><button class="secondary" id="playLineAudio">▶ 播放线索语音</button><span class="audio-note">不显示示范文字，可点按钮听。</span></div>`:''}<div class="modal-actions"><button class="secondary" id="backLineBtn">返回题目</button></div>`);if(audioText){$('playLineAudio').onclick=()=>speakText(audioText)}$('backLineBtn').onclick=back;}
 function toast(msg){let t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1900)}
@@ -210,15 +221,15 @@ function sceneStart(scene){state.scene=scene;state.highest=Math.max(state.highes
 function optionsHTML(opts,multi=false){return '<div class="choices" id="answers">'+opts.map((o,i)=>`<button type="button" class="choice" data-choice="${i}"><span class="mark">${multi?'□':String.fromCharCode(65+i)}</span>${esc(o)}</button>`).join('')+'</div>'}
 function choicesSetup(correct,ok, wrongText,multi=false){let selected=new Set();document.querySelectorAll('#answers .choice').forEach(b=>b.addEventListener('click',()=>{let i=Number(b.dataset.choice);if(!multi)selected.clear();if(multi&&selected.has(i))selected.delete(i);else selected.add(i);document.querySelectorAll('#answers .choice').forEach(c=>{let on=selected.has(Number(c.dataset.choice));c.classList.toggle('selected',on);c.querySelector('.mark').textContent=multi?(on?'☑':'□'):String.fromCharCode(65+Number(c.dataset.choice))})}));$('checkBtn').addEventListener('click',()=>{let pass=selected.size===correct.length&&correct.every(x=>selected.has(x));if(pass){$('feedback').className='feedback ok';$('feedback').innerHTML='✓ 阅读证据正确！关卡已解锁。';$('checkBtn').disabled=true;mark(ok.id);const done=$('continueBtn');if(done){done.style.display='inline-block';done.addEventListener('click',()=>{close();if(ok.after)ok.after()})}toast('✨ 线索解锁！');}else{$('feedback').className='feedback';$('feedback').textContent=wrongText;toast('再找一找原文线索');}});}
 function quizModal({label,heading,quote='',image='',options,correct,multi=false,hint='',why,id,onSuccess,reviewLabel='',onReview}){
- show(`<div class="eyebrow">✧ ${esc(label)}</div>${quote?`<div class="quote">${esc(quote)}</div>`:''}${image?`<img class="story-illustration" src="${image}" alt="阅读线索情境插图"/>`:''}<h2 class="question-title">${esc(heading)}</h2>${optionsHTML(options,multi)}${hint?`<details class="support"><summary>🧩 词语提示（拼音 / English）</summary>${hint}</details>`:''}<div id="feedback" aria-live="polite"></div><div class="modal-actions compact"><div>${onReview?`<button class="secondary" id="reviewBtn">${esc(reviewLabel||'重看线索')}</button>`:''}</div><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="secondary" id="backBtn">返回</button><button class="primary" id="checkBtn">检查</button><button class="primary" id="continueBtn" style="display:none">继续 →</button></div></div>`);
+ show(`<div class="eyebrow">✧ ${esc(label)}</div>${quote?`<div class="quote">${esc(quote)}</div>`:''}${image?`<img class="story-illustration" src="${image}" alt="阅读线索情境插图"/>`:''}<h2 class="question-title">${esc(heading)}</h2>${hint?`<details class="support quiz-vocabulary"><summary>💡 词语提示（按需查看）</summary>${hint}</details>`:''}${optionsHTML(options,multi)}<div id="feedback" aria-live="polite"></div><div class="modal-actions compact"><div>${onReview?`<button class="secondary" id="reviewBtn">${esc(reviewLabel||'重看线索')}</button>`:''}</div><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="secondary" id="backBtn">返回</button><button class="primary" id="checkBtn">检查</button><button class="primary" id="continueBtn" style="display:none">继续 →</button></div></div>`);
  $('backBtn').onclick=close;
  if(onReview&&$('reviewBtn'))$('reviewBtn').onclick=onReview;
  choicesSetup(correct,{id,after:()=>{if(onSuccess)onSuccess()}},why,multi);
 }
-function teacherMemory1(){show(`<div class="eyebrow">I DO · 第一关 · 教师示范 1/2</div><h2>第一处证据：危险时刻</h2><div class="quote">第3段：“丽华连忙推开我，结果自己却摔倒在地上。她擦伤了手臂，我反而没事。”</div><img class="story-illustration" src="${V11_IMG.accident}" alt="丽华摔倒受伤，而戴白帽的我安然无事"/><div class="audio-row"><button class="secondary" id="playTeacher1">▶ 播放教师示范语音</button></div><details class="teacher-word-hint"><summary>💡 词语提示（拼音 / English）</summary>${vocabHint([['推','tuī','to push'],['摔倒','shuāi dǎo','to fall down'],['擦伤','cā shāng','scrape / graze']])}</details><div class="modal-actions"><button class="secondary" id="closeBtn">返回</button><button class="primary" id="collectBtn">收下证据一 ✓</button></div>`);
+function teacherMemory1(){show(`<div class="eyebrow">I DO · 第一关 · 教师示范 1/2</div><h2>第一处证据：危险时刻</h2><div class="quote">第3段：“丽华连忙推开我，结果自己却摔倒在地上。她擦伤了手臂，我反而没事。”</div><img class="story-illustration" src="${V11_IMG.accident}" alt="丽华摔倒受伤，而戴白帽的我安然无事"/><div class="audio-row"><button class="secondary" id="playTeacher1">▶ 播放教师示范语音</button></div><details class="teacher-word-hint quiz-vocabulary"><summary>💡 词语提示（按需查看）</summary>${vocabHint([['推','tuī','to push'],['摔倒','shuāi dǎo','to fall down'],['擦伤','cā shāng','scrape / graze']])}</details><div class="modal-actions"><button class="secondary" id="closeBtn">返回</button><button class="primary" id="collectBtn">收下证据一 ✓</button></div>`);
 $('playTeacher1').onclick=()=>speakText('我先看到课文。丽华推开“我”，自己却摔倒受伤。\n\n这让我想到，她可能很关心朋友。\n\n不过，我还需要找另一个线索，才能更确定我想的是对的。');
 $('closeBtn').onclick=close;$('collectBtn').onclick=()=>{mark('accident');close();toast('已收集第3段行动证据');};}
-function teacherMemory2(){show(`<div class="eyebrow">I DO · 第一关 · 教师示范 2/2</div><h2>第二处证据：受伤后的关心</h2><div class="quote">第4段：“丽华手臂缠着纱布走进教室。……她却关心地问我：‘你没事吧？’”</div><img class="story-illustration" src="${V11_IMG.bandage}" alt="扎蓝色发圈的丽华手臂缠着纱布，在教室关心朋友"/><div class="audio-row"><button class="secondary" id="playTeacher2">▶ 播放教师示范语音</button></div><details class="teacher-word-hint"><summary>💡 词语提示（拼音 / English）</summary>${vocabHint([['推','tuī','to push'],['摔倒','shuāi dǎo','to fall down'],['擦伤','cā shāng','scrape / graze']])}</details><div class="modal-actions"><button class="secondary" id="closeBtn">返回</button><button class="primary" id="collectBtn">收下证据二 ✓</button></div>`);
+function teacherMemory2(){show(`<div class="eyebrow">I DO · 第一关 · 教师示范 2/2</div><h2>第二处证据：受伤后的关心</h2><div class="quote">第4段：“丽华手臂缠着纱布走进教室。……她却关心地问我：‘你没事吧？’”</div><img class="story-illustration" src="${V11_IMG.bandage}" alt="扎蓝色发圈的丽华手臂缠着纱布，在教室关心朋友"/><div class="audio-row"><button class="secondary" id="playTeacher2">▶ 播放教师示范语音</button></div><details class="teacher-word-hint quiz-vocabulary"><summary>💡 词语提示（按需查看）</summary>${vocabHint([['推','tuī','to push'],['摔倒','shuāi dǎo','to fall down'],['擦伤','cā shāng','scrape / graze']])}</details><div class="modal-actions"><button class="secondary" id="closeBtn">返回</button><button class="primary" id="collectBtn">收下证据二 ✓</button></div>`);
 $('playTeacher2').onclick=()=>speakText('第二天，丽华手臂还缠着纱布。\n\n她明明自己很疼，却先问朋友有没有事。\n\n把这条线索，跟之前脚踏车的事件连起来看，我就更有理由认为：丽华很善良，也很关心别人。');
 $('closeBtn').onclick=close;$('collectBtn').onclick=()=>{mark('bandage');close();toast('两处证据已整理');};}
 function reviewBothClues(){
@@ -230,7 +241,7 @@ function reviewBothClues(){
  <div class="modal-actions"><button class="secondary" id="returnToGate">返回题目</button></div>`);
  $('returnToGate').onclick=campusGate;
 }
-function campusGate(){quizModal({label:'第一关出口',heading:'在第3、4段中，丽华的哪些“动作”和“语言”证明她非常关心朋友？（请选出2个证据）',image:V11_IMG.pair,options:['丽华推开“我”，自己却摔倒受伤。','丽华要求“我”把手表换回来。','丽华受伤后仍先问“我”有没有事。'],correct:[0,2],multi:true,hint:'',why:'再看看第3、4段的两处言行，选出真正能支持“丽华关心朋友”的证据。',id:'exit',reviewLabel:'重看两处线索',onReview:reviewBothClues,onSuccess:()=>sceneStart(1)});} 
+function campusGate(){quizModal({label:'第一关出口',heading:'在第3、4段中，丽华的哪些“动作”和“语言”证明她非常关心朋友？（请选出2个证据）',image:V11_IMG.pair,options:['丽华推开“我”，自己却摔倒受伤。','丽华要求“我”把手表换回来。','丽华受伤后仍先问“我”有没有事。'],correct:[0,2],multi:true,hint:vocabHint([['推开','tuī kāi','push away'],['摔倒','shuāi dǎo','fall'],['擦伤','cā shāng','scrape'],['纱布','shā bù','gauze'],['关心','guān xīn','care']]),why:'再看看第3、4段的两处言行，选出真正能支持“丽华关心朋友”的证据。',id:'exit',reviewLabel:'重看两处线索',onReview:reviewBothClues,onSuccess:()=>sceneStart(1)});} 
 function watchQuest(){quizModal({label:'心意线索 · 第5段',heading:'“我”为什么把叔叔送的名贵手表给丽华？',quote:'第5段：“丽华说她要随父母移居海外，我非常难过。我想送她一份珍贵的礼物……最后选择了叔叔给我的那只手表。”',image:V11_IMG.gift,options:['为了让丽华知道“我”有一只名贵的手表。','因为我很珍惜“我”和丽华的友谊。','因为丽华要求“我”送她名贵手表。'],correct:[1],hint:vocabHint([['名贵','míng guì','valuable'],['叔叔','shū shu','uncle'],['移居海外','yí jū hǎi wài','move overseas'],['选择','xuǎn zé','to choose'],['珍贵','zhēn guì','precious'],['要求','yāo qiú','to request']]),why:'第5段写出“我”因为丽华将离开而非常难过，想用一份珍贵的礼物表达心意。',id:'watch',reviewLabel:'重看手表线索',onReview:()=>clueCard({eyebrow:'WE DO · 线索回看',heading:'手表的心意',quote:'第5段：我非常难过，想送丽华一份珍贵的礼物，最后选择了叔叔给我的那只手表。',image:V11_IMG.gift,back:watchQuest})});}
 function bellQuest(){quizModal({label:'第二关 · 门铃任务 · 第7段',heading:'“我”为什么几次伸手又缩回来？',quote:'“我心想：她会生气吗？我会不会失去这个朋友？”',image:V11_IMG.bell,options:['“我”找不到门铃在哪里。','“我”担心丽华生气，害怕失去朋友。','“我”不记得丽华家的地址。'],correct:[1],hint:vocabHint([['失去','shī qù','to lose'],['门铃','mén líng','doorbell'],['害怕','hài pà','to be afraid'],['地址','dì zhǐ','address']]),why:'注意人物心理：“她会生气吗？我会不会失去这个朋友？”',id:'bell',reviewLabel:'重看门铃线索',onReview:()=>clueCard({eyebrow:'门铃任务 · 线索回看',heading:'“我”的犹豫',quote:'第7段：我心想，她会生气吗？我会不会失去这个朋友？',image:V11_IMG.bell,back:bellQuest})});}
 function actualEnding(){
@@ -245,13 +256,13 @@ function actualEnding(){
  <div class="quote">第8段：“她把表还给我，拍拍我的肩膀，对我说：‘礼物是一份心意，只要是你送的，我都喜欢。我们永远是最好的朋友！’”</div>
  <img class="story-illustration" src="${V11_IMG.response}" alt="丽华归还手表并安慰我"/>
  <h2 class="question-title">在第8段中，丽华的哪些“动作”和“语言”证明她非常体谅“我”？</h2>
+ <details class="support quiz-vocabulary"><summary>💡 词语提示（按需查看）</summary>${vocabHint([['体谅','tǐ liàng','be considerate'],['肩膀','jiān bǎng','shoulder'],['心意','xīn yì','thoughtfulness'],['缩','suō','draw back']])}</details>
  <p class="sort-instruction">把下方线索拖进<strong>“动作”</strong>和<strong>“语言”</strong>两个框里。也可以先点击卡片，再点击对应的框。</p>
  <div class="sort-bank" id="sortBank"><div class="sort-bank-head">🔎 待分类的线索（其中有一张不属于丽华）</div>${cards.map(c=>`<button type="button" draggable="true" class="sort-chip" data-card="${c.id}">${esc(c.text)}</button>`).join('')}</div>
  <div class="sort-slots">
  <button type="button" class="sort-zone" data-zone="action" aria-label="动作分类框"><h3>✋ 动作 Action</h3><span class="empty">将丽华做的事放这里</span></button>
  <button type="button" class="sort-zone language" data-zone="language" aria-label="语言分类框"><h3>💬 语言 Speech</h3><span class="empty">将丽华说的话放这里</span></button>
  </div>
- <details class="support"><summary>🧩 词语提示（拼音 / English）</summary>${vocabHint([['体谅','tǐ liàng','be considerate'],['肩膀','jiān bǎng','shoulder'],['心意','xīn yì','thoughtfulness'],['缩','suō','draw back']])}</details>
  <div id="feedback" aria-live="polite"></div>
  <div class="modal-actions"><button class="secondary" id="backBtn">返回</button><button class="secondary" id="resetSortBtn">重新分类</button><button class="primary" id="checkBtn">检查</button><button class="primary" id="continueBtn" style="display:none">继续 →</button></div>`);
  const bank=$('sortBank');
@@ -305,7 +316,7 @@ function actualEnding(){
  $('continueBtn').onclick=close;
  draw();
 }
-function evidenceStation(){show(`<div class="eyebrow">WE DO · 证据整合站 · 第3–4、8段</div><h2>线索连连看：丽华到底是个怎样的人？</h2><p><strong>把丽华做过的两件事连起来看，猜猜她的性格。</strong></p><div class="quote">🔎 <strong>线索一（第3–4段）：</strong>丽华推开我，自己<strong>摔跤</strong>受伤了，却先问我有没有事。<br/><br/>🔎 <strong>线索二（第8段）：</strong>丽华把手表还给我，还<strong>拍拍我的肩膀，安慰</strong>我。</div><img class="story-illustration" src="${V11_IMG.pair}" alt="丽华归还手表的情境插图"/><h2 class="question-title">闯关题：从这两条线索可以看出，丽华是一个怎样的人？</h2>${optionsHTML(['她两次都先想到朋友。她不仅关心我，也很体谅我，是一个友善、无私的好朋友。','她只在乎那只手表贵不贵，所以才愿意跟我做朋友。','她心里其实很害怕我的妈妈生气，所以才赶紧把表还给我。'])}<div id="feedback" aria-live="polite"></div><div class="modal-actions compact"><div><button class="secondary" id="reviewBtn">回看线索</button></div><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="secondary" id="backBtn">返回</button><button class="primary" id="checkBtn">检查</button><button class="primary" id="continueBtn" style="display:none">完成</button></div></div>`);$('backBtn').onclick=close;$('reviewBtn').onclick=()=>clueCard({eyebrow:'WE DO · 线索回看',heading:'线索连连看',quote:"线索一（第3–4段）：丽华推开我，自己摔跤受伤了，却先问我有没有事。\n\n线索二（第8段）：丽华把手表还给我，还拍拍我的肩膀，安慰我。",image:lineImage(1),back:evidenceStation});choicesSetup([0],{id:'evidenceChoice',after:awardWeDoBadge},'请想一想：哪一个答案真正说明了丽华怎么对待朋友？');}
+function evidenceStation(){show(`<div class="eyebrow">WE DO · 证据整合站 · 第3–4、8段</div><h2>线索连连看：丽华到底是个怎样的人？</h2><p><strong>把丽华做过的两件事连起来看，猜猜她的性格。</strong></p><div class="quote">🔎 <strong>线索一（第3–4段）：</strong>丽华推开我，自己<strong>摔跤</strong>受伤了，却先问我有没有事。<br/><br/>🔎 <strong>线索二（第8段）：</strong>丽华把手表还给我，还<strong>拍拍我的肩膀，安慰</strong>我。</div><img class="story-illustration" src="${V11_IMG.pair}" alt="丽华归还手表的情境插图"/><h2 class="question-title">闯关题：从这两条线索可以看出，丽华是一个怎样的人？</h2><details class="support quiz-vocabulary"><summary>💡 词语提示（按需查看）</summary>${vocabHint([['线索','xiàn suǒ','clue'],['关心','guān xīn','care'],['体谅','tǐ liàng','be understanding'],['友善','yǒu shàn','friendly'],['无私','wú sī','selfless']])}</details>${optionsHTML(['她两次都先想到朋友。她不仅关心我，也很体谅我，是一个友善、无私的好朋友。','她只在乎那只手表贵不贵，所以才愿意跟我做朋友。','她心里其实很害怕我的妈妈生气，所以才赶紧把表还给我。'])}<div id="feedback" aria-live="polite"></div><div class="modal-actions compact"><div><button class="secondary" id="reviewBtn">回看线索</button></div><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="secondary" id="backBtn">返回</button><button class="primary" id="checkBtn">检查</button><button class="primary" id="continueBtn" style="display:none">完成</button></div></div>`);$('backBtn').onclick=close;$('reviewBtn').onclick=()=>clueCard({eyebrow:'WE DO · 线索回看',heading:'线索连连看',quote:"线索一（第3–4段）：丽华推开我，自己摔跤受伤了，却先问我有没有事。\n\n线索二（第8段）：丽华把手表还给我，还拍拍我的肩膀，安慰我。",image:lineImage(1),back:evidenceStation});choicesSetup([0],{id:'evidenceChoice',after:awardWeDoBadge},'请想一想：哪一个答案真正说明了丽华怎么对待朋友？');}
 
 const NOTEBOOK_TEMPLATES={
 1:"丽华把手表还给‘我’，还________，说明她是一个________的人，因为她________。",
@@ -452,34 +463,46 @@ $('paintBtn').addEventListener('click',()=>{
  $('paintBtn').setAttribute('aria-pressed',String(active));
 });
 let lastMove=0;
-function renderMarkers(){markers.innerHTML='';for(let it of stageItems()){let b=document.createElement('button');b.className='hotspot';b.dataset.id=it.id;b.type='button';b.textContent=it.label;b.addEventListener('click',()=>{const d=Math.hypot(state.player.x-it.x,state.player.z-it.z);if(d<2.3)interact(it);else{toast('先走近任务点（可按方向键）');state.autowalk={x:it.x,z:it.z,id:it.id};}});markers.append(b);}}
+function renderMarkers(){hotspotMotion.clear();markers.innerHTML='';for(let it of stageItems()){let b=document.createElement('button');b.className='hotspot';b.dataset.id=it.id;b.type='button';b.textContent=it.label;b.addEventListener('click',()=>{const d=Math.hypot(state.player.x-it.x,state.player.z-it.z);if(d<2.3)interact(it);else{toast('先走近任务点（可按方向键）');state.autowalk={x:it.x,z:it.z,id:it.id};}});markers.append(b);}}
+// V27: 3D hotspot labels are stable DOM nodes; resist frame-boundary blinking.
+const hotspotMotion=new Map();
 function updateMarkers(){
- // V26 fix: DO NOT reassign textContent on every animation frame.
- // Replacing button text destroys <ruby> pinyin and triggers MutationObserver
- // repeatedly, which was the actual cause of flashing/flickering markers.
+ const W=canvas.clientWidth||window.innerWidth,H=canvas.clientHeight||window.innerHeight;
  for(const it of stageItems()){
    const el=markers.querySelector(`[data-id="${it.id}"]`);
    if(!el)continue;
    const p=project([it.x,2.42,it.z]);
-   const d=Math.hypot(state.player.x-it.x,state.player.z-it.z);
+   let memo=hotspotMotion.get(it.id);
+   if(!memo){memo={x:null,y:null,missing:0,visible:0};hotspotMotion.set(it.id,memo);}
    if(!p){
-     if(el.style.display!=='none')el.style.display='none';
-     continue;
+     memo.visible=0;
+     if(++memo.missing>=8){
+       if(el.style.visibility!=='hidden')el.style.visibility='hidden';
+       if(el.style.pointerEvents!=='none')el.style.pointerEvents='none';
+     }
+   }else{
+     memo.missing=0;
+     const goalX=Math.max(24,Math.min(W-24,p.x)),goalY=Math.max(30,Math.min(H-28,p.y));
+     if(memo.x===null){memo.x=goalX;memo.y=goalY;}
+     else{
+       if(Math.abs(goalX-memo.x)>2.5)memo.x+=(goalX-memo.x)*.29;
+       if(Math.abs(goalY-memo.y)>2.5)memo.y+=(goalY-memo.y)*.29;
+     }
+     const x=Math.round(memo.x)+'px',y=Math.round(memo.y)+'px';
+     if(el.style.left!==x)el.style.left=x;
+     if(el.style.top!==y)el.style.top=y;
+     if(++memo.visible>=2){
+       if(el.style.visibility!=='visible')el.style.visibility='visible';
+       if(el.style.pointerEvents!=='auto')el.style.pointerEvents='auto';
+     }
    }
-   if(el.style.display!=='block')el.style.display='block';
-   const x=Math.round(p.x)+'px',y=Math.round(p.y)+'px';
-   if(el.style.left!==x)el.style.left=x;
-   if(el.style.top!==y)el.style.top=y;
+   const d=Math.hypot(state.player.x-it.x,state.player.z-it.z);
    const near=d<2.3,locked=isLocked(it.id),done=isDone(it.id);
-   el.classList.toggle('near',near);
-   el.classList.toggle('locked',locked);
-   el.classList.toggle('done',done);
-   // Use the same label but only update it if completion/locking actually changes.
-   const title=(done?'':locked?'🔒 ':'')+it.label;
-   if(el.dataset.currentLabel!==title){
-     el.dataset.currentLabel=title;
-     el.textContent=title;
-   }
+   if(el.classList.contains('near')!==near)el.classList.toggle('near',near);
+   if(el.classList.contains('locked')!==locked)el.classList.toggle('locked',locked);
+   if(el.classList.contains('done')!==done)el.classList.toggle('done',done);
+   const title=(locked?'🔒 ':'')+it.label;
+   if(el.dataset.currentLabel!==title){el.dataset.currentLabel=title;el.textContent=title;}
  }
 }
 function move(dt){if(state.activeModal)return;let x=0,z=0;if(keydown.has('w')||keydown.has('arrowup')||touchDirections.has('up'))z--;if(keydown.has('s')||keydown.has('arrowdown')||touchDirections.has('down'))z++;if(keydown.has('a')||keydown.has('arrowleft')||touchDirections.has('left'))x--;if(keydown.has('d')||keydown.has('arrowright')||touchDirections.has('right'))x++;if(!x&&!z&&state.autowalk){let dx=state.autowalk.x-state.player.x,dz=state.autowalk.z-state.player.z,d=Math.hypot(dx,dz);if(d>1.5){x=dx/d;z=dz/d}else{let target=stageItems().find(t=>t.id===state.autowalk.id);state.autowalk=null;if(target)interact(target);}}if(x||z){let inv=1/(Math.hypot(x,z)||1),step=dt*3.15;state.player.x=clamp(state.player.x+x*inv*step,-6.25,6.25);state.player.z=clamp(state.player.z+z*inv*step,-5.2,5.35);lastMove=1;}else lastMove=0;let n=nearest();if(n&&n.dist>1.32)state.insideHotspotId=null;if(n&&n.dist<.79&&!isLocked(n.id)&&!isDone(n.id)&&state.insideHotspotId!==n.id){state.insideHotspotId=n.id;interact(n)}}
