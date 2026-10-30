@@ -129,7 +129,7 @@ global.WatchThreeScene=function(options){
   if(!global.__watchV24Requested){
     global.__watchV24Requested=true;
     const addon=document.createElement('script');
-    addon.src=new URL('webgl-preview/ui-v24.js',document.baseURI).href;
+    addon.src=new URL('ui-v24.js',document.baseURI).href;
     addon.defer=true;addon.onerror=()=>console.warn('V24 UI enhancer unavailable');
     document.head.appendChild(addon);
   }
