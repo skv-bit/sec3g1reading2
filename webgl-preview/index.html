@@ -161,7 +161,7 @@ html,body{background:#dbf2e5}
   <div class="topgroup"><div class="brand glass"><strong>⌚ 《手表》· 藏在言行里的心意</strong><small>《手表》· 友谊侦探 · 3D预览</small></div><div class="pill glass" id="chapterLabel">第一关 · 校园回忆</div></div>
   <div class="topgroup"><button class="control" id="soundBtn" aria-pressed="false" title="轻微环境音，默认关闭">🔇 环境音：关</button><button class="control" id="paintBtn" aria-pressed="true">🎨 油画滤镜：开</button><button class="control" id="helperBtn">🧠 思维助手</button><button class="control" id="restartBtn">↺ 重置</button></div>
  </div>
- <aside id="objective" class="glass"><div class="objective-tag">✦ 现在的阅读任务 / READING QUEST</div><div class="objective-title" id="objectiveTitle"></div><div class="objective-sub" id="objectiveSub"></div></aside>
+ <aside id="objective" class="glass"><div class="objective-tag">✦ 阅读任务</div><div class="objective-title" id="objectiveTitle"></div><div class="objective-sub" id="objectiveSub"></div></aside>
  <aside id="helper" class="glass closed" aria-label="阅读思维鹰架"><strong>🌼 我的阅读助手</strong><div class="step"><span class="num">1</span>找依据：人物说了什么？做了什么？</div><div class="step"><span class="num">2</span>作推论：说明什么特点？为什么？</div><div class="step"><span class="num">3</span>联主题：从表现明白什么道理？</div><p>根据 Project Zero「What Makes You Say That?」的证据提问理念改编；「联主题」为本课教学补充。</p><button class="hint-btn" id="glossBtn">📖 词汇 · 拼音 · English</button></aside>
  <div id="hotspots" aria-live="off"></div>
  <div id="bottom"><div id="status" class="glass"><div class="status-top" id="statusTitle">🚶 用方向键移动，靠近光圈探索</div><div class="status-bottom" id="statusInfo">WASD / 方向键移动 · E 互动 · 点击黄色任务标记</div><div id="keys"><span class="key"></span><span class="key"></span><span class="key"></span><span class="key"></span><span class="key"></span></div></div><div id="moving"><div class="dpad"><button class="up" data-dir="up" aria-label="向前">↑</button><button class="left" data-dir="left" aria-label="向左">←</button><button class="down" data-dir="down" aria-label="向后">↓</button><button class="right" data-dir="right" aria-label="向右">→</button></div><button class="secondary tiny" id="jumpBtn" title="仅快速到达，不跳过阅读任务">快速到达</button><button class="primary" id="interactBtn">✦ 互动 (E)</button></div></div>
@@ -447,7 +447,7 @@ document.querySelectorAll('.dpad button').forEach(el=>{const dir=el.dataset.dir;
 let ambientEnabled=false,ambientBirdClock=0;
 function ambientLevel(){
  if(!ambient)return;
- const value=ambientEnabled&&!document.hidden?(state.activeModal?.014:.052):0;
+ const value=ambientEnabled&&!document.hidden?(state.activeModal?.024:.070):0;
  ambient.gain.gain.setTargetAtTime(value,ambient.ac.currentTime,.18);
 }
 function startAmbient(){
@@ -461,7 +461,7 @@ function startAmbient(){
    // Smooth, softly shaped outdoor air, not a harsh unfiltered white-noise burst.
    let last=0;
    for(let i=0;i<samples.length;i++){
-     last=.965*last+.035*(Math.random()*2-1);
+     last=.88*last+.12*(Math.random()*2-1);
      samples[i]=last*.92;
    }
    const src=ac.createBufferSource(),high=ac.createBiquadFilter(),
@@ -497,6 +497,7 @@ document.addEventListener('visibilitychange',ambientLevel);
 $('soundBtn').onclick=()=>{
  if(!startAmbient()){toast('浏览器暂不支持环境音');return;}
  ambientEnabled=!ambientEnabled;
+ if(ambientEnabled)ambientBirdClock=1;
  ambient.ac.resume().then(ambientLevel).catch(()=>{ambientEnabled=false;ambientLevel();});
  ambientLevel();
  $('soundBtn').textContent=ambientEnabled?'🔈 环境音：开':'🔇 环境音：关';
