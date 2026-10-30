@@ -124,6 +124,15 @@ global.WatchThreeScene=function(options){
     return g;
   }
 
+  // V24 enhancements are kept in a small separate file, without rewriting the
+  // 1 MB HTML lesson file. Script is loaded once by the scene engine.
+  if(!global.__watchV24Requested){
+    global.__watchV24Requested=true;
+    const addon=document.createElement('script');
+    addon.src=new URL('webgl-preview/ui-v24.js',document.baseURI).href;
+    addon.defer=true;addon.onerror=()=>console.warn('V24 UI enhancer unavailable');
+    document.head.appendChild(addon);
+  }
   // V23: flat, illustration-style children in the 3D world. Self-contained CanvasTextures
   // avoid missing external PNG assets and keep the lesson's GLB props untouched.
   const spriteCache=new Map();
@@ -343,7 +352,9 @@ global.WatchThreeScene=function(options){
     if(index===0){
       // Visible open-space placement: no trunk or building overlaps Lihua.
       flatGirl('lihua',root,-1.55,-1.25,2.5);
-      attach('bike.glb',-3.65,.32,-2.55,.78,.64,token).then(o=>{
+      // Place the actual blue bicycle on the first clue ring, in front of the students.
+      const bicycleClue=items.find(item=>/脚踏车|自行车|bike/i.test(item.label||''))||items[0]||{x:-3.2,z:-1.8};
+      attach('bike.glb',bicycleClue.x,.32,bicycleClue.z,.92,.64,token).then(o=>{
         if(o){o.rotation.z=-Math.PI*.34;o.traverse(m=>{if(m.isMesh)m.castShadow=true;});}
       });
     }else{
