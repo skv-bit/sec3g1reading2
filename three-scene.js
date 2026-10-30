@@ -473,15 +473,9 @@ global.WatchThreeScene=function(options){
       }
     }
   }
-  let lastBubbleUpdate=0;
-  function softenLabels(p,items){
-    const stamp=Date.now();if(stamp-lastBubbleUpdate<160)return;lastBubbleUpdate=stamp;
-    document.querySelectorAll('.hotspot-label,.poi-label,.task-bubble,.marker-label,.scene-label,.hotspot-bubble').forEach(el=>{
-      const txt=el.textContent||'',item=items.find(v=>txt.includes(v.label));if(!item)return;
-      const d=Math.hypot(item.x-p.x,item.z-p.z);
-      el.style.opacity=d<1.2?'.40':d<2?'.70':'1';
-    });
-  }
+  // V25: keep HTML clue bubbles optically steady. No proximity-based
+  // opacity toggling while a student moves beside the clue.
+  function softenLabels(){ /* intentionally stable */ }
   function render(time,dt,index,items,player,moving,isLocked,isDone){
     if(disposed)return;
     if(index!==stage)buildStage(index,items||[]);
@@ -499,7 +493,7 @@ global.WatchThreeScene=function(options){
     const nx=stage===0&&Math.abs(x+3)<.08&&Math.abs(z+1.7)<.12?x-.42:x;
     projected.set(nx,.44,z).project(camera);
     if(projected.z<-1||projected.z>1||Math.abs(projected.x)>1.2||Math.abs(projected.y)>1.18)return null;
-    return {x:(projected.x*.5+.5)*width,y:(-.5*projected.y+.5)*height,d:projected.z,s:1/Math.max(.03,projected.z+1)};
+    return {x:Math.round((projected.x*.5+.5)*width),y:Math.round((-.5*projected.y+.5)*height),d:projected.z,s:1/Math.max(.03,projected.z+1)};
   }
   function resize(w,h){width=Math.max(1,w);height=Math.max(1,h);camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height,false);}
   const oldOverlay=document.getElementById('painterly');if(oldOverlay)oldOverlay.style.opacity='0';
