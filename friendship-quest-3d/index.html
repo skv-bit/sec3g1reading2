@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>光之线索｜《手表》3D友情侦探</title>
+  <meta name="description" content="原创3D华文阅读任务游戏：找依据、作推论、理解友谊。">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div id="game" aria-label="《手表》3D游戏">
+  <canvas id="world" aria-label="可走动的三维游戏场景"></canvas>
+  <div id="ui">
+    <header class="topbar">
+      <div class="brand"><span class="brand-icon">✦</span><span><strong>光之线索</strong><small>《手表》 · 3D友情侦探</small></span></div>
+      <div class="top-actions"><span id="phase" class="phase">I DO · 校园</span><button id="audioBtn" class="iconbtn" title="开启或关闭环境音">♫</button><button id="helpBtn" class="iconbtn" title="操作说明">?</button></div>
+    </header>
+    <aside id="quest" class="quest card"><div class="eyebrow">CURRENT MISSION</div><div class="quest-title" id="questTitle">寻找故事中的证据</div><p id="questText">靠近发光的线索，再点击它。</p><div id="taskList" class="tasklist"></div><div class="progress"><div id="progressBar"></div></div><div class="footrow"><span id="progressLabel">0 / 7</span><button id="switchBtn" class="minor" hidden>进入第二关 →</button></div></aside>
+    <div id="hint" class="hint"><span class="spark">✦</span><span id="hintText">WASD 移动 · Shift 跑步 · 鼠标拖动转镜头</span></div>
+    <div id="markers" aria-label="场景互动热点"></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <footer class="controls"><span>W A S D / 方向键 · 移动</span><span>Shift · 跑步</span><span>拖动画面 · 视角</span><span>E · 互动</span></footer>
+    <div id="mobile" aria-label="触控移动">
+      <div id="dpad"><button data-dir="up" aria-label="前进">▲</button><div><button data-dir="left" aria-label="向左">◀</button><button data-dir="down" aria-label="后退">▼</button><button data-dir="right" aria-label="向右">▶</button></div></div>
+      <button id="mobileInteract" class="actionbtn">✦ 互动</button>
+    </div>
+  </div>
+  <div id="welcome" class="scrim">
+    <section class="welcome-panel" aria-labelledby="welcomeTitle">
+      <div class="intro-tag">原创 3D 阅读冒险 · 中三 G1 华文</div>
+      <h1 id="welcomeTitle">走进故事，<br><em>寻找友谊的光。</em></h1>
+      <p>你将化身故事中的“我”，跑进校园，寻找脚踏车、手表与丽华留下的线索。只有找对证据、作出合理推论，才能逐步解锁下一段故事。</p>
+      <div class="steps"><span>01 找证据</span><b>→</b><span>02 做推论</span><b>→</b><span>03 懂心意</span></div>
+      <div class="entry"><label>侦探代号<input id="aliasInput" placeholder="例如：小侦探" maxlength="24" autocomplete="off"></label><label>班级（选填）<input id="classInput" placeholder="例如：3G1" maxlength="20" autocomplete="off"></label></div>
+      <button id="startBtn" class="primary">开始探索 <span>↗</span></button><div class="intro-small">无需注册 · 答题记录只保存在这台设备</div>
+    </section>
+  </div>
+  <div id="dialog" class="scrim hidden" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+    <section class="dialog-panel"><div class="dialog-top"><span id="dialogTag" class="eyebrow"></span><button id="closeDialog" class="close" aria-label="关闭对话框">✕</button></div><h2 id="dialogTitle"></h2><div id="dialogBody" class="dialog-body"></div><div id="dialogFooter" class="dialog-footer"></div></section>
+  </div>
+  <div id="finish" class="scrim hidden" role="dialog" aria-modal="true" aria-labelledby="finishTitle">
+    <section class="welcome-panel finish-panel"><span class="finish-star">✦</span><div class="eyebrow">QUEST COMPLETE</div><h2 id="finishTitle">你发现了友谊的光！</h2><p>恭喜！你已经收集线索、推论人物，并写下自己的侦探笔记。开放式笔记需要老师与同学一起讨论，不会由系统机械判对错。</p><div id="summary"></div><button id="exportBtn" class="primary">导出我的学习记录 ↗</button><button id="restartBtn" class="minor">重新探索</button><button id="closeFinish" class="minor">返回场景</button></section>
+  </div>
+  <div id="help" class="scrim hidden" role="dialog" aria-modal="true">
+    <section class="dialog-panel compact"><div class="dialog-top"><span class="eyebrow">HOW TO PLAY</span><button id="closeHelp" class="close" aria-label="关闭说明">✕</button></div><h2>怎么玩？</h2><p>使用 WASD / 方向键移动、Shift 跑步；鼠标或手指拖动画面改变镜头，滚轮缩放。靠近发光线索后点击或按 E。按任务顺序完成阅读题，下一处线索才会开放。</p><p>选择错误不会扣分，点击“线索提示”可以回读文章。开放写作只保存你的想法，不会机械评分。</p></section>
+  </div>
+  <div id="error" class="error hidden" role="alert"></div>
+</div>
+<script type="module" src="./game.js"></script>
+</body>
+</html>
