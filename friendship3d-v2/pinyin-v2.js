@@ -35,23 +35,60 @@ const DICT=[
  ['照顾','zhào gù'],['道谢','dào xiè'],['打算','dǎ suàn'],['道歉','dào qiàn'],
  ['误会','wù huì'],['换回','huàn huí'],['手表','shǒu biǎo'],['后来','hòu lái']
 ].sort((a,b)=>b[0].length-a[0].length);
-const IDS=['#overlay','#panelOverlay','#questPanel','#hotspotLayer','#intro'];
+DICT.push(...[["结果","jié guǒ"],["反而","fǎn ér"],["飞快","fēi kuài"],["道理","dào lǐ"],["原来","yuán lái"],["离开","lí kāi"],["提前","tí qián"],["当时","dāng shí"],["第二天","dì èr tiān"],["难过","nán guò"],["非常","fēi cháng"],["出门","chū mén"],["礼貌","lǐ mào"],["认真","rèn zhēn"],["故事","gù shi"],["人物","rén wù"],["词汇","cí huì"],["原句","yuán jù"],["事实","shì shí"],["题目","tí mù"],["朋友之间","péng you zhī jiān"],["好朋友","hǎo péng you"],["两处","liǎng chù"],["曾经","céng jīng"],["关键","guān jiàn"],["原文摘录","yuán wén zhāi lù"],["完整段落","wán zhěng duàn luò"],["作答","zuò dá"],["闯关","chuǎng guān"],["同学","tóng xué"],["主动","zhǔ dòng"],["关怀","guān huái"],["体贴","tǐ tiē"],["善解人意","shàn jiě rén yì"],["贪心","tān xīn"],["胆小","dǎn xiǎo"],["价格","jià gé"],["愿意","yuàn yì"],["在乎","zài hu"],["赶紧","gǎn jǐn"],["爸爸","bà ba"],["妈妈","mā ma"],["叔叔","shū shu"],["时候","shí hou"],["事情","shì qing"],["发生","fā shēng"],["最后","zuì hòu"],["最初","zuì chū"],["抱怨","bào yuàn"],["想念","xiǎng niàn"],["珍藏","zhēn cáng"],["身边","shēn biān"],["发现","fā xiàn"],["导致","dǎo zhì"],["因此","yīn cǐ"],["答案","dá àn"],["错过","cuò guò"],["留下","liú xià"],["拿着","ná zhe"],["拿出","ná chū"],["口袋","kǒu dài"],["换表","huàn biǎo"],["门口","mén kǒu"],["放弃","fàng qì"],["毫不犹豫","háo bù yóu yù"],["无法","wú fǎ"],["转送","zhuǎn sòng"],["感情","gǎn qíng"],["友情","yǒu qíng"],["态度","tài dù"],["表情","biǎo qíng"],["低声","dī shēng"],["脾气","pí qi"],["照做","zhào zuò"],["来不及","lái bu jí"],["反思","fǎn sī"],["自我检查","zì wǒ jiǎn chá"],["开头","kāi tóu"],["结尾","jié wěi"],["后面","hòu miàn"],["责任","zé rèn"],["负责","fù zé"],["修补","xiū bǔ"],["展示板","zhǎn shì bǎn"],["错误","cuò wù"],["承认","chéng rèn"],["感受","gǎn shòu"],["内心","nèi xīn"],["对方","duì fāng"],["证实","zhèng shí"],["已经","yǐ jīng"],["相同","xiāng tóng"],["不同","bù tóng"],["先后","xiān hòu"],["确实","què shí"],["所有","suǒ yǒu"],["任务点","rèn wu diǎn"],["完整原文","wán zhěng yuán wén"],["原文证据","yuán wén zhèng jù"],["朗读原文","lǎng dú yuán wén"],["再试一次","zài shì yí cì"],["需要帮助","xū yào bāng zhù"],["按照","àn zhào"],["移居","yí jū"],["海外","hǎi wài"],["伸","shēn"],["缩","suō"],["疼","téng"],["伤","shāng"],["摔","shuāi"],["推","tuī"],["脚踏车事件","jiǎo tà chē shì jiàn"]]);DICT.sort((a,b)=>b[0].length-a[0].length);
+const IDS=['#overlay','#panelOverlay','#questPanel','#hotspotLayer','#intro','#levelTag','#questLevelTitle'];
+const SIMPLE=new Set(['你','我','他','她','它','您','的','了','一','二','三','四','五','六','七','八','九','十','是','在','有','和','也','都','就','不','会','要','而','与','这','那','个','们','吧','呢','吗','啊','呀','哦','把','给','被','对','从','只','让','还','才','很','得','地','又','比','我们','你们','他们','她们','一个','这次','那个','这个','一只','一次','什么']);
+let pinyinLib=null,loadRequested=false;
+function loadOptionalPinyin(){if(loadRequested||window.pinyinPro)return;loadRequested=true;const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/pinyin-pro@3.18.2/dist/index.js';sc.async=true;sc.onload=()=>{pinyinLib=window.pinyinPro||null;if(pinyinLib&&enabled){resetAnnotations();refresh();}};sc.onerror=()=>{console.info('完整拼音词库暂不可用，使用本地重点词库。')};document.head.appendChild(sc);}
 let enabled=false,scheduled=false,observer=null;
-const inField=(n)=>Boolean(n.parentElement?.closest('script,style,textarea,input,select,option,ruby,rt,rp,[contenteditable],.pinyin-exempt'));
+const inField=(n)=>Boolean(n.parentElement?.closest('script,style,textarea,input,select,option,ruby,rt,rp,[contenteditable],.pinyin-exempt,#pinyinBtn'));
+function romanize(word){
+ const pair=DICT.find(([w])=>w===word);
+ if(pair)return pair[1];
+ const lib=pinyinLib||window.pinyinPro;
+ if(lib)try{
+  const arr=lib.pinyin(word,{type:'array'});
+  const value=Array.isArray(arr)?arr.join(' '):String(arr||'');
+  return value&&/[a-zA-Z]/.test(value)?value:'';
+ }catch(e){}
+ return '';
+}
+const segmenter=(typeof Intl!=='undefined'&&Intl.Segmenter)?new Intl.Segmenter('zh',{granularity:'word'}):null;
+function nextToken(str,i){
+ for(const [word,pron] of DICT)if(str.startsWith(word,i))return [word,pron];
+ if(segmenter){
+  const segment=Array.from(segmenter.segment(str.slice(i)))[0];
+  if(segment?.segment)return [segment.segment,romanize(segment.segment)];
+ }
+ const chunk=str.slice(i,i+2);return [chunk,romanize(chunk)];
+}
 function transformText(node){
  if(!node.nodeValue||!node.nodeValue.trim()||inField(node))return;
- const str=node.nodeValue;let i=0,start=0,found=false,fr=document.createDocumentFragment();
- while(i<str.length){
-  let match=null;for(const entry of DICT)if(str.startsWith(entry[0],i)){match=entry;break}
-  if(!match){i++;continue}
-  if(i>start)fr.appendChild(document.createTextNode(str.slice(start,i)));
-  const ruby=document.createElement('ruby');ruby.dataset.pinyin='v2';
-  ruby.appendChild(document.createTextNode(match[0]));
-  const rt=document.createElement('rt');rt.textContent=match[1];ruby.appendChild(rt);fr.appendChild(ruby);
-  i+=match[0].length;start=i;found=true;
+ const src=node.nodeValue,fr=document.createDocumentFragment();
+ let pos=0,found=false;
+ for(const m of src.matchAll(/[\u3400-\u9fff]+/g)){
+  const at=m.index,run=m[0];
+  if(at>pos)fr.append(document.createTextNode(src.slice(pos,at)));
+  let p=0,rest='';
+  while(p<run.length){
+   const [word,pron]=nextToken(run,p);
+   if(!word){rest+=run[p++];continue}
+   p+=word.length;
+   const omit=SIMPLE.has(word)||(word.length===1&&!['伸','缩','疼','伤','摔','推'].includes(word));
+   if(omit||!pron){rest+=word;continue}
+   if(rest){fr.append(document.createTextNode(rest));rest='';}
+   const ruby=document.createElement('ruby');
+   ruby.dataset.pinyin='v3';
+   ruby.className='watch-pinyin-word';
+   ruby.append(document.createTextNode(word));
+   const rt=document.createElement('rt');rt.textContent=pron;ruby.append(rt);fr.append(ruby);
+   found=true;
+  }
+  if(rest)fr.append(document.createTextNode(rest));
+  pos=at+run.length;
  }
  if(!found)return;
- if(start<str.length)fr.appendChild(document.createTextNode(str.slice(start)));
+ if(pos<src.length)fr.append(document.createTextNode(src.slice(pos)));
  node.replaceWith(fr);
 }
 function transformRoot(root){
@@ -68,22 +105,22 @@ function refresh(){
 }
 function schedule(){if(scheduled||!enabled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;refresh()})}
 function resetAnnotations(){
- document.querySelectorAll('ruby[data-pinyin="v2"]').forEach(n=>n.replaceWith(document.createTextNode(n.firstChild?.textContent||'')));
+ document.querySelectorAll('ruby[data-pinyin="v3"]').forEach(n=>n.replaceWith(document.createTextNode(n.firstChild?.textContent||'')));
  document.body.classList.remove('pinyin-enabled');
 }
 function toggle(){
  enabled=!enabled;try{localStorage.setItem('handwatch-pinyin-enabled',enabled?'1':'0')}catch(e){}
- const btn=document.getElementById('pinyinBtn');if(btn){btn.setAttribute('aria-pressed',String(enabled));btn.textContent=enabled?'拼音 ✓':'拼音';}
- if(enabled)refresh();else resetAnnotations();
+ const btn=document.getElementById('pinyinBtn');if(btn){btn.setAttribute('aria-pressed',String(enabled));btn.textContent=enabled?'🔤 拼音：开':'🔤 拼音：关';}
+ if(enabled){refresh();loadOptionalPinyin()}else resetAnnotations();
 }
 function init(){
  const btn=document.getElementById('pinyinBtn');if(!btn)return;
  btn.addEventListener('click',toggle);
  try{enabled=localStorage.getItem('handwatch-pinyin-enabled')==='1'}catch(e){}
- btn.setAttribute('aria-pressed',String(enabled));if(enabled)btn.textContent='拼音 ✓';
+ btn.setAttribute('aria-pressed',String(enabled));btn.textContent=enabled?'🔤 拼音：开':'🔤 拼音：关';
  observer=new MutationObserver(schedule);
  observer.observe(document.getElementById('app')||document.body,{childList:true,subtree:true,characterData:false});
- if(enabled)refresh();
+ if(enabled){refresh();loadOptionalPinyin()}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
