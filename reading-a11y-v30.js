@@ -14,10 +14,10 @@ function isVisible(){const overlay=document.getElementById('overlay');return ove
 function paragraphs(modal){
  const text=modal.textContent||'',out=new Set();
  // Support compound references such as 第3、4段, 第7–8段, 第3–4、8段.
- for(const m of text.matchAll(/第\s*([1-9](?:(?:\s*[、，,]\s*|\s*[～~—–\\-至到]\s*)[1-9])*)\s*段/g)){
+ for(const m of text.matchAll(/第\s*([1-9](?:(?:\s*[、，,]\s*|\s*(?:[～~—–]|-|至|到)\s*)[1-9])*)\s*段/g)){
   const groups=m[1].split(/[、，,]/);
   for(const group of groups){
-   const range=group.match(/^([1-9])\s*[～~—–\\-至到]\s*([1-9])$/);
+   const range=group.match(/^([1-9])\s*(?:[～~—–]|-|至|到)\s*([1-9])$/);
    if(range){const lo=Math.min(+range[1],+range[2]),hi=Math.max(+range[1],+range[2]);for(let p=lo;p<=hi;p++)if(FULL[p])out.add(p)}
    else if(FULL[group.trim()])out.add(Number(group.trim()));
   }
