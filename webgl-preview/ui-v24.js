@@ -78,10 +78,10 @@ function patchCopy(){
    }
  });
  stripCheckPrefix(body);
- // Remove nonfunctional environment sound control.
- document.querySelectorAll('button,[role="button"]').forEach(btn=>{
-   if(/环境音/.test(btn.textContent||''))btn.style.setProperty('display','none','important');
- });
+ // V28: environment sound now works through an explicit user-controlled button.
+ // Undo the older compatibility patch that hid this control.
+ const sound=document.getElementById('soundBtn');
+ if(sound&&sound.style.getPropertyValue('display')==='none')sound.style.removeProperty('display');
  // Rename oil-paint tool to an accessible Pinyin switch; intercept old handler in capture phase.
  if(!paintButton||!paintButton.isConnected){
    paintButton=[...document.querySelectorAll('button,[role="button"]')].find(e=>/油画滤镜/.test(e.textContent||''))||null;
@@ -192,12 +192,48 @@ function correctSound(){
    const o=ctx.createOscillator(),g=ctx.createGain();
    o.type='sine';o.frequency.value=f;
    g.gain.setValueAtTime(.0001,t+i*.10);
-   g.gain.exponentialRampToValueAtTime(.075,t+i*.10+.014);
+   g.gain.exponentialRampToValueAtTime(.091,t+i*.10+.014);
    g.gain.exponentialRampToValueAtTime(.0001,t+i*.10+.27);
    o.connect(g).connect(ctx.destination);
    o.start(t+i*.10);o.stop(t+i*.10+.28);
  });
 }
+// V28: a short original success fanfare for chapter completion and final badge.
+// Independent from ambient switch; never starts the ambient loop or auto-plays.
+let lastFanfare=0;
+function celebrate(kind='chapter'){
+ const now=Date.now();if(now-lastFanfare<2400)return;
+ const ctx=getAudio();
+ if(!ctx||ctx.state==='suspended')return;
+ lastFanfare=now;
+ const full=kind==='final';
+ const melody=full
+   ?[523.25,659.25,783.99,1046.50,1318.51,1567.98]
+   :[523.25,659.25,783.99,1046.50,1318.51];
+ const start=ctx.currentTime+.05,step=full?.155:.13;
+ melody.forEach((freq,i)=>{
+   const at=start+i*step,osc=ctx.createOscillator(),gain=ctx.createGain();
+   osc.type=i%2===0?'sine':'triangle';
+   osc.frequency.setValueAtTime(freq,at);
+   gain.gain.setValueAtTime(.0001,at);
+   gain.gain.exponentialRampToValueAtTime(full?.10:.085,at+.018);
+   gain.gain.exponentialRampToValueAtTime(.0001,at+.31);
+   osc.connect(gain).connect(ctx.destination);
+   osc.start(at);osc.stop(at+.33);
+ });
+ // Warm closing chord, soft enough for a classroom.
+ const chordAt=start+melody.length*step-.015;
+ [523.25,659.25,783.99].forEach((freq,i)=>{
+   const osc=ctx.createOscillator(),gain=ctx.createGain();
+   osc.type='sine';osc.frequency.value=freq;
+   gain.gain.setValueAtTime(.0001,chordAt);
+   gain.gain.exponentialRampToValueAtTime(full?.045:.036,chordAt+.07);
+   gain.gain.exponentialRampToValueAtTime(.0001,chordAt+(full?1.1:.8));
+   osc.connect(gain).connect(ctx.destination);
+   osc.start(chordAt);osc.stop(chordAt+(full?1.12:.82));
+ });
+}
+window.WatchSoundFx={celebrate};
 function isVisible(e){const r=e.getBoundingClientRect?.();return !!(r&&r.width&&r.height&&getComputedStyle(e).visibility!=='hidden');}
 function detectSuccess(){
  if(!lastEval||Date.now()-lastEval>3400||lastSuccess===lastEval)return;
