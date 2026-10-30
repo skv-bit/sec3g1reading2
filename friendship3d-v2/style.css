@@ -57,3 +57,21 @@
 .pad-arrow:active{transform:translateY(3px);box-shadow:0 0 0 #b4caa9;background:#bdeecf}
 .pad-up{grid-column:2;grid-row:2}.pad-left{grid-column:1;grid-row:3}.pad-down{grid-column:2;grid-row:3}.pad-right{grid-column:3;grid-row:3}
 @media(max-width:760px){.move-pad{display:none}}
+
+/* The reader's independent helper occupies one compact slot above the quest list. */
+.assistant-launch{display:flex;align-items:center;justify-content:space-between;gap:8px;width:calc(100% - 28px);margin:3px 14px 13px;padding:11px 12px;border:1.5px solid #9bd6ba;border-radius:15px;background:linear-gradient(120deg,#fff8d4,#e5f8e7);color:#247158;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 #b5d5b9}
+.assistant-launch span{font-size:10px;font-weight:700;color:#6f9879;white-space:nowrap}
+.assistant-launch:hover{background:#dff8e6}
+.reading-helper-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0}
+.reading-helper-steps section{padding:13px;border-radius:16px;background:#eff9e4;border:1.5px solid #bfdcb7;color:#355f50;line-height:1.6}
+.reading-helper-steps section:nth-child(2){background:#fff2d8;border-color:#edcd93}
+.reading-helper-steps section:nth-child(3){background:#eaf5fe;border-color:#b6d7eb}
+.reading-helper-steps section>b{font-size:17px}
+.reading-helper-steps section>b span{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;width:26px;height:26px;background:#4db38e;color:#fff;margin-right:6px}
+.reading-helper-steps section:nth-child(2)>b span{background:#eeaa4c}
+.reading-helper-steps section:nth-child(3)>b span{background:#65abd9}
+.reading-helper-steps p{margin:9px 0 0;font-size:14px}
+.helper-evidence{border-left:4px solid #5abd91;padding:10px 13px;background:#eef9ef;border-radius:8px}
+.gate-link{white-space:nowrap;background:#fff1cf!important;border:2px solid #f4ba5b!important;box-shadow:0 0 0 5px #ffe4a071,0 6px 18px #9c784944!important;color:#865425!important;animation:gateGlow 1.6s ease-in-out infinite alternate}
+@keyframes gateGlow{from{box-shadow:0 0 0 4px #ffe4a053,0 6px 14px #9c784922}to{box-shadow:0 0 0 10px #fff0b583,0 7px 18px #9c784944}}
+@media(max-width:850px){.reading-helper-steps{grid-template-columns:1fr}.assistant-launch span{display:none}}
