@@ -49,3 +49,11 @@
 .pinyin-enabled rt{font-size:.57em;line-height:1.1;color:#407b99;font-weight:750;text-align:center}
 .dialog-scroll ruby{margin-inline:1px}
 @media(max-width:650px){.topbuttons #pinyinBtn,.topbuttons #resetProgressBtn,.topbuttons #musicBtn{font-size:12px;padding:6px 8px}.topbar{gap:5px}.topcenter #levelTag{font-size:10px}.mapcoords{display:none}}
+
+/* Reliable 4-direction roaming controls for the stationary campus overview camera. */
+.move-pad{position:absolute;bottom:18px;left:24px;z-index:5;display:grid;grid-template-columns:48px 48px 48px;grid-template-rows:16px 48px 48px;gap:5px;user-select:none;-webkit-user-select:none;touch-action:none;align-items:center;justify-items:center}
+.move-pad-title{grid-column:1/4;grid-row:1;font-size:12px;font-weight:900;color:#246d59;text-shadow:0 1px white;letter-spacing:1px}
+.pad-arrow{border-radius:14px;border:2px solid #d2e4c3;background:#fffdf5f2;color:#28785e;box-shadow:0 3px 0 #b4caa9,0 4px 10px #224b3c23;width:48px;height:45px;padding:0;font-size:19px;line-height:1;touch-action:none;cursor:pointer}
+.pad-arrow:active{transform:translateY(3px);box-shadow:0 0 0 #b4caa9;background:#bdeecf}
+.pad-up{grid-column:2;grid-row:2}.pad-left{grid-column:1;grid-row:3}.pad-down{grid-column:2;grid-row:3}.pad-right{grid-column:3;grid-row:3}
+@media(max-width:760px){.move-pad{display:none}}
