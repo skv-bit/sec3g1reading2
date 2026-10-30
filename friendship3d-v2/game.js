@@ -115,7 +115,73 @@ function renderScaffold(step){
  return `<section id="quizScaffoldPanel" class="scaffold-panel"><p class="source-note">自主选择需要的帮助；支架不是直接替你回答。</p>${sections}<div class="scaffold-formula"><b>✍️ 写作句式</b><p>${escapeHtml(support.prompt).replaceAll('\\n','<br>')}</p><button type="button" id="insertScaffold" class="secondary">＋ 将句式放入初稿</button></div></section>`;
 }
 function renderQuiz(step){let html=`<h3 class="stem">${escapeHtml(step.stem)}</h3>`;if(['singleChoice','multiSelect','keywordFill'].includes(step.type)){let opts=step.options||step.wordBank||[];html+=opts.map((o,i)=>`<div class="choice ${selection.includes(o.id)?'selected':''}" role="button" tabindex="0" data-choice="${escapeHtml(o.id)}"><span class="choiceicon">${step.type==='multiSelect'?'✓':String.fromCharCode(65+i)}</span><span>${escapeHtml(o.text)}</span></div>`).join('')}else if(step.type==='categorize'){html+=renderCategoryQuiz(step)}else if(step.type==='openResponse'){html+=renderNotebook(step)}if(task?.node?.id==='L2_STATION'&&scaffoldOpen)html+=renderScaffold(step);if(feedback)html+=`<div class="feedback ${feedback.startsWith('✓')?'good':'retry'}">${escapeHtml(feedback)}</div>`;$('quizRegion').innerHTML=html;bindQuiz(step);let foot=`<button class="secondary" id="hintBtn">💡 温和提示 ${hintIndex?`(${hintIndex})`:''}</button><div class="row-actions"><button class="ghost" id="goBackBtn">返回</button><button class="primary small" id="checkBtn">完成</button></div>`;$('dialogFoot').innerHTML=foot;$('hintBtn').onclick=()=>giveHint(step);$('goBackBtn').onclick=closeTask;$('checkBtn').onclick=()=>checkStep(step)}
-function bindQuiz(step){document.querySelectorAll('[data-choice]').forEach(e=>{let act=()=>{let id=e.dataset.choice;if(step.type==='multiSelect')selection=selection.includes(id)?selection.filter(x=>x!==id):[...selection,id];else selection=[id];feedback='';renderQuiz(step)};e.addEventListener('click',act);e.addEventListener('keydown',k=>{if(k.key==='Enter'||k.key===' '){k.preventDefault();act()}})});if(step.type==='categorize'){document.querySelectorAll('[data-card]').forEach(e=>{e.onclick=()=>{if(categorize[e.dataset.card])delete categorize[e.dataset.card];picked=e.dataset.card;feedback='';renderQuiz(step)};e.addEventListener('dragstart',evt=>{evt.dataTransfer.setData('text/plain',e.dataset.card);picked=e.dataset.card})});document.querySelectorAll('[data-bucket]').forEach(e=>{const assign=id=>{if(!id)return;categorize[id]=e.dataset.bucket;picked=null;feedback='';renderQuiz(step)};e.onclick=()=>assign(picked);e.ondragover=ev=>ev.preventDefault();e.ondrop=ev=>{ev.preventDefault();assign(ev.dataTransfer.getData('text/plain'))}})}if(step.type==='openResponse'){document.querySelectorAll('[data-support]').forEach(b=>b.onclick=()=>{state.supportLevel=b.dataset.support;save();renderQuiz(step)});$('originalDraft').addEventListener('input',e=>{state.originalDraft=e.target.value;save()});document.querySelectorAll('[data-selfcheck]').forEach(e=>e.onchange=()=>{state.selfChecks=Array.from(document.querySelectorAll('[data-selfcheck]:checked')).map(e=>e.dataset.selfcheck);save()})}}
+
+function bindCategoryQuiz(step){
+ let touch=null,ghost=null;
+ const clearTouch=()=>{if(ghost){ghost.remove();ghost=null;}touch=null;document.querySelectorAll('.bucket,.cat-source').forEach(e=>e.classList.remove('drag-over'));};
+ const assign=(id,bucket)=>{
+   if(!step.items.some(item=>item.id===id))return;
+   if(bucket==='source')delete categorize[id];
+   else if(step.buckets.some(b=>b.id===bucket))categorize[id]=bucket;
+   else return;
+   picked=null;feedback='';renderQuiz(step);
+ };
+ const pick=id=>{picked=picked===id?null:id;feedback='';renderQuiz(step)};
+ document.querySelectorAll('[data-card]').forEach(el=>{
+   const id=el.dataset.card;
+   el.addEventListener('click',()=>pick(id));
+   el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(id)}});
+   el.addEventListener('dragstart',e=>{picked=id;e.dataTransfer.setData('text/plain',id);e.dataTransfer.effectAllowed='move';el.classList.add('dragging')});
+   el.addEventListener('dragend',()=>el.classList.remove('dragging'));
+   // Touch devices: finger-drag using Pointer Events, with click-to-place fallback.
+   el.addEventListener('pointerdown',e=>{
+     if(e.pointerType==='mouse')return;
+     touch={id,startX:e.clientX,startY:e.clientY,moved:false};
+     el.setPointerCapture?.(e.pointerId);
+   });
+   el.addEventListener('pointermove',e=>{
+     if(!touch||touch.id!==id)return;
+     const distance=Math.hypot(e.clientX-touch.startX,e.clientY-touch.startY);
+     if(distance<11&&!touch.moved)return;
+     if(!touch.moved){
+       touch.moved=true;
+       ghost=document.createElement('div');
+       ghost.className='cat-drag-ghost';
+       ghost.textContent=el.firstChild?.textContent||el.textContent;
+       document.body.appendChild(ghost);
+     }
+     e.preventDefault();
+     ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px';
+     const under=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-bucket],[data-drop-source]');
+     document.querySelectorAll('.bucket,.cat-source').forEach(n=>n.classList.toggle('drag-over',n===under));
+   });
+   el.addEventListener('pointerup',e=>{
+     if(!touch||touch.id!==id)return;
+     const moved=touch.moved;
+     const under=moved?document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-bucket],[data-drop-source]'):null;
+     clearTouch();
+     if(moved){e.preventDefault();e.stopPropagation();if(under)assign(id,under.dataset.bucket||'source');}
+   });
+   el.addEventListener('pointercancel',clearTouch);
+ });
+ document.querySelectorAll('[data-bucket],[data-drop-source]').forEach(el=>{
+   const target=el.dataset.dropSource!==undefined?'source':el.dataset.bucket;
+   const place=()=>{if(picked)assign(picked,target);else toast('请先选一张证据卡，或把卡片拖到框里。')};
+   el.addEventListener('click',e=>{if(e.target.closest('[data-card]'))return;place()});
+   el.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.closest('[data-card]')){e.preventDefault();place()}});
+   el.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';el.classList.add('drag-over')});
+   el.addEventListener('dragleave',e=>{if(!el.contains(e.relatedTarget))el.classList.remove('drag-over')});
+   el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('drag-over');const id=e.dataTransfer.getData('text/plain')||picked;if(id)assign(id,target)});
+ });
+}
+function bindQuiz(step){document.querySelectorAll('[data-choice]').forEach(e=>{let act=()=>{let id=e.dataset.choice;if(step.type==='multiSelect')selection=selection.includes(id)?selection.filter(x=>x!==id):[...selection,id];else selection=[id];feedback='';renderQuiz(step)};e.addEventListener('click',act);e.addEventListener('keydown',k=>{if(k.key==='Enter'||k.key===' '){k.preventDefault();act()}})});if(step.type==='categorize')bindCategoryQuiz(step);if(step.type==='openResponse'){document.querySelectorAll('[data-support]').forEach(b=>b.onclick=()=>{state.supportLevel=b.dataset.support;save();renderQuiz(step)});$('originalDraft').addEventListener('input',e=>{state.originalDraft=e.target.value;save()});document.querySelectorAll('[data-selfcheck]').forEach(e=>e.onchange=()=>{state.selfChecks=Array.from(document.querySelectorAll('[data-selfcheck]:checked')).map(e=>e.dataset.selfcheck);save()});const insert=$('insertScaffold');if(insert)insert.onclick=()=>{
+ const selected=step.supportLevels.find(x=>x.id===state.supportLevel)||step.supportLevels[1];
+ const frame=selected.prompt;
+ const base=state.originalDraft.trim();
+ if(!base)state.originalDraft=frame;
+ else if(!base.includes(frame))state.originalDraft=base+'\\n'+frame;
+ save();const field=$('originalDraft');if(field){field.value=state.originalDraft;field.focus();field.setSelectionRange(field.value.length,field.value.length);}
+}}}
 function renderNotebook(step){let level=step.supportLevels.find(x=>x.id===state.supportLevel)||step.supportLevels[1];let p=level.id==='S1'?`<p class="note-card">✍️ 句式：${escapeHtml(level.prompt).replaceAll('\n','<br>')}</p><p class="teacher-guide">建议：第3段救人，第4段关心“我”，第8段安慰“我”；先找事实再写特点。</p>`:level.id==='S2'?`<p class="note-card">📖 提示：请回读第7–8段；${escapeHtml(level.prompt)}</p>`:`<p class="note-card">🔎 自主挑战：${escapeHtml(level.prompt)}</p>`;return `<p class="source-note">本题是独立表达，系统只保存，不自动按关键词判定好坏。</p><div class="support-choice">${step.supportLevels.map(l=>`<button class="support-btn ${l.id===state.supportLevel?'active':''}" data-support="${l.id}">${escapeHtml(l.label)}<small>${escapeHtml(l.feature)}</small></button>`).join('')}</div>${p}<h4>📝 我的初稿</h4><textarea class="note-field" id="originalDraft" placeholder="从丽华……的言行，可以看出她……，因为……">${escapeHtml(state.originalDraft)}</textarea><div class="selfchecks"><h4>✅ 三项自评标准（可以边写边检查）</h4>${step.successCriteria.map(s=>`<label><input type="checkbox" data-selfcheck="${s.id}" ${state.selfChecks.includes(s.id)?'checked':''}> ${escapeHtml(s.text)}</label>`).join('')}</div>`}
 function giveHint(step){let hints=step.hints||[];if(!hints.length)return toast('请先回看对应的原文证据。');let i=Math.min(hintIndex,hints.length-1),tip=hints[i];hintIndex++;state.hints[step.id]=(state.hints[step.id]||0)+1;save();feedback='💡 '+tip;renderQuiz(step)}
 function checkStep(step){let id=step.id;state.attempts[id]=(state.attempts[id]||0)+1;let correct=false;if(['singleChoice','multiSelect','keywordFill'].includes(step.type)){let target=step.correctIds||[];correct=target.length===selection.length&&target.every(x=>selection.includes(x));if(correct)state.answers[id]=selection.slice()}else if(step.type==='categorize'){correct=Object.keys(step.answerKey).every(x=>categorize[x]===step.answerKey[x])&&Object.keys(categorize).every(x=>Object.hasOwn(step.answerKey,x));if(correct)state.answers[id]={...categorize}}else if(step.type==='openResponse'){correct=(state.originalDraft.trim().length>=8);if(correct)state.answers[id]={saved:true,support:state.supportLevel,at:Date.now()}}save();if(correct){try{window.GameAudio?.correct()}catch(e){console.warn('audio success error',e)}feedback=step.type==='openResponse'?'✓ 侦探笔记已保存。老师可以进一步查看你的解释。':'✓ 找到了！你把证据和推论连起来了。';renderQuiz(step);let b=$('checkBtn');b.textContent='继续';b.onclick=()=>nextStep()}else{feedback=step.type==='openResponse'?'再写下一点你的观察或理由，就能保存笔记。':'还需要再观察。试着回看原文，找出真正发生的事情，再检查答案。';renderQuiz(step);let f=$('quizRegion').querySelector('.feedback');if(f)f.scrollIntoView({block:'nearest',behavior:'smooth'})}}
