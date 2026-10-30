@@ -121,8 +121,8 @@ function showOriginal(modal,nums){
  '<div class="source-actions reading-controls"><button type="button" class="secondary" id="readingSourceVoice">🔊 朗读完整原文</button><button type="button" class="secondary" id="readingStopVoice">停止朗读</button><button type="button" class="secondary" id="readingSourceReturn">返回题目</button></div>';
  modal.append(root);
  root.querySelector('#readingSourceVoice').onclick=()=>speak(nums.map(p=>FULL[p]).join('。'));
- root.querySelector('#readingStopVoice').onclick=()=>{speechSynthesis?.cancel();playing=false};
- root.querySelector('#readingSourceReturn').onclick=()=>{speechSynthesis?.cancel();playing=false;root.remove()};
+ root.querySelector('#readingStopVoice').onclick=()=>{window.speechSynthesis?.cancel();playing=false};
+ root.querySelector('#readingSourceReturn').onclick=()=>{window.speechSynthesis?.cancel();playing=false;root.remove()};
  annotate(root);
 }
 function decorate(){
@@ -137,7 +137,7 @@ function decorate(){
   if(quote)quote.insertAdjacentElement('afterend',bar);
   else (modal.querySelector('.story-illustration')||modal.querySelector('.question-title')||modal).insertAdjacentElement('afterend',bar);
   bar.querySelector('#readingExcerptVoice').onclick=()=>speak(quoteText(modal,nums));
-  bar.querySelector('#readingExcerptStop').onclick=()=>{speechSynthesis?.cancel();playing=false};
+  bar.querySelector('#readingExcerptStop').onclick=()=>{window.speechSynthesis?.cancel();playing=false};
  }
  if(!modal.querySelector('#readingReviewButton')){
   const btn=document.createElement('button');btn.type='button';btn.id='readingReviewButton';btn.className='secondary';
