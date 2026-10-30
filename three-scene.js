@@ -305,7 +305,7 @@ global.WatchThreeScene=function(options){
     const cx=nameCanvas.getContext('2d');
     cx.fillStyle='#faf6e9';cx.fillRect(0,0,640,128);
     cx.font='bold 64px sans-serif';cx.textAlign='center';cx.textBaseline='middle';
-    cx.fillStyle='#2d6a65';cx.fillText('校园 · 教学楼',320,70);
+    cx.fillStyle='#2d6a65';cx.fillText('学校',320,70);
     const signTex=new T.CanvasTexture(nameCanvas);signTex.encoding=T.sRGBEncoding;
     const sign=mesh(new T.PlaneGeometry(2.32,.45),
       new T.MeshBasicMaterial({map:signTex,side:T.DoubleSide}),2.05,2.69,-3.558);
