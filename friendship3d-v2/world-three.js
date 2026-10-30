@@ -108,8 +108,16 @@ class World3DThree {
  }
  resetCamera(){this.yaw=0;this.pitch=.55;this.dist=9.8;}
  getNear(){
-  let best=null,d=Infinity;
-  for(const h of this.hotspots){if(h.hidden)continue;const p=this.positions[this.level][h.hotspotId];const x=Math.hypot(this.player.x-p.x,this.player.z-p.z);if(x<d){d=x;best=h;}}
+  let best=null,d=Infinity,active=null,activeDistance=Infinity;
+  for(const h of this.hotspots){
+    if(h.hidden)continue;
+    const p=this.positions[this.level]?.[h.hotspotId];if(!p)continue;
+    const x=Math.hypot(this.player.x-p.x,this.player.z-p.z);
+    if(x<d){d=x;best=h;}
+    if(h.available&&x<activeDistance){active=h;activeDistance=x;}
+  }
+  // A nearby unlocked task takes priority over an overlapping completed/locked hotspot.
+  if(active&&activeDistance<=2.65)return {hotspot:active,dist:activeDistance};
   return {hotspot:best,dist:d};
  }
  collision(x,z){
