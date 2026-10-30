@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2.0.0",
+  "schemaVersion": "2.2",
   "title": "《手表》3D友情侦探｜I Do＋We Do",
   "language": "zh-SG",
   "purpose": "中三G1华文阅读二读，证据→推论→主题，7热点内含多步骤题目，严格保留截图的I Do/We Do和三级侦探笔记",
@@ -142,10 +142,17 @@
       "sceneFile": "school_campus_v2.glb",
       "hotspotOrder": [
         "L1_BIKE",
+        "L1_LIHUA",
         "L1_WATCH",
-        "L1_LIHUA"
+        "L1_INFERENCE"
       ],
-      "goal": "收集第3、4段两处言行证据，教师示范分析丽华关心朋友。"
+      "goal": "按脚踏车→丽华→手表→作推论收集两处证据，最后从学校大门进入第二关。",
+      "exit": {
+        "hotspotId": "school_gate",
+        "name": "学校大门",
+        "unlocksAfter": "L1_INFERENCE",
+        "nextLevel": 2
+      }
     },
     {
       "id": 2,
@@ -163,8 +170,9 @@
   ],
   "hotspotSequence": [
     "L1_BIKE",
-    "L1_WATCH",
     "L1_LIHUA",
+    "L1_WATCH",
+    "L1_INFERENCE",
     "L2_MOM",
     "L2_DOORBELL",
     "L2_LIHUA",
@@ -235,80 +243,13 @@
           ]
         }
       ],
-      "unlockNext": "L1_WATCH",
-      "completionText": "收集证据一！发现丽华的动作可以帮助我们理解人物。"
-    },
-    {
-      "id": "L1_WATCH",
-      "level": 1,
-      "order": 2,
-      "hotspotId": "watch",
-      "model": "watch.glb",
-      "role": "object_preparation",
-      "label": "手表：故事的重要物品",
-      "sceneMode": "I_DO_BRIEF_BRIDGE",
-      "originalScreenshotRefs": [
-        "01",
-        "09"
-      ],
-      "beforeQuestion": {
-        "teacherGuide": "第一关的手表只是线索道具，不提前讲出结局。第5段送礼动机留在第二关探讨。",
-        "onScreen": "先认识重要物品：这只手表原本属于谁？",
-        "sourceType": "game_written"
-      },
-      "evidence": [
-        {
-          "paragraph": 1,
-          "sourceType": "verbatim",
-          "fullText": "我把叔叔给我的名贵手表转送给丽华，妈妈知道了很生气。其实，我这么做是有原因的。",
-          "excerpt": "我把叔叔给我的名贵手表转送给丽华，妈妈知道了很生气。"
-        }
-      ],
-      "collectCard": {
-        "id": "CARD_P1",
-        "title": "道具线索：手表",
-        "text": "原来是叔叔送给“我”的手表。"
-      },
-      "steps": [
-        {
-          "id": "L1Q2",
-          "type": "singleChoice",
-          "stem": "根据第1段，这只手表原来是谁送给“我”的？",
-          "options": [
-            {
-              "id": "a",
-              "text": "丽华"
-            },
-            {
-              "id": "b",
-              "text": "叔叔"
-            },
-            {
-              "id": "c",
-              "text": "妈妈"
-            }
-          ],
-          "correctIds": [
-            "b"
-          ],
-          "grading": "exactChoice",
-          "sourceParagraphs": [
-            1
-          ],
-          "hints": [
-            "请看第1段的开头。",
-            "“我把叔叔给我的名贵手表……”"
-          ]
-        }
-      ],
       "unlockNext": "L1_LIHUA",
-      "completionText": "手表线索已收集。先不要猜结局，继续观察丽华。",
-      "renderModel": "watch_display_v2.glb"
+      "completionText": "收集证据一！发现丽华的动作可以帮助我们理解人物。"
     },
     {
       "id": "L1_LIHUA",
       "level": 1,
-      "order": 3,
+      "order": 2,
       "hotspotId": "lihua",
       "model": "lihua.glb",
       "role": "evidence_2_and_demo",
@@ -376,7 +317,120 @@
             "请比较第3段丽华的动作和第4段她说的话。",
             "判断每条证据是谁做的、是不是真的发生过。"
           ]
+        }
+      ],
+      "teacherReveal": {
+        "claim": "丽华非常关心朋友，也会先替别人着想。",
+        "reasoning": "证据一：危险时推开“我”，自己受伤；证据二：第二天受伤了仍先问“我”有没有事。",
+        "studentFollowup": "两处证据为什么能支持“关心朋友”这一特点？"
+      },
+      "unlockNext": "L1_WATCH",
+      "completionText": "收集了两处言行证据，接着到手表旁看看故事的重要物品。"
+    },
+    {
+      "id": "L1_WATCH",
+      "level": 1,
+      "order": 3,
+      "hotspotId": "watch",
+      "model": "watch.glb",
+      "role": "object_preparation",
+      "label": "手表：故事的重要物品",
+      "sceneMode": "I_DO_BRIEF_BRIDGE",
+      "originalScreenshotRefs": [
+        "01",
+        "09"
+      ],
+      "beforeQuestion": {
+        "teacherGuide": "第一关的手表只是线索道具，不提前讲出结局。第5段送礼动机留在第二关探讨。",
+        "onScreen": "先认识重要物品：这只手表原本属于谁？",
+        "sourceType": "game_written"
+      },
+      "evidence": [
+        {
+          "paragraph": 1,
+          "sourceType": "verbatim",
+          "fullText": "我把叔叔给我的名贵手表转送给丽华，妈妈知道了很生气。其实，我这么做是有原因的。",
+          "excerpt": "我把叔叔给我的名贵手表转送给丽华，妈妈知道了很生气。"
+        }
+      ],
+      "collectCard": {
+        "id": "CARD_P1",
+        "title": "道具线索：手表",
+        "text": "原来是叔叔送给“我”的手表。"
+      },
+      "steps": [
+        {
+          "id": "L1Q2",
+          "type": "singleChoice",
+          "stem": "根据第1段，这只手表原来是谁送给“我”的？",
+          "options": [
+            {
+              "id": "a",
+              "text": "丽华"
+            },
+            {
+              "id": "b",
+              "text": "叔叔"
+            },
+            {
+              "id": "c",
+              "text": "妈妈"
+            }
+          ],
+          "correctIds": [
+            "b"
+          ],
+          "grading": "exactChoice",
+          "sourceParagraphs": [
+            1
+          ],
+          "hints": [
+            "请看第1段的开头。",
+            "“我把叔叔给我的名贵手表……”"
+          ]
+        }
+      ],
+      "unlockNext": "L1_INFERENCE",
+      "completionText": "手表线索已收集。现在去推论站，运用两处证据判断丽华的特点。",
+      "renderModel": "watch_display_v2.glb"
+    },
+    {
+      "id": "L1_INFERENCE",
+      "level": 1,
+      "order": 4,
+      "hotspotId": "inference",
+      "model": "evidence_station.glb",
+      "role": "independent_character_inference",
+      "label": "作推论：人物特点",
+      "sceneMode": "I_DO_TEACHER_DEMO",
+      "originalScreenshotRefs": [
+        "06"
+      ],
+      "beforeQuestion": {
+        "teacherGuide": "回看刚才收集的两处证据，再选择人物特点。不要只凭一句话判断。",
+        "onScreen": "证据收齐！现在到校园推论站，把两处言行连起来。",
+        "sourceType": "game_written"
+      },
+      "evidence": [
+        {
+          "paragraph": 3,
+          "sourceType": "verbatim",
+          "fullText": "“我叫丽华，你呢？”她问道。我还没来得及回答，一辆脚踏车朝我飞快地冲过来。丽华连忙推开我，结果自己却摔倒在地上。她擦伤了手臂，我反而没事。",
+          "excerpt": "丽华连忙推开我，结果自己却摔倒在地上。"
         },
+        {
+          "paragraph": 4,
+          "sourceType": "verbatim",
+          "fullText": "第二天，丽华手臂缠着纱布走进教室。我正想向她道谢，她却关心地问我：“你没事吧？”她的善良让我很感动。从此，我们成了好朋友。",
+          "excerpt": "丽华手臂缠着纱布走进教室。我正想向她道谢，她却关心地问我：“你没事吧？”"
+        }
+      ],
+      "collectCard": {
+        "id": "CARD_INFERENCE",
+        "title": "人物推论",
+        "text": "丽华在危险时保护朋友，受伤后仍关心朋友。"
+      },
+      "steps": [
         {
           "id": "L1Q3B",
           "type": "keywordFill",
@@ -411,18 +465,13 @@
           "teacherMode": "I_DO_GUIDED_WORD_CHOICE"
         }
       ],
-      "teacherReveal": {
-        "claim": "丽华非常关心朋友，也会先替别人着想。",
-        "reasoning": "证据一：危险时推开“我”，自己受伤；证据二：第二天受伤了仍先问“我”有没有事。",
-        "studentFollowup": "两处证据为什么能支持“关心朋友”这一特点？"
-      },
-      "unlockNext": "L2_MOM",
-      "completionText": "两处关键证据收齐。I Do 教师示范完成，解锁第二关！"
+      "unlockNext": "LEVEL2_GATE",
+      "completionText": "已完成推论！前往学校大门，开启第二关。"
     },
     {
       "id": "L2_MOM",
       "level": 2,
-      "order": 4,
+      "order": 5,
       "hotspotId": "mom",
       "model": "mom.glb",
       "role": "virtual_guidance_not_in_story",
@@ -520,7 +569,7 @@
     {
       "id": "L2_DOORBELL",
       "level": 2,
-      "order": 5,
+      "order": 6,
       "hotspotId": "doorbell",
       "model": "doorbell.glb",
       "role": "action_psychological_inference",
@@ -581,7 +630,7 @@
     {
       "id": "L2_LIHUA",
       "level": 2,
-      "order": 6,
+      "order": 7,
       "hotspotId": "lihua",
       "model": "lihua.glb",
       "role": "response_action_and_speech",
@@ -661,7 +710,7 @@
     {
       "id": "L2_STATION",
       "level": 2,
-      "order": 7,
+      "order": 8,
       "hotspotId": "evidence_station",
       "model": "evidence_station.glb",
       "role": "synthesis_reflection",
