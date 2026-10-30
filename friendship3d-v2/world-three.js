@@ -184,7 +184,7 @@ class World3DThree {
   if(len>.08){
     x/=Math.max(1,len);z/=Math.max(1,len);
     const speed=k.has('ShiftLeft')||k.has('ShiftRight')?5.3:3.1;
-    const dx=(x*Math.cos(this.yaw)+z*Math.sin(this.y))*speed*dt;
+    const dx=(x*Math.cos(this.yaw)+z*Math.sin(this.yaw))*speed*dt;
     const dz=(-x*Math.sin(this.yaw)+z*Math.cos(this.yaw))*speed*dt;
     const nx=this.player.x+dx,nz=this.player.z+dz;
     if(!this.collision(nx,this.player.z))this.player.x=nx;
