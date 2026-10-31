@@ -1,0 +1,29 @@
+name: Generate matching V1 Chinese voice replacements
+on:
+  push:
+    paths:
+      - '.github/workflows/generate-v1-voice-patches.yml'
+      - 'scripts/generate_v1_voice_patches.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install edge-tts
+      - run: python scripts/generate_v1_voice_patches.py
+      - run: cd voice_patch_v1 && zip -q ../voice_patch_v1.zip *.mp3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: voice-patches-v1
+          path: voice_patch_v1.zip
+      - name: Publish temporary voice replacements
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create handwatch-v1-voice-patches voice_patch_v1.zip --title 'V1 video commentary voice patches' --notes 'Audio patches for the requested V1 edit; the published teaching video remains independent.' --latest=false
