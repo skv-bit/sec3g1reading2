@@ -51,7 +51,7 @@ class World3D{
 
 const $=id=>document.getElementById(id), escapeHtml=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let DATA=null,world=null,state={alias:'小侦探',classCode:'3G1',current:0,done:[],answers:{},attempts:{},hints:{},reviewCount:{},supportLevel:'S2',originalDraft:'',revisedDraft:'',lifeResponse:'',selfChecks:[],started:false,completed:false,enteredLevel2:false,contentVersion:'2026-watch-level2-v1'},task=null,selection=[],categorize={},picked=null,scaffoldOpen=false,hintIndex=0,feedback='',teacherMode=false,audioOn=true,paused=true,transitioning=false,toastTimer=null,allNodes=[];
-const KEY='handwatch-3d-adventure-v1';
+const KEY=new URLSearchParams(location.search).has('studio')?'handwatch-3d-studio-only-v1':'handwatch-3d-adventure-v1';
 const FIRST_LEVEL_COUNT=3;
 const stage=(i)=>i<FIRST_LEVEL_COUNT?1:i===FIRST_LEVEL_COUNT&&!state.enteredLevel2?1:2;
 const currentNode=()=>allNodes[state.current];
@@ -368,4 +368,82 @@ function resetAllProgress(){
  toast('🔄 已重置！从第一关第一步「脚踏车」重新开始。');
 }
 function bindUI(){$('startBtn').onclick=()=>{state.alias=$('alias').value.trim()||'小侦探';state.classCode=$('classCode').value.trim();state.started=true;save();hide('intro');paused=false;window.GameAudio?.start();if(state.current===FIRST_LEVEL_COUNT&&world.level===1)toast('🌟 校园任务已完成，请到学校大门进入第二关。');else if(state.current>=allNodes.length)showGameComplete();else toast(`欢迎回来，${state.alias}！找到金色光圈，开始阅读探索。`)};$('questToggle').onclick=()=>{let p=$('questPanel');p.classList.toggle('collapsed');$('questToggle').textContent=p.classList.contains('collapsed')?'+':'−'};$('readAssistantBtn').onclick=showReadingAssistant;$('helpBtn').onclick=showHelp;$('teacherBtn').onclick=teacherPanel;$('audioBtn').onclick=()=>{audioOn=!audioOn;$('audioBtn').firstChild.nodeValue=audioOn?'🔊':'🔇';toast(audioOn?'已开启朗读功能':'已关闭朗读功能');if(!audioOn)stopSpeech()};$('interactBtn').onclick=nearInteract;$('camReset').onclick=()=>world.resetCamera();$('resetProgressBtn').onclick=resetAllProgress;$('sceneReset').onclick=()=>{if(world.contextLost||world.gl.isContextLost?.()){location.reload();return}world.player.x=0;world.player.z=5.5;world.cursor.x=0;world.cursor.z=5.5;world.keys.clear();world.resetCamera();const backup=document.getElementById('sceneBackup');if(backup)backup.hidden=true;toast('已经把人物与镜头带回场景中心，不会清除答题进度。')};$('closeDialog').onclick=closeTask;$('closePanel').onclick=closePanel;window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('panelOverlay').classList.contains('hidden'))closePanel();else if(!$('overlay').classList.contains('hidden'))closeTask()}})}
+
+/* Isolated teaching-video studio API. Disabled in the normal student game.
+   Deliberately uses real buttons, real task grading and real map / 3D-world positions.
+   Demonstration progress is stored under a different key from students' work. */
+if(new URLSearchParams(location.search).has('studio')){
+ window.WatchStudioAPI={
+  ready:()=>Boolean(DATA&&world&&allNodes.length&&$('startBtn')?.onclick),
+  progress:()=>({current:state.current,level:world?.level,task:task?.node?.id||null,step:task?.stepIndex||0,started:state.started}),
+  start(alias='演示学生',classCode='3G1'){
+   $('alias').value=alias;$('classCode').value=classCode;$('startBtn').click();
+  },
+  click(id){
+   const b=$(id);if(!b)throw Error('缺少操作按钮：'+id);b.scrollIntoView?.({block:'nearest',behavior:'smooth'});b.click();
+  },
+  target(id){
+   const n=allNodes.find(n=>n.id===id);if(!n)throw Error('找不到任务：'+id);
+   const p=world.positions[n.level]?.[n.hotspotId];if(!p)throw Error('缺少任务坐标：'+id);
+   return {x:p.x,z:p.z,hotspotId:n.hotspotId,label:n.label,level:n.level};
+  },
+  async walkTo(x,z,millis=1800){
+   if(!world||!state.started)throw Error('游戏尚未启动');
+   const sx=world.player.x,sz=world.player.z,dx=x-sx,dz=z-sz;
+   const start=performance.now();
+   await new Promise(resolve=>{
+    function tick(now){
+     const t=Math.min(1,(now-start)/Math.max(100,millis)),ease=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+     world.player.x=sx+dx*ease;world.player.z=sz+dz*ease;
+     world.player.face=Math.atan2(dx,dz);
+     world.player.moving=t<1;world.player.bob+=.18;
+     if(t>=1){world.player.moving=false;resolve()}else requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+   });
+  },
+  async approach(id,millis=2300){
+   const p=this.target(id);
+   if(world.level!==p.level)throw Error('任务所在关卡不符：'+id);
+   const off=p.hotspotId==='bike'?{x:0,z:1.6}:p.hotspotId==='lihua'?{x:0,z:1.6}:p.hotspotId==='inference'?{x:1.7,z:1.1}:p.hotspotId==='watch'?{x:-1.5,z:1}:p.hotspotId==='mom'?{x:1.5,z:1.2}:p.hotspotId==='doorbell'?{x:1.5,z:1}:p.hotspotId==='evidence_station'?{x:1.6,z:1.1}:{x:0,z:1.3};
+   // Follow the open central route before approaching the object.
+   if(p.level===1&&world.player.z>2.9&&p.z<-2.0)await this.walkTo(0,1.8,950);
+   await this.walkTo(p.x+off.x,p.z+off.z,millis);
+  },
+  openCurrent(){
+   const h=world.hotspots.find(n=>n.available&&!n.hidden);
+   if(!h)throw Error('没有可答题的任务');
+   const p=world.positions[world.level][h.hotspotId],d=Math.hypot(world.player.x-p.x,world.player.z-p.z);
+   if(d>2.65)throw Error('请先走近任务：'+h.label+' 距离 '+d.toFixed(1));
+   interact(h);
+  },
+  async answerCurrent(){
+   if(!task)throw Error('答题窗口未打开');
+   const step=task.node.steps[task.stepIndex],delay=ms=>new Promise(r=>setTimeout(r,ms));
+   const click=selector=>{const e=document.querySelector(selector);if(!e)throw Error('缺少选项 '+selector);e.scrollIntoView({block:'center',behavior:'smooth'});e.click()};
+   if(['singleChoice','multiSelect','keywordFill'].includes(step.type)){
+    for(const id of step.correctIds||[]){click('[data-choice="'+id+'"]');await delay(380)}
+   }else if(step.type==='categorize'){
+    for(const [id,bucket] of Object.entries(step.answerKey)){
+     click('[data-card="'+id+'"]');await delay(450);
+     click('[data-bucket="'+bucket+'"]');await delay(650);
+    }
+   }else if(step.type==='openResponse'){
+    const e=$('originalDraft');if(!e)throw Error('没有侦探笔记输入框');
+    e.value='从丽华推开我、自己受伤，以及受伤后仍关心我、归还手表和安慰我的言行，可以看出她友善、无私，因为她总是先考虑朋友的感受。';
+    e.dispatchEvent(new Event('input',{bubbles:true}));
+   }
+   return step.type;
+  },
+  check(){const b=$('checkBtn');if(!b)throw Error('找不到完成按钮');b.click()},
+  currentStepType(){return task?.node?.steps[task.stepIndex]?.type||null},
+  next(){const b=$('checkBtn');if(!b||b.textContent.trim()!=='继续')throw Error('请先完成当前题目');b.click()},
+  enterLevel2(){enterSecondLevel()},
+  showAssistant(){showReadingAssistant()},
+  showCollected(){showReview()},
+  closePanel(){closePanel()},
+  stopVoice(){stopSpeech()}
+ };
+}
+
 init();
