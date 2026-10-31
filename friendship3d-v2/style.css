@@ -45,12 +45,49 @@
 .topbuttons #resetProgressBtn:hover{background:#ffe7c5}
 .topbuttons #musicBtn{background:#edf9ee;border:1px solid #acdcbf;color:#288260;border-radius:12px;padding:9px 13px}
 .mapcoords{padding:5px 7px 2px;color:#276f87;font-size:12px;font-weight:800;text-align:center;letter-spacing:.04em}
-.pinyin-enabled ruby,.pinyin-enabled .dialog ruby,.pinyin-enabled .panel-body ruby{ruby-position:over;white-space:nowrap;display:inline-ruby;vertical-align:baseline;line-height:1.95}
-.pinyin-enabled rt{font-size:clamp(13px,.74em,19px);line-height:1.16;color:#246f72;font-weight:800;text-align:center;letter-spacing:0}
-.pinyin-enabled .stem,.pinyin-enabled .choice,.pinyin-enabled .evidence-box,.pinyin-enabled .review-card p{line-height:2.1}
-.pinyin-enabled .watch-pinyin-word{margin-inline:1px}
-@media(max-width:650px){.pinyin-enabled rt{font-size:clamp(12px,.73em,17px)}.pinyin-enabled .stem,.pinyin-enabled .choice{line-height:2.15}}
-.dialog-scroll ruby{margin-inline:1px}
+/* Compact word-level ruby: small pinyin above readable Hanzi, with deliberate vertical and side gaps.
+   Script inserts <wbr> between annotated words so long questions can wrap without shifting. */
+.pinyin-enabled ruby.watch-pinyin-word{
+  display:inline-ruby;
+  ruby-position:over;
+  ruby-align:center;
+  white-space:nowrap;
+  vertical-align:baseline;
+  line-height:1.35;
+  margin-inline:.15em;
+}
+.pinyin-enabled ruby.watch-pinyin-word rt{
+  font-family:system-ui,"Arial",sans-serif;
+  font-size:clamp(9px,.52em,12px);
+  font-weight:650;
+  line-height:1.15;
+  padding-bottom:.35em;
+  letter-spacing:0;
+  text-align:center;
+  white-space:nowrap;
+  color:#327384;
+}
+/* Each annotated term remains together while adjacent terms may wrap naturally. */
+.pinyin-enabled .stem,
+.pinyin-enabled .choice,
+.pinyin-enabled .evidence-box,
+.pinyin-enabled .review-card p,
+.pinyin-enabled .scaffold-panel,
+.pinyin-enabled .note-card,
+.pinyin-enabled .word-chip,
+.pinyin-enabled .feedback,
+.pinyin-enabled .dragcard{
+  line-height:2.15;
+  overflow-wrap:anywhere;
+}
+.pinyin-enabled .choice span:last-child,
+.pinyin-enabled .cat-source .dragcard,
+.pinyin-enabled .bucket .dragcard{line-height:2.15}
+@media(max-width:650px){
+  .pinyin-enabled ruby.watch-pinyin-word{margin-inline:.12em}
+  .pinyin-enabled ruby.watch-pinyin-word rt{font-size:clamp(9px,.5em,11px);padding-bottom:.32em}
+  .pinyin-enabled .stem,.pinyin-enabled .choice,.pinyin-enabled .evidence-box{line-height:2.25}
+}
 @media(max-width:650px){.topbuttons #pinyinBtn,.topbuttons #resetProgressBtn,.topbuttons #musicBtn{font-size:12px;padding:6px 8px}.topbar{gap:5px}.topcenter #levelTag{font-size:10px}.mapcoords{display:none}}
 
 /* Reliable 4-direction roaming controls for the stationary campus overview camera. */
