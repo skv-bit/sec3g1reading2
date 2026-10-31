@@ -1,0 +1,66 @@
+name: Record real Handwatch 3D gameplay with Chinese narration
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/record-handwatch-demo.yml'
+      - 'scripts/record_handwatch_demo.py'
+
+permissions:
+  contents: write
+
+jobs:
+  record-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout genuine game code and artwork
+        uses: actions/checkout@v4
+
+      - name: Python setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install recording and Chinese subtitles tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-noto-cjk espeak-ng
+          python -m pip install --upgrade pip
+          python -m pip install playwright edge-tts pydub numpy
+          python -m playwright install --with-deps chromium
+
+      - name: Start local game and record actual UI interactions
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 > /tmp/handwatch_game_server.log 2>&1 &
+          sleep 2
+          python scripts/record_handwatch_demo.py
+
+      - name: Upload video and evidence for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: handwatch-screen-recording
+          path: |
+            recorded_demo/*.mp4
+            recorded_demo/*.webm
+            recorded_demo/*.srt
+            recorded_demo/*.json
+            recorded_demo/*failed*.png
+            recorded_demo/failure.png
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publish finished MP4 as a public release
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create handwatch-gameplay-video-20261031 \
+            recorded_demo/手表_3D友情侦探_游戏解说.mp4 \
+            recorded_demo/解说字幕.srt \
+            --title "《手表》3D友情侦探 · 完整录屏解说" \
+            --notes "在真实游戏浏览器中自动演示：学生登录、拼音开关、音乐开关、阅读助手、收集证据与回看、第一题原文朗读、词语库、行走、全部两关的真实作答和解锁、侦探笔记。视频包含中文自动配音与烧录字幕。背景音乐为后期原创轻音乐，不是浏览器原声录制。" \
+            --target "$GITHUB_SHA" \
+            --latest=false
