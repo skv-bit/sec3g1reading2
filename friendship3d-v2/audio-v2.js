@@ -5,7 +5,7 @@
     constructor(){
       this.ctx=null; this.master=null; this.musicBus=null; this.fxBus=null;
       this.playing=false; this.musicEnabled=true; this.effectsEnabled=true;
-      this.muted=false; this.tick=0; this.nextAt=0; this.timer=null; this.volume=.23;
+      this.muted=false; this.tick=0; this.nextAt=0; this.timer=null; this.volume=.23; this.speechVolume=.38;
       this.voices=[]; this.preferredVoiceName=localStorage.getItem('watchVoice')||'';
       this.onVoicesChanged=()=>this.voices=window.speechSynthesis?.getVoices()||[];
       if ('speechSynthesis' in window) {
@@ -105,7 +105,8 @@
       const chunks=(content.match(/[^。！？!?\n]+[。！？!?]?/g)||[])
         .map(x=>x.trim()).filter(Boolean);
       let index=0;
-      if(this.musicBus&&this.ctx)this.musicBus.gain.setTargetAtTime(.045,this.ctx.currentTime,.08);
+      // Keep some gentle background music under the narration so the volume contrast is not abrupt.
+      if(this.musicBus&&this.ctx)this.musicBus.gain.setTargetAtTime(this.volume*.60,this.ctx.currentTime,.18);
       const restore=()=>{if(token===this.voiceSession&&this.musicBus&&this.ctx)this.musicBus.gain.setTargetAtTime(this.volume,this.ctx.currentTime,.2)};
       const readNext=()=>{
         if(token!==this.voiceSession)return;
@@ -113,7 +114,7 @@
         const u=new SpeechSynthesisUtterance(chunks[index++]);
         u.lang=choice?.lang||'zh-CN';
         if(choice)u.voice=choice;
-        u.rate=.86;u.pitch=1.09;u.volume=1;
+        u.rate=.86;u.pitch=1.09;u.volume=this.speechVolume; // Gentle classroom listening level
         u.onend=readNext;
         u.onerror=event=>{if(event?.error!=='canceled'&&event?.error!=='interrupted')notify?.('朗读暂时中断，可再点击播放。');restore()};
         speechSynthesis.speak(u);
