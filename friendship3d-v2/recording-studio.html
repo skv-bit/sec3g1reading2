@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh-SG">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>《手表》· 游戏录屏解说工作台</title>
+<style>
+:root{font-family:"Noto Sans SC","PingFang SC","Microsoft Yahei",system-ui,sans-serif;color:#285a4a;background:#eff8ea}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
+#game{position:absolute;inset:0;width:100%;height:100%;border:0;background:#daefdf}
+#heading{position:fixed;left:18px;top:13px;background:#fffdf3eb;border:1.5px solid #e5d7b5;border-radius:16px;padding:10px 17px;font-weight:900;z-index:10;box-shadow:0 6px 22px #213f3228;pointer-events:none;transition:.3s}
+#heading small{display:block;font-size:11px;color:#698875;font-weight:600}
+#caption{position:fixed;bottom:19px;left:50%;transform:translateX(-50%);z-index:12;min-height:51px;max-width:min(980px,92vw);padding:12px 25px;background:#173b31e8;color:#fffef2;font-size:clamp(15px,1.7vw,23px);font-weight:800;text-align:center;line-height:1.65;border:1px solid #e6f1dd55;border-radius:18px;box-shadow:0 9px 28px #0c302b55;pointer-events:none}
+#caption:empty{display:none}
+#panel{position:fixed;right:20px;top:18px;z-index:25;width:min(424px,92vw);padding:19px 21px 22px;background:#fffdf4f7;border:2px solid #e8d6b3;border-radius:22px;box-shadow:0 15px 46px #224a3c55}
+#panel h1{font-size:21px;line-height:1.4;margin:0 0 8px;color:#236a51}
+#panel p{font-size:14px;line-height:1.75;margin:6px 0 10px}
+#panel .hint{font-size:12px;color:#627b71;background:#eff8ef;border-radius:10px;padding:10px 12px}
+#panel button{width:100%;display:block;cursor:pointer;margin-top:9px;font-size:15px;font-weight:800;border:0;border-radius:12px;padding:12px 14px}
+.start{background:linear-gradient(#66c99a,#268e67);color:#fff}
+.secondary{background:#f4efd9;color:#3f735d;border:1px solid #d5cc9f!important}
+#status{font-size:13px;color:#38665a;padding:9px 0;font-weight:700;min-height:30px}
+#stop{position:fixed;top:14px;right:14px;z-index:29;background:#fffafaef;border:1px solid #f0b1a3;border-radius:13px;padding:9px 14px;color:#a44740;font-weight:850;cursor:pointer;display:none}
+#recordBadge{display:none;position:fixed;top:18px;right:155px;z-index:20;background:#273e33dd;color:#fff;border-radius:30px;padding:7px 12px;font-size:13px;font-weight:700}
+#recordBadge .dot{display:inline-block;height:10px;width:10px;background:#ff625f;border-radius:50%;margin-right:8px;animation:blink 1.1s infinite}
+@keyframes blink{50%{opacity:.25}}
+#cursor{position:fixed;z-index:19;top:0;left:0;transform:translate(-100px,-100px);width:25px;height:25px;border:3px solid #fff;border-radius:50%;background:#f6c95099;box-shadow:0 0 0 3px #29976c,0 3px 14px #0004;pointer-events:none;transition:transform .36s ease;opacity:0}
+#cursor.active{opacity:1}
+#finish{position:fixed;z-index:30;inset:0;background:#16392edb;display:none;align-items:center;justify-content:center}
+#finish .card{max-width:470px;padding:30px;text-align:center;border-radius:22px;background:#fffdf3}
+#finish h2{margin:0 0 12px;color:#267c58}
+#finish a{display:inline-block;text-decoration:none;background:#3ca879;color:#fff;padding:13px 24px;border-radius:13px;margin-top:11px;font-weight:800}
+#finish button{display:block;margin:18px auto 0;border:0;background:#f0ebd6;border-radius:10px;padding:10px 16px;color:#3a6455;cursor:pointer}
+#finish p{line-height:1.8}
+body.recording #panel{display:none}
+body.recording #heading{opacity:.92}
+body.recording #stop,body.recording #recordBadge{display:block}
+@media(max-width:680px){#heading{display:none}#caption{bottom:7px;max-width:98vw;padding:9px;font-size:13px}#panel{right:6px;top:6px}}
+</style>
+</head>
+<body>
+<iframe id="game" title="正在录制的《手表》3D真实游戏" src="index.html?studio=1&recording=20261031"></iframe>
+<div id="heading">《手表》· 友情侦探 <small>游戏操作示范 · 找依据 → 作推论 → 联主题</small></div>
+<div id="caption" aria-live="polite">录屏工作台：先确认浏览器允许共享当前标签页和标签页音频。</div>
+<div id="cursor" aria-hidden="true"></div>
+<section id="panel" aria-label="解说视频制作控制">
+ <h1>🎬 录屏解说工作台</h1>
+ <p>直接操作真正的3D游戏：登录、拼音、音乐、阅读助手、找证据、走路、听读、词语库、回答问题，再进入下一关。</p>
+ <div id="status">正在检查游戏是否准备好……</div>
+ <button id="startFull" class="start">▶ 录制完整两关（含解说）</button>
+ <button id="startShort" class="secondary">▶ 录制第一关＋进入第二关</button>
+ <p class="hint">点击录制后，Chrome 会要求你选择共享内容。请选择<strong>「此标签页」</strong>，并打开<strong>「同时分享标签页音频」</strong>，才会录到中文解说和背景音乐。录制文件只下载到你的电脑，不会上传至服务器。</p>
+ <p class="hint">只在第一个任务演示游戏中的「朗读原文」按钮。视频旁白与游戏朗读是两个不同声音功能。可随时点击右上角「结束并保存」。</p>
+</section>
+<button id="stop" type="button">■ 结束并保存录制</button>
+<div id="recordBadge"><span class="dot"></span> 正在录制</div>
+<div id="finish"><div class="card"><h2 id="finishTitle">视频录制完成</h2><p id="finishText">已完成。</p><a id="download" href="#" download="手表_游戏解说.webm">⬇ 下载录屏视频</a><button id="restart">返回录制工作台</button></div></div>
+<script>
+(()=>{
+ "use strict";
+ const $=id=>document.getElementById(id),frame=$('game'),caption=$('caption'),cursor=$('cursor');
+ let media=null,recorder=null,chunks=[],busy=false,shouldStop=false,stopResolve=null,blobUrl=null;
+ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+ const doc=()=>frame.contentDocument;
+ const api=()=>frame.contentWindow?.WatchStudioAPI;
+ const setCaption=line=>{caption.textContent=line};
+ const voice=()=>{let voices=speechSynthesis.getVoices();return voices.find(x=>/^zh[-_]/i.test(x.lang)&&/(xiaoxiao|female|女|ting|mei|sin)/i.test(x.name))||voices.find(x=>/^zh[-_]/i.test(x.lang))||null};
+ async function say(line,minMs=1800){
+  if(shouldStop)return;
+  setCaption(line);
+  if(!('speechSynthesis'in window)){await sleep(Math.max(minMs,2600));return}
+  speechSynthesis.cancel();
+  await new Promise(resolve=>{
+   const u=new SpeechSynthesisUtterance(line);u.lang='zh-CN';u.rate=.94;u.pitch=1.04;u.volume=.74;
+   const v=voice();if(v)u.voice=v;
+   let done=false;const close=()=>{if(done)return;done=true;clearTimeout(timer);resolve()};
+   const timer=setTimeout(close,Math.max(minMs,Math.min(12500,line.length*260+1100)));
+   u.onend=close;u.onerror=close;
+   try{speechSynthesis.speak(u)}catch(e){close()}
+  });
+  await sleep(550);
+ }
+ function pointAt(el){
+  if(!el)return;
+  const a=el.getBoundingClientRect(),b=frame.getBoundingClientRect();
+  cursor.style.transform='translate('+(b.left+a.left+a.width/2-12)+'px,'+(b.top+a.top+a.height/2-12)+'px)';
+  cursor.classList.add('active');
+ }
+ async function click(selector,wait=650){
+  if(shouldStop)throw Error('用户已停止录制');
+  const el=doc()?.querySelector(selector);
+  if(!el)throw Error('演示界面缺少 '+selector);
+  el.scrollIntoView?.({block:'center',behavior:'smooth'});
+  pointAt(el);await sleep(550);el.click();await sleep(wait);
+  return el;
+ }
+ async function waitReady(){
+  for(let i=0;i<180;i++){if(api()?.ready())return;await sleep(500)}
+  throw Error('游戏加载超时。请确认网络正常并刷新页面。');
+ }
+ async function recordStart(){
+  if(!navigator.mediaDevices?.getDisplayMedia)throw Error('请使用最新版 Chrome 或 Edge，当前浏览器没有屏幕录制支持。');
+  const stream=await navigator.mediaDevices.getDisplayMedia({
+   video:{frameRate:{ideal:25,max:30}},
+   audio:{echoCancellation:false,noiseSuppression:false},
+   preferCurrentTab:true,selfBrowserSurface:'include',surfaceSwitching:'include'
+  });
+  const mime=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t));
+  if(!mime){stream.getTracks().forEach(t=>t.stop());throw Error('这个浏览器不能把共享画面保存为视频。')}
+  media=stream;chunks=[];
+  recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:3200000});
+  recorder.addEventListener('dataavailable',e=>{if(e.data?.size)chunks.push(e.data)});
+  recorder.addEventListener('error',e=>{$('status').textContent='录制出错：'+(e.error?.message||'未知原因')});
+  recorder.start(2000);
+  stream.getVideoTracks()[0].addEventListener('ended',()=>finishRecord(),{once:true});
+  document.body.classList.add('recording');
+  if(!stream.getAudioTracks().length){
+   setCaption('提醒：没有共享标签页音频，本次视频会显示中文字幕，但可能没有讲解声音。');
+   await sleep(2500);
+  }
+ }
+ async function finishRecord(){
+  if(!recorder || recorder.state==='inactive')return;
+  shouldStop=true;speechSynthesis?.cancel?.();api()?.stopVoice?.();
+  await new Promise(resolve=>{
+   recorder.addEventListener('stop',resolve,{once:true});
+   try{recorder.stop()}catch(e){resolve()}
+  });
+  media?.getTracks().forEach(t=>t.stop());
+  document.body.classList.remove('recording');
+  const recorded=new Blob(chunks,{type:recorder.mimeType.split(';')[0]||'video/webm'});
+  blobUrl&&URL.revokeObjectURL(blobUrl);blobUrl=URL.createObjectURL(recorded);
+  const suffix=recorder.mimeType.startsWith('video/mp4')?'mp4':'webm';
+  $('download').download='手表_3D游戏操作解说_'+new Date().toISOString().slice(0,10)+'.'+suffix;
+  $('download').href=blobUrl;
+  $('finishText').textContent='已经录制 '+(recorded.size/1024/1024).toFixed(1)+' MB 的视频。点击下载，把视频保存到电脑。若选择共享标签页音频，视频也会包含解说和游戏声音。';
+  $('finish').style.display='flex';
+  // Directly start a download in response to finishing a recording; link remains as a retry.
+  $('download').click();
+  busy=false;
+ }
+ const actions={
+  async task(id,{speech=false,vocab=false,source=false}={}){
+   if(shouldStop)return;
+   const studio=api(),pos=studio.target(id);
+   await say('现在走向'+pos.label.split('：')[0]+'，观察故事中的重要线索。');
+   await studio.approach(id,2300);await sleep(550);
+   studio.openCurrent();await sleep(1700);
+   if(source){
+    await say('先按「看回原文」，查找支持判断的文本依据。');
+    await click('#revisitBtn',850);await sleep(1300);
+    await click('#returnQuestion',550);
+   }
+   if(speech){
+    await say('这里示范一次「朗读本题原文」功能，之后不会重复播放。');
+    await click('#speakBtn',200);
+    await sleep(3400);
+    await click('#stopSpeechBtn',250);
+   }
+   if(vocab){
+    await say('点击词语提示，查看词语的拼音、英文和意思。');
+    await click('.vocab-panel summary',800);
+    await sleep(1050);
+   }
+   let total=doc()?.querySelector('#dialogMode')?.textContent||'';
+   await say('现在回到题目，先看关键动作与语言，再作出有依据的选择。');
+   for(let stepNo=0;stepNo<4;stepNo++){
+    const type=studio.currentStepType();if(!type)break;
+    const stem=doc().querySelector('.stem');
+    stem?.scrollIntoView?.({block:'center',behavior:'smooth'});
+    await sleep(900);
+    if(id==='L2_LIHUA'&&type==='categorize')await say('这一题可以把证据卡片分类：动作放左边，语言放右边，无关的证据保留在上方。');
+    if(type==='openResponse'){
+     await say('最后使用适合自己的思维鹰架，写下至少两处言行证据，解释丽华为什么关心朋友。');
+     const sc=doc().querySelector('#taskScaffoldBtn');if(sc&&!sc.classList.contains('hidden')){await click('#taskScaffoldBtn',650)}
+    }
+    await studio.answerCurrent();await sleep(700);
+    await say('检查答案，观察系统反馈，再继续完成任务。');
+    await click('#checkBtn',850);
+    const b=doc().getElementById('checkBtn');
+    if(b?.textContent.trim()!=='继续')throw Error('答案未通过检查：'+id+' 第'+(stepNo+1)+'题');
+    await click('#checkBtn',850);
+    if(studio.progress().task!==id)break;
+    await sleep(500);
+   }
+  },
+  async showAssistant(showEvidence=false){
+   await say(showEvidence?'再次打开我的阅读助手，并展示刚才已经收集的证据。':'点击左侧「我的阅读助手」，按照找依据、作推论、联主题的方法阅读。');
+   await click('#readAssistantBtn',650);await sleep(1100);
+   if(showEvidence){
+    await click('#assistantReview',650);await sleep(1350);
+    await say('这里保留了已经收集的证据，随时可以回看。');
+   }
+   await click('#closePanel',450);
+  }
+ };
+ async function tour(scope){
+  await waitReady();
+  // The special studio URL keeps demonstration answers separate from student records.
+  try{frame.contentWindow.localStorage.removeItem('handwatch-3d-studio-only-v1')}catch(e){}
+  // At the first load the demo key is blank, so we can begin directly.
+  const g=api();
+  if(g.progress().started || g.progress().current!==0){
+   frame.src='index.html?studio=1&demoSession='+Date.now();
+   await waitReady();
+  }
+  await say('欢迎来到《手表》三D友情侦探。这段视频演示学生怎样使用游戏，寻找证据、推论人物特点。');
+  await say('首先输入学生代号和班级，点击开始行走探索。');
+  let d=doc();d.getElementById('alias').value='演示学生';d.getElementById('classCode').value='3G1';
+  pointAt(d.getElementById('startBtn'));await sleep(400);api().start('演示学生','3G1');await sleep(1600);
+  await say('点击拼音按钮，原文、问题和选项可以显示词语拼音，协助认读。');
+  await click('#pinyinBtn',850);await sleep(1300);
+  await say('再点击一次，便可关闭拼音。');
+  await click('#pinyinBtn',700);
+  await say('右上角的音乐按钮，可以关闭或重新打开轻快的校园背景音乐。');
+  await click('#musicBtn',850);await click('#musicBtn',850);
+  await actions.showAssistant(false);
+  await actions.task('L1_BIKE',{speech:true,vocab:true,source:true});
+  await actions.showAssistant(true);
+  await actions.task('L1_LIHUA',{source:true});
+  await actions.task('L1_INFERENCE');
+  await say('第一关任务已经完成。接着走向校园大门，进入第二关。');
+  await api().walkTo(0,-3.95,2600);await sleep(800);
+  api().enterLevel2();await sleep(2000);
+  await say('现在来到丽华家门前。人物可以继续走动，地图也会显示第二关的地点和任务。');
+  if(scope==='short'){
+   await say('本段示范到这里。学生可以用同样的方法继续寻找证据、回答问题，并完成侦探笔记。');
+   return;
+  }
+  await actions.task('L2_WATCH',{vocab:true});
+  await actions.task('L2_MOM',{source:true});
+  await actions.task('L2_DOORBELL');
+  await actions.task('L2_LIHUA');
+  await actions.task('L2_STATION');
+  await say('两关都完成了。我们找到了关键言行、推论人物特点，也进一步理解友谊和体谅。感谢观看。');
+ }
+ async function begin(scope){
+  if(busy)return;busy=true;shouldStop=false;
+  $('status').textContent='请先选择当前标签页，并勾选分享标签页音频。';
+  try{
+   await recordStart();
+   await tour(scope);
+   await sleep(1400);
+   await finishRecord();
+  }catch(e){
+   if(e?.name==='NotAllowedError'){$('status').textContent='录制未获得授权。请重新点击录制并选择当前标签页。';busy=false;return}
+   console.error('Studio error',e);
+   $('status').textContent='演示已中止：'+(e.message||e);
+   setCaption('演示遇到问题：'+(e.message||e)+'。可以结束并保存已录画面。');
+   if(recorder?.state==='recording'){await sleep(1800);await finishRecord()}else busy=false;
+  }
+ }
+ $('startFull').onclick=()=>begin('full');
+ $('startShort').onclick=()=>begin('short');
+ $('stop').onclick=()=>finishRecord();
+ $('restart').onclick=()=>location.reload();
+ window.addEventListener('beforeunload',()=>{blobUrl&&URL.revokeObjectURL(blobUrl)});
+ (async()=>{try{await waitReady();$('status').textContent='✓ 游戏准备好了，可以开始录屏。'}catch(e){$('status').textContent='游戏加载有问题，请刷新页面。'}})();
+})();
+</script>
+</body></html>
