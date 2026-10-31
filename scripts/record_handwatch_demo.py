@@ -178,7 +178,7 @@ async def browser_record():
         START=time.monotonic()
         await PAGE.goto(GAME,wait_until="domcontentloaded",timeout=60000)
         await PAGE.wait_for_function("window.WatchStudioAPI && window.WatchStudioAPI.ready()",timeout=120000)
-        await PAGE.locator("#loading.hidden").wait_for(timeout=30000)
+        await PAGE.locator("#loading").wait_for(state="hidden",timeout=30000)
         try:
             await walkthrough()
         except Exception as err:
