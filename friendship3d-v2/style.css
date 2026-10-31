@@ -160,3 +160,16 @@
 .scaffold-insert{margin-top:7px}
 .note-field{min-height:145px}
 @media(max-width:650px){.bucket-panel{grid-template-columns:1fr}.bucket{min-height:120px}.dialog-leading{gap:8px}.scaffold-trigger{font-size:12px;padding:6px 8px}.scaffold-chips{grid-template-columns:1fr}.cat-source .dragcard,.bucket .dragcard{font-size:13px}}
+
+/* 2026-10-31: readable level-aware minimap, replacing the four-circle placeholder. */
+.map{width:273px;padding:12px 12px 10px}
+.map canvas{display:block;width:100%;height:190px;margin:8px 0 7px;object-fit:fill;background:#eff9eb;border:1.5px solid #cfe5d0;border-radius:14px}
+.maplegend{display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap;font-size:10px;font-weight:750;color:#477766}
+.maplegend span{white-space:nowrap}
+.mapcoords{margin-top:5px;padding:6px 2px 2px;font-size:11px;line-height:1.3;color:#267c88}
+@media(max-width:900px) and (min-width:651px){
+ .map{width:218px;padding:10px}
+ .map canvas{height:153px}
+ .maplegend{font-size:9px}
+}
+@media(max-width:650px){.map{display:none}}
