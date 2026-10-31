@@ -25,15 +25,15 @@ async def pause(seconds=0.8):
 
 async def narrate(line, extra=0):
     start = time.monotonic() - START
-    wait = max(2.4, min(12.0, len(line) * .24 + .8)) + extra
+    wait = max(1.9, min(8.2, len(line) * .23 + .45)) + extra
     CUES.append(dict(start=round(start, 3), end=round(start + wait - .18, 3), text=line))
     print("NARRATE", round(start, 1), line, flush=True)
     await pause(wait)
 
-async def click(selector, pause_s=.8):
+async def click(selector, pause_s=.45):
     node = PAGE.locator(selector).first
     await node.scroll_into_view_if_needed(timeout=10000)
-    await pause(.2)
+    await pause(.12)
     await node.click(timeout=10000)
     await pause(pause_s)
 
@@ -50,106 +50,112 @@ async def progress():
     return await api("progress")
 
 async def task(task_id, speech=False, vocabulary=False, source=False):
-    target = await api("target", task_id)
-    name = target["label"].split("：")[0]
-    await narrate("我们走向" + name + "。观察金色任务标记，再点击互动。")
-    await api("approach", task_id, 2100)
-    await pause(.6)
+    """Real on-screen play; teach each UI function ONCE, not on every question."""
+    descriptions={
+        "L1_BIKE":"第一关，从脚踏车的线索开始。",
+        "L1_LIHUA":"接着看丽华受伤后，如何关心朋友。",
+        "L1_INFERENCE":"把两处言行连起来，完成推论。",
+        "L2_WATCH":"第二关先完成手表的两道题。",
+        "L2_MOM":"接下来，根据第六段回答妈妈生气的问题。",
+        "L2_DOORBELL":"来到门铃，继续了解故事发展。",
+        "L2_LIHUA":"根据第八段，把丽华的动作和语言分开。",
+        "L2_STATION":"最后来到证据集合站，完成推论和侦探笔记。"
+    }
+    await narrate(descriptions[task_id])
+    await api("approach", task_id, 1250)
+    await pause(.35)
     await api("openCurrent")
     await PAGE.locator("#overlay:not(.hidden)").wait_for(timeout=10000)
-    await narrate("打开对话框后，先看故事图片和对应段落的原文依据。")
+    # Show source reading, voice and vocabulary only in the FIRST task.
     if source:
-        await narrate("点击看回原文，就能检查支持人物判断的完整句子。")
-        await click("#revisitBtn",1.0)
-        await click("#returnQuestion",.65)
+        await narrate("先点看回原文，查看完整段落。")
+        await click("#revisitBtn",.55)
+        await click("#returnQuestion",.45)
     if speech:
-        await narrate("接下来只演示一次朗读原文功能。它会念原文，而不是念题目。")
-        await click("#speakBtn",2.5)
-        await click("#stopSpeechBtn",.4)
+        await narrate("这里示范一次朗读原文。")
+        await click("#speakBtn",1.4)
+        await click("#stopSpeechBtn",.35)
     if vocabulary:
-        await narrate("词语库会提供拼音、英文和意思，帮助认读有困难的学生。")
-        await click(".vocab-panel summary",1.0)
-        await pause(.7)
+        await narrate("再打开一次词语提示，看看拼音和词义。")
+        await click(".vocab-panel summary",.65)
+        await pause(.35)
     for step_index in range(4):
         step_type = await api("currentStepType")
         if not step_type:
             break
         await PAGE.locator(".stem").first.scroll_into_view_if_needed()
-        await narrate("现在阅读问题，先找具体证据，再思考它反映的人物特点。")
+        if task_id=="L1_BIKE" and step_index==0:
+            await narrate("阅读问题，根据题目来作答。")
+        else:
+            await pause(.8 if step_index==0 else .7)
         if step_type in ("singleChoice", "multiSelect", "keywordFill"):
-            # Read only the current step's correct option IDs from the game's own data.
-            ids = await PAGE.evaluate("""()=>{
-                const s=window.WatchStudioAPI;return s.currentStepType();
-            }""")
             await api("answerCurrent")
-            await pause(.7)
+            await pause(.5)
         elif step_type == "categorize":
-            await narrate("这题要拖放分类：把丽华的动作和语言，放进相应的证据框。")
-            # Browser-facing clicks operate the same category assignment used for drag-and-drop.
-            # The game moves each card to its assigned bucket and checks the result.
+            await narrate("这题用拖放分类，把动作和语言分别放入对应方框。")
             await api("answerCurrent")
-            await pause(1.0)
+            await pause(.6)
         elif step_type == "openResponse":
-            await narrate("最后完成侦探笔记，运用句式从人物言行推断特点，并解释理由。")
-            await click("#taskScaffoldBtn",.9)
+            await narrate("选用合适的鹰架，完成侦探笔记。")
+            await click("#taskScaffoldBtn",.65)
             await api("answerCurrent")
-            await pause(1.0)
-        await narrate("按下完成，检查答案与反馈。正确后，才可以继续下一步。")
-        await click("#checkBtn",.65)
-        button = await PAGE.locator("#checkBtn").inner_text()
-        if button.strip() != "继续":
+            await pause(.8)
+        if task_id=="L1_BIKE" and step_index==0:
+            await narrate("按完成检查答案，再按继续进入下一题。")
+        await click("#checkBtn",.42)
+        button=await PAGE.locator("#checkBtn").inner_text()
+        if button.strip()!="继续":
             await PAGE.screenshot(path=str(BASE / ("failed_"+task_id+"_"+str(step_index)+".png")))
-            raise RuntimeError("Answer was not accepted: " + task_id + ", step " + str(step_index) + ", button " + button)
-        await click("#checkBtn",.55)
-        current = await progress()
-        if current["task"] != task_id:
+            raise RuntimeError("Answer not accepted: "+task_id+", step "+str(step_index)+", button "+button)
+        await click("#checkBtn",.35)
+        current=await progress()
+        if current["task"]!=task_id:
             DONE.append(task_id)
             break
 
 async def reading_helper(collected):
-    await narrate("现在打开我的阅读助手，回顾找依据、作推论、联主题的三个步骤。")
-    await click("#readAssistantBtn",1.0)
+    if not collected:
+        await narrate("打开我的阅读助手，认识找依据、作推论、联主题三个步骤。")
+    else:
+        await narrate("现在回到阅读助手，查看刚收集的证据。")
+    await click("#readAssistantBtn",.65)
     if collected:
-        await narrate("再点击回看已收集的证据，确认刚才的文本证据已保存。")
-        await click("#assistantReview",1.1)
-    await click("#closePanel",.5)
+        await click("#assistantReview",.75)
+    await click("#closePanel",.35)
 
 async def walkthrough():
-    await narrate("欢迎进入《手表》三维友情侦探。示范从输入名字开始，然后逐项完成阅读任务。")
+    await narrate("欢迎进入《手表》友情侦探，先用学生代号登录游戏。")
     await PAGE.locator("#intro:not(.hidden)").wait_for(timeout=12000)
     await PAGE.locator("#alias").fill("演示学生")
     await PAGE.locator("#classCode").fill("3G1")
-    await narrate("输入侦探代号和班级三G一，点击开始行走探索。")
-    await click("#startBtn", 1.2)
-    await narrate("先打开拼音按钮。原文、题目和答案都能显示词语拼音。")
-    await click("#pinyinBtn",1.5)
-    await narrate("再按一次拼音按钮，文字恢复正常显示。")
-    await click("#pinyinBtn",.8)
-    await narrate("背景音乐也能通过右上角按钮随时关闭或打开。")
-    await click("#musicBtn",.7)
-    await click("#musicBtn",.7)
+    await click("#startBtn",.8)
+    await narrate("点开拼音，再关闭；这项功能只示范一次。")
+    await click("#pinyinBtn",.9)
+    await click("#pinyinBtn",.5)
+    await narrate("音乐也可以自由切换开关。")
+    await click("#musicBtn",.4)
+    await click("#musicBtn",.4)
     await reading_helper(False)
     await task("L1_BIKE",speech=True,vocabulary=True,source=True)
     await reading_helper(True)
-    await task("L1_LIHUA",source=True)
+    await task("L1_LIHUA")
     await task("L1_INFERENCE")
     assert (await progress())["current"]==3, "First level not completed"
-    await narrate("第一关完成。我们沿着校园道路走向学校大门，解锁第二关。")
-    await api("walkTo",0,-4.6,2200)
+    await narrate("第一关完成。从校门进入第二关。")
+    await api("walkTo",0,-4.6,1450)
     await api("enterLevel2")
-    await pause(1)
+    await pause(.65)
     assert (await progress())["level"]==2, "Second level failed to unlock"
-    await narrate("第二关是丽华家门口，地图和人物位置都跟着关卡改变。")
-    await task("L2_WATCH",vocabulary=True,source=True)
-    await task("L2_MOM",vocabulary=True)
+    await narrate("这里是丽华家门前。接着完成第二关。")
+    await task("L2_WATCH")
+    await task("L2_MOM")
     await task("L2_DOORBELL")
-    await reading_helper(True)
-    await task("L2_LIHUA",source=True)
+    await task("L2_LIHUA")
     await task("L2_STATION")
     current=await progress()
     assert current["current"]==8, "Not all eight tasks completed: " + str(current)
-    await narrate("两关全部完成。我们学会从言行寻找证据，合理推论人物，并理解体谅与珍惜友谊。",extra=1.4)
-    await pause(1.2)
+    await narrate("两关任务完成！我们根据题目作答，也学会从人物言行理解友谊和心意。",extra=.7)
+    await pause(.65)
 
 def srt_clock(t):
     h=int(t//3600);m=int(t//60)%60;s=int(t)%60;ms=int(t*1000)%1000
@@ -209,7 +215,7 @@ async def make_tts():
         async with sem:
             for attempt in range(2):
                 try:
-                    tts=edge_tts.Communicate(line,voice="zh-CN-XiaoxiaoNeural",rate="+8%",volume="-15%")
+                    tts=edge_tts.Communicate(line,voice="zh-CN-XiaoxiaoNeural",rate="+12%",volume="-15%")
                     await tts.save(str(out))
                     if out.stat().st_size > 200:
                         return True
@@ -262,7 +268,8 @@ def add_audio():
     # Burn teaching subtitles as part of the final distributable MP4.
     subt=str(BASE/"解说字幕.srt")
     cmd("ffmpeg","-hide_banner","-y","-i",str(src),"-i",str(BASE/"audio_mix.wav"),
-        "-vf","subtitles="+subt+":force_style='FontName=Noto Sans CJK SC,Fontsize=17,PrimaryColour=&H00FFFFFF,OutlineColour=&H00243D2D,BorderStyle=1,Outline=2,Shadow=1,MarginV=28,Alignment=2'",
+        "-vf","subtitles="+subt+":force_style='FontName=Noto Sans CJK SC,Fontsize=17,PrimaryColour=&H00FFFFFF,OutlineColour=&H00243D2D,BorderStyle=1,Outline=2,Shadow=1,MarginV=28,Alignment=2',setpts=PTS/1.12",
+        "-filter:a","atempo=1.12",
         "-c:v","libx264","-preset","veryfast","-crf","24","-pix_fmt","yuv420p",
         "-c:a","aac","-b:a","128k","-map","0:v:0","-map","1:a:0",
         "-shortest","-movflags","+faststart",str(BASE/"手表_3D友情侦探_游戏解说.mp4"))
