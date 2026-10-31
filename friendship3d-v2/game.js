@@ -248,26 +248,114 @@ function showReadingAssistant(){
 function showHelp(){panel('🎮 游戏操作与学习目标',`<h3>操作说明</h3><p>使用 <b>W A S D / 方向键</b> 行走，按住 <b>Shift</b> 跑步；拖动3D场景旋转镜头，滚轮缩放，<b>R</b> 重置镜头。手机或平板可用左下角摇杆。靠近金色光圈后点击标记或按 <b>E</b> 开启任务。</p><h3>阅读方法</h3><p><b>找依据 → 作推论 → 联主题。</b>第一关 I Do 跟随老师示范，第3、4段是重点；第二关 We Do 共同探究第5–8段的心意和心理。答错时先回看原文，系统不惩罚。</p><h3>隐私与保存</h3><p>只需侦探代号，答题记录保存在这台浏览器的本地存储，不会自动传到任何服务器。可以在教师菜单中导出，清除浏览器数据可能导致记录消失。</p><button class="secondary" id="viewEvidence">📚 回看已收集证据</button>`);$('viewEvidence').onclick=showReview}
 function teacherPanel(){teacherMode=true;let completed=state.done.length;panel('👩‍🏫 教师控制台',`<p class="note-card">教学提示：原文第3、4段为 <b>I Do</b>，第二关为 <b>We Do</b>。此界面仅用于课堂示范，可直接定位到关卡。</p><p>已完成触发点：<b>${completed}/${allNodes.length}</b>　　学生代号：${escapeHtml(state.alias)}</p><div class="control-row"><button class="secondary" id="teacherReview">查看证据</button><button class="secondary" id="teacherExport">导出记录</button><button class="ghost" id="teacherHelp">操作说明</button></div><h3>教师演示跳转（仅本机）</h3>${allNodes.map((n,i)=>`<div class="review-card"><b>${i+1}. ${escapeHtml(n.label)}</b><div class="control-row"><button class="ghost" data-jump="${i}">定位到此任务</button></div></div>`).join('')}<hr><button class="secondary" id="teacherReset">⚠ 重新开始全部学习进度</button>`);$('teacherReview').onclick=showReview;$('teacherExport').onclick=exportRecord;$('teacherHelp').onclick=showHelp;document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>{let i=Number(b.dataset.jump);if(!confirm('教师演示模式将调整本机的任务进度和关卡位置，确认跳转？'))return;state.current=i;state.done=allNodes.slice(0,i).map(n=>n.id);state.completed=false;save();world.setLevel(stage(i));refreshProgress();buildHotspots();closePanel();toast('已定位到教师演示任务：'+allNodes[i].label)});$('teacherReset').onclick=()=>{if(!confirm('确认清空本机所有题目与侦探笔记？此操作无法撤回。'))return;state={alias:state.alias,classCode:state.classCode,current:0,done:[],answers:{},attempts:{},hints:{},reviewCount:{},supportLevel:'S2',originalDraft:'',revisedDraft:'',lifeResponse:'',selfChecks:[],started:true,completed:false,enteredLevel2:false,contentVersion:'2026-watch-level2-v1'};save();world.setLevel(1);refreshProgress();buildHotspots();closePanel();toast('已恢复第一关初始任务。')}}
 function mapDraw(){
- const c=$('miniMap'),ctx=c.getContext('2d');if(!ctx||!world)return;
- const w=c.width,h=c.height;ctx.clearRect(0,0,w,h);
- ctx.fillStyle='#e8f9d9';ctx.fillRect(0,0,w,h);
- const span=10.3,pt=(x,z)=>[(x/span+1)*.5*w,(z/span+1)*.5*h];
- ctx.strokeStyle='#d5d8ab';ctx.lineWidth=10;ctx.beginPath();
- ctx.moveTo(...pt(0,-10.3));ctx.lineTo(...pt(0,10.3));
- ctx.moveTo(...pt(-10.3,1.4));ctx.lineTo(...pt(10.3,1.4));ctx.stroke();
- for(const [x,z] of [[-8,-7],[8,-7],[-8,7],[8,7]]){
-  const [px,py]=pt(x,z);ctx.fillStyle='#9fd7ac';ctx.beginPath();ctx.arc(px,py,14,0,Math.PI*2);ctx.fill();
+ const canvas=$('miniMap');if(!canvas||!world)return;
+ const ctx=canvas.getContext('2d');if(!ctx)return;
+ const w=canvas.width,h=canvas.height,margin=12,limit=10.3,level=world.level;
+ const pt=(x,z)=>[margin+(x+limit)/(2*limit)*(w-2*margin),margin+(z+limit)/(2*limit)*(h-2*margin)];
+ const round=(x,y,width,height,r=6)=>{
+  const rad=Math.min(r,width/2,height/2);ctx.beginPath();ctx.moveTo(x+rad,y);
+  ctx.arcTo(x+width,y,x+width,y+height,rad);ctx.arcTo(x+width,y+height,x,y+height,rad);
+  ctx.arcTo(x,y+height,x,y,rad);ctx.arcTo(x,y,x+width,y,rad);ctx.closePath();
+ };
+ const rect=(x1,z1,x2,z2,color,r=0)=>{
+  const [a,b]=pt(x1,z1),[c,d]=pt(x2,z2);ctx.fillStyle=color;
+  if(r){round(a,b,c-a,d-b,r);ctx.fill();}else ctx.fillRect(a,b,c-a,d-b);
+ };
+ const dot=(x,z,r,color)=>{const [a,b]=pt(x,z);ctx.beginPath();ctx.arc(a,b,r,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();};
+ const tree=(x,z,s=1)=>{
+  const [a,b]=pt(x,z);
+  ctx.strokeStyle='#967e57';ctx.lineWidth=2.7*s;ctx.beginPath();ctx.moveTo(a,b+7*s);ctx.lineTo(a,b-2*s);ctx.stroke();
+  for(const [dx,dy,rad,col] of [[-5,-3,7,'#8ec79c'],[4,-5,8,'#a0daa7'],[0,-9,7,'#b8e9a9']]){
+   ctx.beginPath();ctx.arc(a+dx*s,b+dy*s,rad*s,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
+  }
+ };
+ const flowers=(x,z)=>{const [a,b]=pt(x,z);for(let i=0;i<5;i++){const th=i*Math.PI*2/5;ctx.beginPath();ctx.arc(a+Math.cos(th)*3,b+Math.sin(th)*3,2.6,0,Math.PI*2);ctx.fillStyle='#f6bdd0';ctx.fill()}ctx.beginPath();ctx.arc(a,b,2,0,Math.PI*2);ctx.fillStyle='#f4ca65';ctx.fill()};
+ const bench=(x,z)=>{
+  const [a,b]=pt(x,z);ctx.fillStyle='#b18e6a';round(a-9,b-4,18,8,2);ctx.fill();
+  ctx.strokeStyle='#967558';ctx.lineWidth=1.6;
+  for(const dx of [-5,5]){ctx.beginPath();ctx.moveTo(a+dx,b+4);ctx.lineTo(a+dx,b+8);ctx.stroke()}
+ };
+ ctx.clearRect(0,0,w,h);
+ ctx.fillStyle=level===1?'#eaf8e5':'#eff8dc';ctx.fillRect(0,0,w,h);
+ // The map is a top-down drawing of the SAME school / front-yard layout, not an abstract four-dot diagram.
+ if(level===1){
+  rect(-8.8,-10.3,8.8,-5.6,'#f5d8b5',5);
+  rect(-7.3,-10.3,7.3,-6.15,'#ead3b8',5);
+  rect(-6.55,-9.35,-3.3,-7.45,'#a8d9e2',2);
+  rect(-2.65,-9.35,2.65,-7.45,'#b2dfe5',2);
+  rect(3.3,-9.35,6.55,-7.45,'#a8d9e2',2);
+  rect(-1.3,-6.4,1.3,-5.55,'#9db8ac',2);
+  for(let i=0;i<3;i++)rect(-1.9,-5.5+i*.35,1.9,-5.35+i*.35,'#e1c6a0',1);
+  rect(-1.45,-5,1.45,10.3,'#f5ebd6',4);
+  rect(-9.6,.55,9.6,2.35,'#f5ebd6',4);
+  for(const [x,z] of [[-8.1,-4.9],[8.1,-4.9],[-8.7,4.2],[8.7,4.3],[-8.3,8.9],[8.3,8.9]])tree(x,z,.8);
+  for(const [x,z] of [[-6,-3.5],[6,-3.3],[-6.3,5],[6.1,5.2]])flowers(x,z);
+  bench(-7.2,-2.1);bench(7.1,-2.1);
+  rect(-6.3,3.4,-3,5.6,'#dfecd0',4);
+  rect(3.1,3.4,6.5,5.6,'#dfecd0',4);
+ }else{
+  // House and door at the back, two open lawns, stepping-stone path and the evidence board on the left.
+  ctx.strokeStyle='#e7c68c';ctx.lineWidth=4;ctx.beginPath();
+  ctx.ellipse(w/2,h/2+7,w/2-10,h/2-13,0,0,2*Math.PI);ctx.stroke();
+  rect(-3.9,-9.1,3.9,-3.55,'#f9d8a8',7);
+  rect(-3.25,-7.8,3.25,-3.75,'#f3e6c9',3);
+  ctx.fillStyle='#dfaf73';ctx.beginPath();
+  const roof=pt(0,-10.2),left=pt(-4.5,-7.1),right=pt(4.5,-7.1);
+  ctx.moveTo(...roof);ctx.lineTo(...left);ctx.lineTo(...right);ctx.closePath();ctx.fill();
+  rect(-1,-4.65,1,-3.65,'#b9855c',2);
+  rect(-1.15,-3.6,1.15,-2.6,'#f4ead0',4);
+  rect(-1.7,-2.7,1.7,10.3,'#f6edd8',4);
+  for(const z of [-1.8,1.4,4.6,7.6]){dot(0,z,7,'#fff7e9')}
+  for(const [x,z,s] of [[-8,-6,.84],[8,-6,.84],[-8.3,7,.7],[8.5,6.8,.7]])tree(x,z,s);
+  rect(-7.9,1.1,-4.4,3.6,'#b8e1c7',5);
+  rect(3,1.4,6.9,3.8,'#d5ebbd',5);
+  for(const [x,z] of [[-7.2,-1.1],[7.1,-1.1],[-6,5.7],[6.2,5.5]])flowers(x,z);
+  bench(6.8,4.2);
+  // Evidence station notice board.
+  rect(-6.7,1.55,-4.6,2.6,'#e0b67e',2);
+  rect(-6.4,1.75,-4.9,2.35,'#fff5db',1);
  }
- for(const hspot of world.hotspots){if(hspot.hidden)continue;const p=world.positions[world.level][hspot.hotspotId];if(!p)continue;
-  const [x,y]=pt(p.x,p.z);ctx.beginPath();ctx.fillStyle=hspot.available?'#efa63c':hspot.done?'#4bb688':'#8ca9a8';ctx.arc(x,y,hspot.available?10:6,0,Math.PI*2);ctx.fill();
-  if(hspot.available){ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.fillText('★',x,y+5)}
+ // All task markers use real game coordinates, completion states and a Chinese place label.
+ const names={bike:'脚踏车',lihua:'丽华',inference:'作推论',
+             watch:'手表',mom:'妈妈',doorbell:'门铃',evidence_station:'证据站'};
+ const current=(world.hotspots||[]).find(t=>t.available&&!t.hidden);
+ const currentPoint=current&&world.positions?.[level]?.[current.hotspotId];
+ if(currentPoint){
+  const [a,b]=pt(world.player.x,world.player.z),[c,d]=pt(currentPoint.x,currentPoint.z);
+  ctx.save();ctx.strokeStyle='#e6a44b';ctx.lineWidth=2;ctx.setLineDash([5,5]);
+  ctx.beginPath();ctx.moveTo(a,b);ctx.lineTo(c,d);ctx.stroke();ctx.restore();
  }
- if(world.level===1&&state.current>=FIRST_LEVEL_COUNT){const [gx,gy]=pt(0,-5.2);ctx.beginPath();ctx.fillStyle='#fbb450';ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.arc(gx,gy,10,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.textAlign='center';ctx.font='14px sans-serif';ctx.fillStyle='#704f28';ctx.fillText('🚪',gx,gy-15);}
- // The teal marker shows the player's REAL world coordinates. It moves on every movement update.
- const [px,py]=pt(world.player.x,world.player.z);
- ctx.lineWidth=3;ctx.strokeStyle='#fff';ctx.fillStyle='#086fa4';ctx.beginPath();ctx.arc(px,py,9,0,2*Math.PI);ctx.fill();ctx.stroke();
- const face=world.player.face||0;ctx.beginPath();ctx.moveTo(px+Math.sin(face)*14,py+Math.cos(face)*14);ctx.lineTo(px+Math.sin(face+2.5)*7,py+Math.cos(face+2.5)*7);ctx.lineTo(px+Math.sin(face-2.5)*7,py+Math.cos(face-2.5)*7);ctx.closePath();ctx.fillStyle='#086fa4';ctx.fill();
- const display=$('mapCoords');if(display)display.textContent='位置：'+world.player.x.toFixed(1)+' , '+world.player.z.toFixed(1);
+ for(const hot of (world.hotspots||[])){
+  if(hot.hidden)continue;
+  const where=world.positions?.[level]?.[hot.hotspotId];if(!where)continue;
+  const [x,y]=pt(where.x,where.z),active=!!hot.available,done=!!hot.done;
+  ctx.fillStyle=active?'#ffcf73':done?'#b5eac8':'#e4e9e2';
+  ctx.strokeStyle=active?'#e8a141':done?'#65b68e':'#b9c7c2';
+  ctx.lineWidth=active?2.5:1.6;ctx.beginPath();ctx.arc(x,y,active?10:8,0,2*Math.PI);ctx.fill();ctx.stroke();
+  ctx.fillStyle=active?'#88521f':done?'#227855':'#708780';
+  ctx.font='bold 11px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(done?'✓':active?'★':'·',x,y+.3);
+  const label=names[hot.hotspotId]||hot.hotspotId;
+  ctx.font='bold 10px "PingFang SC","Microsoft Yahei",sans-serif';
+  const width=ctx.measureText(label).width+9;
+  const lx=Math.min(w-width-2,Math.max(2,x+(x<w*.58?11:-width-10)));
+  let ly=y-19;if(ly<2)ly=y+11;
+  ctx.fillStyle='rgba(255,255,248,.96)';ctx.strokeStyle=active?'#f2bb68':'#d6e6d5';ctx.lineWidth=1;
+  round(lx,ly,width,15,5);ctx.fill();ctx.stroke();
+  ctx.fillStyle=active?'#956324':'#44755f';
+  ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(label,lx+4,ly+7.5);
+ }
+ // A compass and a high-contrast, heading-aware avatar: moves whenever the player walks.
+ ctx.fillStyle='#486a5a';ctx.font='bold 11px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillText('N',w-12,10);
+ const [px,py]=pt(world.player.x,world.player.z),face=world.player.face||0;
+ ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(px,py,12,0,2*Math.PI);ctx.fill();
+ ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.fillStyle='#1575aa';ctx.beginPath();ctx.arc(px,py,9,0,2*Math.PI);ctx.fill();ctx.stroke();
+ const dx=Math.sin(face),dy=Math.cos(face);
+ ctx.strokeStyle='#144f80';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+dx*13,py+dy*13);ctx.stroke();
+ ctx.fillStyle='white';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('我',px,py+.5);
+ const display=$('mapCoords');
+ if(display)display.textContent=(level===1?'校园':'丽华家')+' · 位置：'+world.player.x.toFixed(1)+' , '+world.player.z.toFixed(1);
 }
 async function loadData(){if(window.EMBEDDED_TASKS)return window.EMBEDDED_TASKS;let r=await fetch('content/game_tasks_v2.json?v=20261031-mom-glossary-v1',{cache:'no-store'});if(!r.ok)throw Error('找不到游戏题库');return r.json()}
 async function init(){try{DATA=await loadData();allNodes=DATA.nodes;world=window.World3DThree?new window.World3DThree($('world')):new World3D($('world'));console.info('Active 3D engine:',world.constructor.name);world.onInteract=nearInteract;world.onMove=()=>{mapDraw();};const models=['girl','lihua','mom','bike','watch','doorbell','evidence_station','school_campus_v2','watch_display_v2','scene2_house_clay'];let idx=0;for(let model of models){$('loadingDetail').textContent=`正在装载 ${model}.glb (${idx+1}/${models.length})`;await world.load(model);idx++;$('loadingBar').style.width=(idx/models.length*100)+'%'}restore();world.setLevel(stage(state.current>=allNodes.length?allNodes.length-1:state.current));refreshProgress();buildHotspots();if(window.ENABLE_TESTS){window.__watchTest={world,getState:()=>state,getNode:()=>allNodes[state.current],teleport:(id)=>{let h=world.hotspots.find(x=>x.hotspotId===id)||world.hotspots.find(x=>x.available);let p=world.positions[world.level][h.hotspotId];world.player.x=p.x+1.1;world.player.z=p.z+1;world.cursor.x=world.player.x;world.cursor.z=world.player.z;},interactCurrent:()=>interact(world.hotspots.find(x=>x.available))}};hide('loading');show('intro');$('alias').value=state.alias;$('classCode').value=state.classCode;let old=0;let recovered=false;function loop(now){let dt=Math.min(.04,Math.max(0,(now-old)/1000));old=now;try{if(!world.contextLost){world.update(dt,!paused&&state.started);world.render(now);if(state.started)updateLabels();mapDraw()}}catch(e){console.error('3D frame error',e);if(!recovered){recovered=true;world.resetCamera();window.toast?.('镜头渲染发生问题，已尝试自动恢复。')}else{const b=document.getElementById('sceneBackup');if(b)b.hidden=false}}finally{requestAnimationFrame(loop)}}requestAnimationFrame(loop);bindUI();window.GameAudio?.mountUI();}catch(e){console.error(e);$('loadingDetail').innerHTML=`无法加载3D游戏：${escapeHtml(e.message)}。请刷新页面，或检查浏览器是否支持WebGL。`}}
