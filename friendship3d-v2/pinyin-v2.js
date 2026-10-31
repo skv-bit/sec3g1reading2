@@ -82,6 +82,11 @@ function transformText(node){
    ruby.className='watch-pinyin-word';
    ruby.append(document.createTextNode(word));
    const rt=document.createElement('rt');rt.textContent=pron;ruby.append(rt);fr.append(ruby);
+   // Allow a natural line break after each complete annotated word.
+   // The <wbr> has no visible width and is removed when pinyin is switched off.
+   const breakPoint=document.createElement('wbr');
+   breakPoint.dataset.pinyinBreak='v3';
+   fr.append(breakPoint);
    found=true;
   }
   if(rest)fr.append(document.createTextNode(rest));
@@ -106,6 +111,7 @@ function refresh(){
 function schedule(){if(scheduled||!enabled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;refresh()})}
 function resetAnnotations(){
  document.querySelectorAll('ruby[data-pinyin="v3"]').forEach(n=>n.replaceWith(document.createTextNode(n.firstChild?.textContent||'')));
+ document.querySelectorAll('wbr[data-pinyin-break="v3"]').forEach(n=>n.remove());
  document.body.classList.remove('pinyin-enabled');
 }
 function toggle(){
