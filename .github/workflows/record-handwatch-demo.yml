@@ -41,7 +41,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: handwatch-screen-recording
+          name: handwatch-screen-recording-v2
           path: |
             recorded_demo/*.mp4
             recorded_demo/*.webm
@@ -57,10 +57,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create handwatch-gameplay-video-20261031 \
+          gh release create handwatch-gameplay-video-20261031-v2 \
             recorded_demo/手表_3D友情侦探_游戏解说.mp4 \
             recorded_demo/解说字幕.srt \
-            --title "《手表》3D友情侦探 · 完整录屏解说" \
+            --title "《手表》3D友情侦探 · 精简快速解说版 V2" \
             --notes "在真实游戏浏览器中自动演示：学生登录、拼音开关、音乐开关、阅读助手、收集证据与回看、第一题原文朗读、词语库、行走、全部两关的真实作答和解锁、侦探笔记。视频包含中文自动配音与烧录字幕。背景音乐为后期原创轻音乐，不是浏览器原声录制。" \
             --target "$GITHUB_SHA" \
             --latest=false
