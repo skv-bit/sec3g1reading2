@@ -108,17 +108,16 @@ function renderCategoryQuiz(step){
  return `<p class="source-note">把丽华的言行卡片拖进对应框；卡片放入后会移到框里。“我”伸手缩回的卡片留在上方。也可以点击卡片，再点击分类框。</p>${source}<div class="bucket-panel">${buckets}</div><div class="cat-instruction">操作提示：分类错误可以把卡片拖回上方，或重新放到另一栏。</div>`;
 }
 function renderScaffold(step){
- const rich=step.type==='openResponse';
- if(!rich)return `<section id="quizScaffoldPanel" class="scaffold-panel"><strong>🪜 找依据 → 作推论</strong><p>先想第3、4段：丽华救朋友、受伤后仍关心朋友。再回看第8段：她归还手表，拍拍肩膀，还用语言安慰朋友。这两组言行有什么共同点？</p><p>排除依据不足的答案：手表贵不贵和妈妈生不生气，真的能解释丽华的表现吗？</p></section>`;
- const support=step.supportLevels.find(x=>x.id===state.supportLevel)||step.supportLevels[1];
+ if(step.type!=='openResponse')return `<section id="quizScaffoldPanel" class="scaffold-panel"><strong>🪜 找依据 → 作推论</strong><p>第3／4段：救朋友、先关心；第8段：归还手表、安慰朋友。有什么共同点？</p></section>`;
+ const level=step.supportLevels.find(x=>x.id===state.supportLevel)||step.supportLevels[1];
+ if(state.supportLevel==='S3')return `<section id="quizScaffoldPanel" class="scaffold-panel"><strong>🪜 自主挑战</strong><p>第3或4段＋第8段：两处言行 → 人物特点 → 理由。</p></section>`;
  const sections=(step.scaffoldSections||[]).map((part,i)=>{
-   if(state.supportLevel==='S3'&&i<2)return `<div class="scaffold-section"><b>${escapeHtml(part.heading)}</b><p>先自己回读第3／4段和第8段，选出相互呼应的言行。</p></div>`;
-   const items=state.supportLevel==='S2'?part.items.slice(0,i===0?3:1):part.items;
-   return `<div class="scaffold-section"><b>${escapeHtml(part.heading)}</b><div class="scaffold-chips">${items.map(k=>`<div class="scaffold-chip"><b>${escapeHtml(k.label)}</b><span>${escapeHtml(k.text)}</span></div>`).join('')}</div></div>`;
+  const items=state.supportLevel==='S1'?part.items:(i===0?part.items.slice(0,3):part.items.slice(0,1));
+  return `<div class="scaffold-section"><b>${escapeHtml(part.heading)}</b><div class="scaffold-chips">${items.map(k=>`<div class="scaffold-chip"><b>${escapeHtml(k.label)}</b><span>${escapeHtml(k.text)}</span></div>`).join('')}</div></div>`;
  }).join('');
- return `<section id="quizScaffoldPanel" class="scaffold-panel"><p class="source-note">自主选择需要的帮助；支架不是直接替你回答。</p>${sections}<div class="scaffold-formula"><b>✍️ 写作句式</b><p>${escapeHtml(support.prompt).replaceAll('\n','<br>')}</p><button type="button" id="insertScaffold" class="secondary">＋ 将句式放入初稿</button></div></section>`;
+ return `<section id="quizScaffoldPanel" class="scaffold-panel">${sections}<div class="scaffold-formula"><b>✍️ 句式</b><p>${escapeHtml(level.prompt).replaceAll('\n','<br>')}</p><button type="button" id="insertScaffold" class="secondary">＋ 放入我的笔记</button></div></section>`;
 }
-function renderQuiz(step){let html=(task?.node?.id==='L2_STATION'&&scaffoldOpen?renderScaffold(step):'')+`<h3 class="stem">${escapeHtml(step.stem)}</h3>`;if(['singleChoice','multiSelect','keywordFill'].includes(step.type)){let opts=step.options||step.wordBank||[];html+=opts.map((o,i)=>`<div class="choice ${selection.includes(o.id)?'selected':''}" role="button" tabindex="0" data-choice="${escapeHtml(o.id)}"><span class="choiceicon">${step.type==='multiSelect'?'✓':String.fromCharCode(65+i)}</span><span>${escapeHtml(o.text)}</span></div>`).join('')}else if(step.type==='categorize'){html+=renderCategoryQuiz(step)}else if(step.type==='openResponse'){html+=renderNotebook(step)}if(feedback)html+=`<div class="feedback ${feedback.startsWith('✓')?'good':'retry'}">${escapeHtml(feedback)}</div>`;$('quizRegion').innerHTML=html;bindQuiz(step);let foot=`<div class="row-actions"><button type="button" class="secondary" id="revisitBtn" aria-label="看回本题对应的完整原文段落">📖 看回原文</button><button class="secondary" id="hintBtn">💡 温和提示 ${hintIndex?`(${hintIndex})`:''}</button></div><div class="row-actions"><button class="ghost" id="goBackBtn">返回</button><button class="primary small" id="checkBtn">${step.type==='openResponse'?'提交笔记':'完成'}</button></div>`;$('dialogFoot').innerHTML=foot;$('revisitBtn').onclick=()=>{const n=task.node;state.reviewCount[step.id]=(state.reviewCount[step.id]||0)+1;save();showSource(n,step)};$('hintBtn').onclick=()=>giveHint(step);$('goBackBtn').onclick=closeTask;$('checkBtn').onclick=()=>checkStep(step)}
+ function renderQuiz(step){let html=(task?.node?.id==='L2_STATION'&&scaffoldOpen?renderScaffold(step):'')+`<h3 class="stem">${escapeHtml(step.stem)}</h3>`;if(['singleChoice','multiSelect','keywordFill'].includes(step.type)){let opts=step.options||step.wordBank||[];html+=opts.map((o,i)=>`<div class="choice ${selection.includes(o.id)?'selected':''}" role="button" tabindex="0" data-choice="${escapeHtml(o.id)}"><span class="choiceicon">${step.type==='multiSelect'?'✓':String.fromCharCode(65+i)}</span><span>${escapeHtml(o.text)}</span></div>`).join('')}else if(step.type==='categorize'){html+=renderCategoryQuiz(step)}else if(step.type==='openResponse'){html+=renderNotebook(step)}if(feedback)html+=`<div class="feedback ${feedback.startsWith('✓')?'good':'retry'}">${escapeHtml(feedback)}</div>`;$('quizRegion').innerHTML=html;bindQuiz(step);let foot=`<div class="row-actions"><button type="button" class="secondary" id="revisitBtn" aria-label="看回本题对应的完整原文段落">📖 看回原文</button><button class="secondary" id="hintBtn">💡 温和提示 ${hintIndex?`(${hintIndex})`:''}</button></div><div class="row-actions"><button class="ghost" id="goBackBtn">返回</button><button class="primary small" id="checkBtn">${step.type==='openResponse'?'提交笔记':'完成'}</button></div>`;$('dialogFoot').innerHTML=foot;$('revisitBtn').onclick=()=>{const n=task.node;state.reviewCount[step.id]=(state.reviewCount[step.id]||0)+1;save();showSource(n,step)};$('hintBtn').onclick=()=>giveHint(step);$('goBackBtn').onclick=closeTask;$('checkBtn').onclick=()=>checkStep(step)}
 
 function bindCategoryQuiz(step){
  let touch=null,ghost=null;
@@ -189,24 +188,28 @@ function bindQuiz(step){document.querySelectorAll('[data-choice]').forEach(e=>{l
 }}
 function renderNotebook(step){
  const level=step.supportLevels.find(x=>x.id===state.supportLevel)||step.supportLevels[1];
- const prompt=escapeHtml(level.prompt).replaceAll('\n','<br>');
- const header=`<p class="source-note">本题要用至少两处原文言行解释人物特点；系统保存你的表达，不自动按关键词判对错。</p>
- <div class="support-choice">${step.supportLevels.map(l=>`<button type="button" class="support-btn ${l.id===state.supportLevel?'active':''}" data-support="${l.id}" aria-pressed="${l.id===state.supportLevel}">${escapeHtml(l.label)}<small>${escapeHtml(l.feature)}</small></button>`).join('')}</div>`;
+ const header=`<div class="support-choice">${step.supportLevels.map(l=>`<button type="button" class="support-btn ${l.id===state.supportLevel?'active':''}" data-support="${l.id}" aria-pressed="${l.id===state.supportLevel}">${escapeHtml(l.label)}<small>${escapeHtml(l.feature)}</small></button>`).join('')}</div>`;
  let guidance='';
- if(level.id==='S1')guidance=`<div class="scaffold-quick"><b>🔍 一步步写</b>
-  <p>① <b>找依据：</b>先选第3段或第4段的一条言行，再选第8段的一条言行。</p>
-  <p>② <b>作推论：</b>人物特点可选“友善、无私、体谅、关心朋友”，但必须解释原因。</p>
-  <p>③ <b>联主题：</b>读第9段“我”流泪的表现，想想为什么会被朋友感动。</p>
-  <p><button type="button" class="secondary" data-open-scaffold>🪜 打开完整证据鹰架</button></p>
- </div>`;
- else if(level.id==='S2')guidance=`<div class="scaffold-quick"><p>📖 <b>阅读提醒：</b>请回读第3或4段、第8段的丽华言行；再联系第9段“我”的眼泪。不要把第7段“我”按门铃的动作当作丽华的行为。</p></div>`;
- else guidance=`<div class="scaffold-quick"><p>🌱 自主挑战：从第3／4段与第8段各找一处言行，解释人物特点；再谈第9段流泪的原因。需要时可以点击左上角“鹰架”。</p></div>`;
- const frame=`<div class="note-card"><b>✍️ 可用句式</b><p>${prompt}</p><button type="button" class="secondary scaffold-insert" data-insert-frame>＋ 将句式放入初稿</button></div>`;
- return header+guidance+frame+`<h4>📝 我的初稿</h4>
- <textarea class="note-field" id="originalDraft" placeholder="从丽华________的言行，可以看出她________，因为________。\n我认为“我”感动得流泪，是因为________。">${escapeHtml(state.originalDraft)}</textarea>
- <p class="source-note">填写完成后点击“提交笔记”。接着会出现恭喜画面、学习检查表及可复制的笔记。</p>`;
+ if(level.id==='S1'){
+  guidance=`<div class="scaffold-quick"><b>🔍 一步步写</b>
+   <p>① <b>找依据：</b>第3或4段＋第8段，各找一处言行。</p>
+   <p>② <b>作推论：</b>人物特点＋原因。</p>
+   <div class="notebook-evidence-chips"><b>证据卡</b><span>第3段：推开“我”，自己受伤</span><span>第4段：先问“你没事吧？”</span><span>第8段：还手表、拍拍肩膀、说心意</span></div>
+   <p class="notebook-keywords"><b>词语库：</b>友善／无私／体谅／关心朋友</p>
+   <p><button type="button" class="secondary" data-open-scaffold>🪜 查看证据鹰架</button></p>
+  </div>`;
+ }else if(level.id==='S2'){
+  guidance=`<div class="scaffold-quick"><b>🔍 找依据 → 作推论</b><p>第3／4段：推开、先关心　｜　第8段：归还、拍拍、安慰</p><p><button type="button" class="secondary" data-open-scaffold>🪜 查看线索</button></p></div>`;
+ }else{
+  guidance=`<div class="scaffold-quick"><b>🌱 自主挑战</b><p>第3或4段＋第8段：两处言行、人物特点、原因。</p></div>`;
+ }
+ const prompt=escapeHtml(level.prompt).replaceAll('\n','<br>');
+ const frame=level.id==='S3'?'':`<div class="note-card"><b>✍️ ${level.id==='S1'?'1 找证据　　2 作推论':'可用句式'}</b><p>${prompt}</p><button type="button" class="secondary scaffold-insert" data-insert-frame>＋ 放入我的笔记</button></div>`;
+ return header+guidance+frame+`<h4>📝 我的笔记</h4>
+ <textarea class="note-field" id="originalDraft" placeholder="第3或4段：丽华……&#10;第8段：丽华……&#10;从这两处言行可以看出她……，因为……。">${escapeHtml(state.originalDraft)}</textarea>
+ <p class="source-note">完成后提交笔记，再进行自我检查和复制。</p>`;
 }
-function giveHint(step){let hints=step.hints||[];if(!hints.length)return toast('请先回看对应的原文证据。');let i=Math.min(hintIndex,hints.length-1),tip=hints[i];hintIndex++;state.hints[step.id]=(state.hints[step.id]||0)+1;save();feedback='💡 '+tip;renderQuiz(step)}
+ function giveHint(step){let hints=step.hints||[];if(!hints.length)return toast('请先回看对应的原文证据。');let i=Math.min(hintIndex,hints.length-1),tip=hints[i];hintIndex++;state.hints[step.id]=(state.hints[step.id]||0)+1;save();feedback='💡 '+tip;renderQuiz(step)}
 function checkStep(step){
  const id=step.id;
  state.attempts[id]=(state.attempts[id]||0)+1;
@@ -274,7 +277,7 @@ function showCompletionStage(){
    <div class="completion-medal" aria-hidden="true">🏅</div>
    <h3>${escapeHtml(state.alias)}，你完成《手表》友情侦探了！</h3>
    <p>你已经走过两关、完成八个触发点，并提交了自己的侦探笔记。</p>
-   <div class="completion-method">🔎 找依据　→　💡 作推论　→　💗 联主题</div>
+   <div class="completion-method">🔎 找依据　→　💡 作推论　→　📝 写笔记</div>
    <p class="completion-subtle">下一步，请用三项成功标准检查刚才的笔记。</p>
    <div class="completion-actions"><button type="button" class="primary" id="completionNext">下一步：自我检查 →</button></div>
   </section>`);
@@ -302,7 +305,7 @@ function showCompletionStage(){
   return;
  }
  panel('📝 我的侦探笔记 · 已提交',`<section class="completion-notebook">
-  <p class="completion-intro">这是你<b>亲自提交的笔记</b>，系统不会替你改写。你可以复制到课堂学习平台，保留作为修改前的初稿。</p>
+  <p class="completion-intro">这是你<b>亲自提交的笔记</b>，系统不会替你改写。你可以复制到课堂学习平台，保留作为课堂讨论前的笔记。</p>
   <div class="completion-meta">✍️ ${escapeHtml(state.alias)}　·　${escapeHtml(state.classCode||'未填写班级')}　·　已保存</div>
   <label class="completion-note-label" for="completedNoteText">我的笔记内容</label>
   <textarea id="completedNoteText" class="completion-note-text" readonly aria-label="已提交的侦探笔记">${escapeHtml(state.submittedDraft||state.originalDraft)}</textarea>
@@ -330,7 +333,7 @@ function openReviewNode(n){panel('🔎 已收集的证据',`<p>这个触发点�
 function panel(title,html){$('panelTitle').textContent=title;$('panelBody').innerHTML=html;show('panelOverlay');paused=true}
 function closePanel(){hide('panelOverlay');paused=!!task;transitioning=false;stopSpeech()}
 function showReview(){panel('📚 我的证据收藏',`${allNodes.slice(0,state.current).map(n=>`<div class="review-card"><h3>${escapeHtml(n.label)}</h3>${n.evidence?.map(e=>`<p>第${e.paragraph}段：${escapeHtml(e.excerpt)}</p>`).join('')||''}</div>`).join('')||'你还没有收集证据。'}<div class="control-row"><button class="primary" id="downloadReport">下载学习记录</button></div>`);$('downloadReport').onclick=exportRecord}
-function exportRecord(){let report={'作品':'《手表》3D友情侦探','代号':state.alias,'班级':state.classCode,'已完成任务':state.done,'已完成题目及答案':state.answers,'尝试次数':state.attempts,'使用提示次数':state.hints,'回看证据次数':state.reviewCount,'支架':state.supportLevel,'我的初稿':state.originalDraft,'已提交侦探笔记':state.submittedDraft||state.originalDraft,'修改稿':state.revisedDraft,'生活迁移':state.lifeResponse,'自评项目':state.selfChecks};let blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json;charset=utf-8'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`手表_侦探笔记_${(state.alias||'学生').replace(/[\\/:*?"<>|]/g,'_')}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(link.href),500);toast('已准备导出本机学习记录。')}
+function exportRecord(){let report={'作品':'《手表》3D友情侦探','代号':state.alias,'班级':state.classCode,'已完成任务':state.done,'已完成题目及答案':state.answers,'尝试次数':state.attempts,'使用提示次数':state.hints,'回看证据次数':state.reviewCount,'支架':state.supportLevel,'我的笔记':state.originalDraft,'已提交侦探笔记':state.submittedDraft||state.originalDraft,'修改稿':state.revisedDraft,'生活迁移':state.lifeResponse,'自评项目':state.selfChecks};let blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json;charset=utf-8'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`手表_侦探笔记_${(state.alias||'学生').replace(/[\\/:*?"<>|]/g,'_')}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(link.href),500);toast('已准备导出本机学习记录。')}
 function showReadingAssistant(){
  const current=currentNode(),first=world.level===1;
  const focus=state.current===FIRST_LEVEL_COUNT&&first?'你已经完成第一关三项任务。请走向教学楼大门，开启第二关。':current?.label||'你已经收集全部线索！';
