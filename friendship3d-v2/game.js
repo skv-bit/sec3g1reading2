@@ -50,7 +50,7 @@ class World3D{
 
 
 const $=id=>document.getElementById(id), escapeHtml=(s='')=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let DATA=null,world=null,state={alias:'小侦探',classCode:'3G1',current:0,done:[],answers:{},attempts:{},hints:{},reviewCount:{},supportLevel:'S2',originalDraft:'',revisedDraft:'',lifeResponse:'',selfChecks:[],started:false,completed:false,enteredLevel2:false,contentVersion:'2026-watch-level2-v1'},task=null,selection=[],categorize={},picked=null,scaffoldOpen=false,hintIndex=0,feedback='',teacherMode=false,audioOn=true,paused=true,transitioning=false,toastTimer=null,allNodes=[];
+let DATA=null,world=null,state={alias:'小侦探',classCode:'3G1',current:0,done:[],answers:{},attempts:{},hints:{},reviewCount:{},supportLevel:'S2',originalDraft:'',revisedDraft:'',lifeResponse:'',selfChecks:[],submittedDraft:'',completionStage:'',started:false,completed:false,enteredLevel2:false,contentVersion:'2026-watch-level2-v1'},task=null,selection=[],categorize={},picked=null,scaffoldOpen=false,hintIndex=0,feedback='',teacherMode=false,audioOn=true,paused=true,transitioning=false,toastTimer=null,allNodes=[];
 const KEY=new URLSearchParams(location.search).has('studio')?'handwatch-3d-studio-only-v1':'handwatch-3d-adventure-v1';
 const FIRST_LEVEL_COUNT=3;
 const stage=(i)=>i<FIRST_LEVEL_COUNT?1:i===FIRST_LEVEL_COUNT&&!state.enteredLevel2?1:2;
@@ -118,7 +118,7 @@ function renderScaffold(step){
  }).join('');
  return `<section id="quizScaffoldPanel" class="scaffold-panel"><p class="source-note">自主选择需要的帮助；支架不是直接替你回答。</p>${sections}<div class="scaffold-formula"><b>✍️ 写作句式</b><p>${escapeHtml(support.prompt).replaceAll('\n','<br>')}</p><button type="button" id="insertScaffold" class="secondary">＋ 将句式放入初稿</button></div></section>`;
 }
-function renderQuiz(step){let html=(task?.node?.id==='L2_STATION'&&scaffoldOpen?renderScaffold(step):'')+`<h3 class="stem">${escapeHtml(step.stem)}</h3>`;if(['singleChoice','multiSelect','keywordFill'].includes(step.type)){let opts=step.options||step.wordBank||[];html+=opts.map((o,i)=>`<div class="choice ${selection.includes(o.id)?'selected':''}" role="button" tabindex="0" data-choice="${escapeHtml(o.id)}"><span class="choiceicon">${step.type==='multiSelect'?'✓':String.fromCharCode(65+i)}</span><span>${escapeHtml(o.text)}</span></div>`).join('')}else if(step.type==='categorize'){html+=renderCategoryQuiz(step)}else if(step.type==='openResponse'){html+=renderNotebook(step)}if(feedback)html+=`<div class="feedback ${feedback.startsWith('✓')?'good':'retry'}">${escapeHtml(feedback)}</div>`;$('quizRegion').innerHTML=html;bindQuiz(step);let foot=`<div class="row-actions"><button type="button" class="secondary" id="revisitBtn" aria-label="看回本题对应的完整原文段落">📖 看回原文</button><button class="secondary" id="hintBtn">💡 温和提示 ${hintIndex?`(${hintIndex})`:''}</button></div><div class="row-actions"><button class="ghost" id="goBackBtn">返回</button><button class="primary small" id="checkBtn">完成</button></div>`;$('dialogFoot').innerHTML=foot;$('revisitBtn').onclick=()=>{const n=task.node;state.reviewCount[step.id]=(state.reviewCount[step.id]||0)+1;save();showSource(n,step)};$('hintBtn').onclick=()=>giveHint(step);$('goBackBtn').onclick=closeTask;$('checkBtn').onclick=()=>checkStep(step)}
+function renderQuiz(step){let html=(task?.node?.id==='L2_STATION'&&scaffoldOpen?renderScaffold(step):'')+`<h3 class="stem">${escapeHtml(step.stem)}</h3>`;if(['singleChoice','multiSelect','keywordFill'].includes(step.type)){let opts=step.options||step.wordBank||[];html+=opts.map((o,i)=>`<div class="choice ${selection.includes(o.id)?'selected':''}" role="button" tabindex="0" data-choice="${escapeHtml(o.id)}"><span class="choiceicon">${step.type==='multiSelect'?'✓':String.fromCharCode(65+i)}</span><span>${escapeHtml(o.text)}</span></div>`).join('')}else if(step.type==='categorize'){html+=renderCategoryQuiz(step)}else if(step.type==='openResponse'){html+=renderNotebook(step)}if(feedback)html+=`<div class="feedback ${feedback.startsWith('✓')?'good':'retry'}">${escapeHtml(feedback)}</div>`;$('quizRegion').innerHTML=html;bindQuiz(step);let foot=`<div class="row-actions"><button type="button" class="secondary" id="revisitBtn" aria-label="看回本题对应的完整原文段落">📖 看回原文</button><button class="secondary" id="hintBtn">💡 温和提示 ${hintIndex?`(${hintIndex})`:''}</button></div><div class="row-actions"><button class="ghost" id="goBackBtn">返回</button><button class="primary small" id="checkBtn">${step.type==='openResponse'?'提交笔记':'完成'}</button></div>`;$('dialogFoot').innerHTML=foot;$('revisitBtn').onclick=()=>{const n=task.node;state.reviewCount[step.id]=(state.reviewCount[step.id]||0)+1;save();showSource(n,step)};$('hintBtn').onclick=()=>giveHint(step);$('goBackBtn').onclick=closeTask;$('checkBtn').onclick=()=>checkStep(step)}
 
 function bindCategoryQuiz(step){
  let touch=null,ghost=null;
@@ -204,10 +204,42 @@ function renderNotebook(step){
  const frame=`<div class="note-card"><b>✍️ 可用句式</b><p>${prompt}</p><button type="button" class="secondary scaffold-insert" data-insert-frame>＋ 将句式放入初稿</button></div>`;
  return header+guidance+frame+`<h4>📝 我的初稿</h4>
  <textarea class="note-field" id="originalDraft" placeholder="从丽华________的言行，可以看出她________，因为________。\n我认为“我”感动得流泪，是因为________。">${escapeHtml(state.originalDraft)}</textarea>
- <div class="selfchecks"><h4>✅ 三项自评标准（可以边写边检查）</h4>${step.successCriteria.map(item=>`<label><input type="checkbox" data-selfcheck="${item.id}" ${state.selfChecks.includes(item.id)?'checked':''}> ${escapeHtml(item.text)}</label>`).join('')}</div>`;
+ <p class="source-note">填写完成后点击“提交笔记”。接着会出现恭喜画面、学习检查表及可复制的笔记。</p>`;
 }
 function giveHint(step){let hints=step.hints||[];if(!hints.length)return toast('请先回看对应的原文证据。');let i=Math.min(hintIndex,hints.length-1),tip=hints[i];hintIndex++;state.hints[step.id]=(state.hints[step.id]||0)+1;save();feedback='💡 '+tip;renderQuiz(step)}
-function checkStep(step){let id=step.id;state.attempts[id]=(state.attempts[id]||0)+1;let correct=false;if(['singleChoice','multiSelect','keywordFill'].includes(step.type)){let target=step.correctIds||[];correct=target.length===selection.length&&target.every(x=>selection.includes(x));if(correct)state.answers[id]=selection.slice()}else if(step.type==='categorize'){correct=Object.keys(step.answerKey).every(x=>categorize[x]===step.answerKey[x])&&Object.keys(categorize).every(x=>Object.hasOwn(step.answerKey,x));if(correct)state.answers[id]={...categorize}}else if(step.type==='openResponse'){correct=(state.originalDraft.trim().length>=8);if(correct)state.answers[id]={saved:true,support:state.supportLevel,at:Date.now()}}save();if(correct){try{window.GameAudio?.correct()}catch(e){console.warn('audio success error',e)}feedback=step.type==='openResponse'?'✓ 侦探笔记已保存。老师可以进一步查看你的解释。':'✓ 找到了！你把证据和推论连起来了。';renderQuiz(step);let b=$('checkBtn');b.textContent='继续';b.onclick=()=>nextStep()}else{feedback=step.type==='openResponse'?'再写下一点你的观察或理由，就能保存笔记。':'还需要再观察。试着回看原文，找出真正发生的事情，再检查答案。';renderQuiz(step);let f=$('quizRegion').querySelector('.feedback');if(f)f.scrollIntoView({block:'nearest',behavior:'smooth'})}}
+function checkStep(step){
+ const id=step.id;
+ state.attempts[id]=(state.attempts[id]||0)+1;
+ let correct=false;
+ if(['singleChoice','multiSelect','keywordFill'].includes(step.type)){
+  const target=step.correctIds||[];
+  correct=target.length===selection.length&&target.every(x=>selection.includes(x));
+  if(correct)state.answers[id]=selection.slice();
+ }else if(step.type==='categorize'){
+  correct=Object.keys(step.answerKey).every(x=>categorize[x]===step.answerKey[x])&&Object.keys(categorize).every(x=>Object.hasOwn(step.answerKey,x));
+  if(correct)state.answers[id]={...categorize};
+ }else if(step.type==='openResponse'){
+  correct=state.originalDraft.trim().length>=8;
+  if(correct){
+   state.submittedDraft=state.originalDraft; // preserve exact submitted text for copying
+   state.completionStage='congrats';
+   state.answers[id]={saved:true,support:state.supportLevel,at:Date.now()};
+  }
+ }
+ save();
+ if(correct){
+  try{window.GameAudio?.correct()}catch(e){console.warn('audio success error',e)}
+  if(step.type==='openResponse'){nextStep();return}
+  feedback='✓ 找到了！你把证据和推论连起来了。';
+  renderQuiz(step);
+  const b=$('checkBtn');b.textContent='继续';b.onclick=()=>nextStep();
+ }else{
+  feedback=step.type==='openResponse'?'请再写下一点你的观察或理由，才能提交笔记。':'还需要再观察。试着回看原文，找出真正发生的事情，再检查答案。';
+  renderQuiz(step);
+  const f=$('quizRegion').querySelector('.feedback');
+  if(f)f.scrollIntoView({block:'nearest',behavior:'smooth'});
+ }
+}
 function nextStep(){let n=task.node;if(task.stepIndex<n.steps.length-1){task.stepIndex++;scaffoldOpen=false;selection=[];categorize={};picked=null;hintIndex=0;feedback='';renderTask();return}if(!state.done.includes(n.id))state.done.push(n.id);state.current=Math.max(state.current,allNodes.findIndex(x=>x.id===n.id)+1);save();closeTask();refreshProgress();buildHotspots();if(state.current===FIRST_LEVEL_COUNT&&world.level===1)toast('🌟 三项任务完成！现在走到学校大门，进入第二关。');else if(state.current===allNodes.length)showGameComplete();else toast('🎉 本次任务完成！金色光圈已移动到下一处线索。')}
 function enterSecondLevel(){
  if(!state.started)return;
@@ -221,13 +253,84 @@ function enterSecondLevel(){
  toast('🏡 欢迎进入第二关！可以自由移动，请先靠近手表。');
 }
 function showTransition(){transitioning=true;panel('第一关完成 · I Do 教师示范',`<div class="feedback good"><b>🌱 两处关键证据已收集！</b><br>第3段：丽华推开“我”，自己受伤。<br>第4段：手臂缠纱布，仍先问“我”有没有事。</div><p>现在进入第二关 We Do：在丽华家门口共同探究送表心意、犹豫的心理与丽华的宽容回应。</p><div class="control-row"><button class="secondary" id="replayL1">留在校园回看</button><button class="primary" id="goL2">进入第二关 →</button></div>`);$('replayL1').onclick=()=>{hide('panelOverlay');transitioning=false;toast('可以回看已收集的证据，第二关入口在右下角的继续按钮。')};$('goL2').onclick=()=>{hide('panelOverlay');transitioning=false;paused=false;state.enteredLevel2=true;save();world.setLevel(2);refreshProgress();buildHotspots();toast('🏡 进入第二关，现在可以移动并与手表互动。')};}
-function showGameComplete(){state.completed=true;save();panel('🏅 恭喜你完成《手表》友情侦探！',`<div style="text-align:center;font-size:50px">🏅</div><h3 style="text-align:center">找依据 · 作推论 · 联主题</h3><p>你已经探索了两处可跑动的3D场景、收集八个任务触发点，并记录自己的侦探笔记。开放式回答会保留下来，供你和老师一起讨论。</p><div class="feedback good">${escapeHtml(state.alias)} · ${escapeHtml(state.classCode||'未填写班级')} · 任务已完成</div><div class="control-row"><button class="primary" id="exportFinal">⬇ 导出我的侦探记录</button><button class="secondary" id="reviewFinal">📖 回看证据</button><button class="ghost" id="backGame">返回3D场景</button></div>`);$('exportFinal').onclick=exportRecord;$('reviewFinal').onclick=showReview;$('backGame').onclick=()=>hide('panelOverlay')}
+function showGameComplete(){
+ state.completed=true;
+ if(!state.submittedDraft)state.submittedDraft=state.originalDraft||'';
+ if(!['congrats','checklist','note'].includes(state.completionStage))state.completionStage='congrats';
+ save();
+ showCompletionStage();
+}
+function setCompletionStage(stage){
+ if(!['congrats','checklist','note'].includes(stage))return;
+ state.completionStage=stage;save();showCompletionStage();
+}
+function completionCriteria(){
+ return allNodes.find(n=>n.id==='L2_STATION')?.steps?.find(s=>s.type==='openResponse')?.successCriteria||[];
+}
+function showCompletionStage(){
+ const stage=state.completionStage||'congrats';
+ if(stage==='congrats'){
+  panel('🎉 恭喜你，闯关成功！',`<section class="completion-hero" aria-label="完成祝贺">
+   <div class="completion-medal" aria-hidden="true">🏅</div>
+   <h3>${escapeHtml(state.alias)}，你完成《手表》友情侦探了！</h3>
+   <p>你已经走过两关、完成八个触发点，并提交了自己的侦探笔记。</p>
+   <div class="completion-method">🔎 找依据　→　💡 作推论　→　💗 联主题</div>
+   <p class="completion-subtle">下一步，请用三项成功标准检查刚才的笔记。</p>
+   <div class="completion-actions"><button type="button" class="primary" id="completionNext">下一步：自我检查 →</button></div>
+  </section>`);
+  $('completionNext').onclick=()=>setCompletionStage('checklist');
+  return;
+ }
+ if(stage==='checklist'){
+  const criteria=completionCriteria();
+  const count=criteria.filter(item=>state.selfChecks.includes(item.id)).length;
+  panel('✅ 我的学习检查表',`<section class="completion-checklist">
+   <p>请回想刚才提交的笔记，根据自己<b>实际做到的部分</b>勾选。暂时没有做到的可以留空，课堂讨论后再改进。</p>
+   <div class="completion-count" id="completionCount" aria-live="polite">已勾选 ${count} / ${criteria.length} 项</div>
+   <div class="completion-checks">${criteria.map((item,i)=>`<label class="completion-check"><input type="checkbox" data-completion-check="${escapeHtml(item.id)}" ${state.selfChecks.includes(item.id)?'checked':''}><span><b>${i+1}. ${escapeHtml(item.text.split('：')[0])}</b><small>${escapeHtml(item.text.split('：').slice(1).join('：')||item.text)}</small></span></label>`).join('')}</div>
+   <p class="completion-subtle">这是一份自评检查表，不是系统自动评分；不必为了通关而勾选所有项目。</p>
+   <div class="completion-actions"><button type="button" class="secondary" id="completionPrevious">返回恭喜页</button><button type="button" class="primary" id="completionNext">完成检查 · 查看我的笔记 →</button></div>
+  </section>`);
+  document.querySelectorAll('[data-completion-check]').forEach(input=>input.onchange=()=>{
+   state.selfChecks=Array.from(document.querySelectorAll('[data-completion-check]:checked')).map(e=>e.dataset.completionCheck);
+   save();
+   const counter=$('completionCount');
+   if(counter)counter.textContent=`已勾选 ${state.selfChecks.length} / ${criteria.length} 项`;
+  });
+  $('completionPrevious').onclick=()=>setCompletionStage('congrats');
+  $('completionNext').onclick=()=>setCompletionStage('note');
+  return;
+ }
+ panel('📝 我的侦探笔记 · 已提交',`<section class="completion-notebook">
+  <p class="completion-intro">这是你<b>亲自提交的笔记</b>，系统不会替你改写。你可以复制到课堂学习平台，保留作为修改前的初稿。</p>
+  <div class="completion-meta">✍️ ${escapeHtml(state.alias)}　·　${escapeHtml(state.classCode||'未填写班级')}　·　已保存</div>
+  <label class="completion-note-label" for="completedNoteText">我的笔记内容</label>
+  <textarea id="completedNoteText" class="completion-note-text" readonly aria-label="已提交的侦探笔记">${escapeHtml(state.submittedDraft||state.originalDraft)}</textarea>
+  <p class="completion-copy-status" id="completionCopyStatus" role="status" aria-live="polite">点击“复制我的笔记”，即可粘贴到其他平台。</p>
+  <div class="completion-actions"><button type="button" class="secondary" id="completionPrevious">返回检查表</button><button type="button" class="primary" id="copySubmittedNote">📋 复制我的笔记</button></div>
+  <div class="completion-actions"><button type="button" class="ghost" id="completionBackGame">返回游戏场景</button><button type="button" class="ghost" id="completionExport">下载学习记录</button></div>
+ </section>`);
+ $('completionPrevious').onclick=()=>setCompletionStage('checklist');
+ $('copySubmittedNote').onclick=copySubmittedNote;
+ $('completionBackGame').onclick=closePanel;
+ $('completionExport').onclick=exportRecord;
+}
+async function copySubmittedNote(){
+ const field=$('completedNoteText'),status=$('completionCopyStatus');
+ if(!field||!status)return;
+ let copied=false;
+ try{if(navigator.clipboard?.writeText&&window.isSecureContext){await navigator.clipboard.writeText(field.value);copied=true}}
+ catch(e){console.warn('Clipboard API unavailable',e)}
+ if(!copied){try{field.focus();field.select();copied=document.execCommand('copy')}catch(e){console.warn('Copy fallback unavailable',e)}}
+ if(copied){$('copySubmittedNote').textContent='✓ 已复制笔记';status.textContent='复制成功！可以粘贴到课堂学习平台或文档中。'}
+ else{field.focus();field.select();status.textContent='浏览器暂不允许自动复制。文字已选中，请按 Ctrl+C（Mac 按 ⌘+C）复制。'}
+}
 function showSource(n,step=null){stopSpeech();const reviewParagraphs=n.reviewEvidenceParagraphs;const passages=reviewParagraphs?.length?(n.evidence||[]).filter(e=>reviewParagraphs.includes(e.paragraph)):(step?shownEvidence(n,step):(n.evidence||[]));const unique=[...new Map(passages.map(e=>[e.paragraph,e])).values()].sort((a,b)=>a.paragraph-b.paragraph);panel('📖 看回原文 · 完整段落',`<p class="source-note">这里是完整段落，与上一页“朗读本题原文”的摘录不同。可以随时听读、返回题目。</p>${unique.map(e=>`<div class="review-card"><h3>第${e.paragraph}段 · 完整原文</h3><p>${escapeHtml(e.fullText||e.excerpt)}</p></div>`).join('')}<div class="control-row"><button type="button" class="secondary" id="sourceAudio">🔊 朗读完整原文</button><button type="button" class="ghost" id="stopSourceAudio">停止朗读</button><button type="button" class="secondary" id="returnQuestion">返回题目</button></div>`);$('sourceAudio').onclick=()=>speak(unique.map(e=>e.fullText||e.excerpt).filter(Boolean).join('\n'));$('stopSourceAudio').onclick=()=>stopSpeech();$('returnQuestion').onclick=closePanel}
 function openReviewNode(n){panel('🔎 已收集的证据',`<p>这个触发点已经完成，可以继续回看文本。</p>${(n.evidence||[]).map(e=>`<div class="review-card"><b>第${e.paragraph}段</b><p>${escapeHtml(e.excerpt)}</p></div>`).join('')}<button class="secondary" id="reviewRead">▶ 播放朗读</button>`);$('reviewRead').onclick=()=>speak(n.evidence.map(e=>e.fullText||e.excerpt).join('\n'))}
 function panel(title,html){$('panelTitle').textContent=title;$('panelBody').innerHTML=html;show('panelOverlay');paused=true}
 function closePanel(){hide('panelOverlay');paused=!!task;transitioning=false;stopSpeech()}
 function showReview(){panel('📚 我的证据收藏',`${allNodes.slice(0,state.current).map(n=>`<div class="review-card"><h3>${escapeHtml(n.label)}</h3>${n.evidence?.map(e=>`<p>第${e.paragraph}段：${escapeHtml(e.excerpt)}</p>`).join('')||''}</div>`).join('')||'你还没有收集证据。'}<div class="control-row"><button class="primary" id="downloadReport">下载学习记录</button></div>`);$('downloadReport').onclick=exportRecord}
-function exportRecord(){let report={'作品':'《手表》3D友情侦探','代号':state.alias,'班级':state.classCode,'已完成任务':state.done,'已完成题目及答案':state.answers,'尝试次数':state.attempts,'使用提示次数':state.hints,'回看证据次数':state.reviewCount,'支架':state.supportLevel,'我的初稿':state.originalDraft,'修改稿':state.revisedDraft,'生活迁移':state.lifeResponse,'自评项目':state.selfChecks};let blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json;charset=utf-8'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`手表_侦探笔记_${(state.alias||'学生').replace(/[\\/:*?"<>|]/g,'_')}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(link.href),500);toast('已准备导出本机学习记录。')}
+function exportRecord(){let report={'作品':'《手表》3D友情侦探','代号':state.alias,'班级':state.classCode,'已完成任务':state.done,'已完成题目及答案':state.answers,'尝试次数':state.attempts,'使用提示次数':state.hints,'回看证据次数':state.reviewCount,'支架':state.supportLevel,'我的初稿':state.originalDraft,'已提交侦探笔记':state.submittedDraft||state.originalDraft,'修改稿':state.revisedDraft,'生活迁移':state.lifeResponse,'自评项目':state.selfChecks};let blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json;charset=utf-8'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=`手表_侦探笔记_${(state.alias||'学生').replace(/[\\/:*?"<>|]/g,'_')}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(link.href),500);toast('已准备导出本机学习记录。')}
 function showReadingAssistant(){
  const current=currentNode(),first=world.level===1;
  const focus=state.current===FIRST_LEVEL_COUNT&&first?'你已经完成第一关三项任务。请走向教学楼大门，开启第二关。':current?.label||'你已经收集全部线索！';
@@ -241,12 +344,13 @@ function showReadingAssistant(){
  </div>
  ${evidence?'<h3>🔎 当前可回看的依据</h3>'+evidence:''}
  <div class="note-card"><b>表达句式：</b>从（人物）的（动作／语言），可以看出她（人物特点），因为（原文依据＋解释）。</div>
- <div class="control-row"><button class="secondary" id="assistantReview">回看已收集的证据</button><button class="primary" id="assistantClose">返回</button></div>`);
+ <div class="control-row"><button class="secondary" id="assistantReview">回看已收集的证据</button>${state.completed?'<button class="primary" id="assistantFinalNote">📝 查看已提交笔记</button>':''}<button class="primary" id="assistantClose">返回</button></div>`);
  $('assistantReview').onclick=showReview;
+ if($('assistantFinalNote'))$('assistantFinalNote').onclick=()=>setCompletionStage('note');
  $('assistantClose').onclick=closePanel;
 }
 function showHelp(){panel('🎮 游戏操作与学习目标',`<h3>操作说明</h3><p>使用 <b>W A S D / 方向键</b> 行走，按住 <b>Shift</b> 跑步；拖动3D场景旋转镜头，滚轮缩放，<b>R</b> 重置镜头。手机或平板可用左下角摇杆。靠近金色光圈后点击标记或按 <b>E</b> 开启任务。</p><h3>阅读方法</h3><p><b>找依据 → 作推论 → 联主题。</b>第一关 I Do 跟随老师示范，第3、4段是重点；第二关 We Do 共同探究第5–8段的心意和心理。答错时先回看原文，系统不惩罚。</p><h3>隐私与保存</h3><p>只需侦探代号，答题记录保存在这台浏览器的本地存储，不会自动传到任何服务器。可以在教师菜单中导出，清除浏览器数据可能导致记录消失。</p><button class="secondary" id="viewEvidence">📚 回看已收集证据</button>`);$('viewEvidence').onclick=showReview}
-function teacherPanel(){teacherMode=true;let completed=state.done.length;panel('👩‍🏫 教师控制台',`<p class="note-card">教学提示：原文第3、4段为 <b>I Do</b>，第二关为 <b>We Do</b>。此界面仅用于课堂示范，可直接定位到关卡。</p><p>已完成触发点：<b>${completed}/${allNodes.length}</b>　　学生代号：${escapeHtml(state.alias)}</p><div class="control-row"><button class="secondary" id="teacherReview">查看证据</button><button class="secondary" id="teacherExport">导出记录</button><button class="ghost" id="teacherHelp">操作说明</button></div><h3>教师演示跳转（仅本机）</h3>${allNodes.map((n,i)=>`<div class="review-card"><b>${i+1}. ${escapeHtml(n.label)}</b><div class="control-row"><button class="ghost" data-jump="${i}">定位到此任务</button></div></div>`).join('')}<hr><button class="secondary" id="teacherReset">⚠ 重新开始全部学习进度</button>`);$('teacherReview').onclick=showReview;$('teacherExport').onclick=exportRecord;$('teacherHelp').onclick=showHelp;document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>{let i=Number(b.dataset.jump);if(!confirm('教师演示模式将调整本机的任务进度和关卡位置，确认跳转？'))return;state.current=i;state.done=allNodes.slice(0,i).map(n=>n.id);state.completed=false;save();world.setLevel(stage(i));refreshProgress();buildHotspots();closePanel();toast('已定位到教师演示任务：'+allNodes[i].label)});$('teacherReset').onclick=()=>{if(!confirm('确认清空本机所有题目与侦探笔记？此操作无法撤回。'))return;state={alias:state.alias,classCode:state.classCode,current:0,done:[],answers:{},attempts:{},hints:{},reviewCount:{},supportLevel:'S2',originalDraft:'',revisedDraft:'',lifeResponse:'',selfChecks:[],started:true,completed:false,enteredLevel2:false,contentVersion:'2026-watch-level2-v1'};save();world.setLevel(1);refreshProgress();buildHotspots();closePanel();toast('已恢复第一关初始任务。')}}
+function teacherPanel(){teacherMode=true;let completed=state.done.length;panel('👩‍🏫 教师控制台',`<p class="note-card">教学提示：原文第3、4段为 <b>I Do</b>，第二关为 <b>We Do</b>。此界面仅用于课堂示范，可直接定位到关卡。</p><p>已完成触发点：<b>${completed}/${allNodes.length}</b>　　学生代号：${escapeHtml(state.alias)}</p><div class="control-row"><button class="secondary" id="teacherReview">查看证据</button><button class="secondary" id="teacherExport">导出记录</button><button class="ghost" id="teacherHelp">操作说明</button></div><h3>教师演示跳转（仅本机）</h3>${allNodes.map((n,i)=>`<div class="review-card"><b>${i+1}. ${escapeHtml(n.label)}</b><div class="control-row"><button class="ghost" data-jump="${i}">定位到此任务</button></div></div>`).join('')}<hr><button class="secondary" id="teacherReset">⚠ 重新开始全部学习进度</button>`);$('teacherReview').onclick=showReview;$('teacherExport').onclick=exportRecord;$('teacherHelp').onclick=showHelp;document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>{let i=Number(b.dataset.jump);if(!confirm('教师演示模式将调整本机的任务进度和关卡位置，确认跳转？'))return;state.current=i;state.done=allNodes.slice(0,i).map(n=>n.id);state.completed=false;save();world.setLevel(stage(i));refreshProgress();buildHotspots();closePanel();toast('已定位到教师演示任务：'+allNodes[i].label)});$('teacherReset').onclick=()=>{if(!confirm('确认清空本机所有题目与侦探笔记？此操作无法撤回。'))return;state={alias:state.alias,classCode:state.classCode,current:0,done:[],answers:{},attempts:{},hints:{},reviewCount:{},supportLevel:'S2',originalDraft:'',revisedDraft:'',lifeResponse:'',selfChecks:[],submittedDraft:'',completionStage:'',started:true,completed:false,enteredLevel2:false,contentVersion:'2026-watch-level2-v1'};save();world.setLevel(1);refreshProgress();buildHotspots();closePanel();toast('已恢复第一关初始任务。')}}
 function mapDraw(){
  const canvas=$('miniMap');if(!canvas||!world)return;
  const ctx=canvas.getContext('2d');if(!ctx)return;
@@ -362,7 +466,7 @@ async function init(){try{DATA=await loadData();allNodes=DATA.nodes;world=window
 function resetAllProgress(){
  if(!window.confirm('确定重新开始吗？两关进度、已答题目和侦探笔记将被清空。'))return;
  stopSpeech();
- state={alias:state.alias,classCode:state.classCode,current:0,done:[],answers:{},attempts:{},hints:{},reviewCount:{},supportLevel:'S2',originalDraft:'',revisedDraft:'',lifeResponse:'',selfChecks:[],started:true,completed:false,enteredLevel2:false,contentVersion:'2026-watch-level2-v1'};
+ state={alias:state.alias,classCode:state.classCode,current:0,done:[],answers:{},attempts:{},hints:{},reviewCount:{},supportLevel:'S2',originalDraft:'',revisedDraft:'',lifeResponse:'',selfChecks:[],submittedDraft:'',completionStage:'',started:true,completed:false,enteredLevel2:false,contentVersion:'2026-watch-level2-v1'};
  task=null;selection=[];categorize={};picked=null;hintIndex=0;feedback='';teacherMode=false;transitioning=false;paused=false;
  hide('overlay');hide('panelOverlay');hide('intro');save();world.keys?.clear();world.setLevel(1);refreshProgress();buildHotspots();
  toast('🔄 已重置！从第一关第一步「脚踏车」重新开始。');
