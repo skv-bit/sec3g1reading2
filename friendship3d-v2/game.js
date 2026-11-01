@@ -88,7 +88,7 @@ function artUrl(name){if(['mom_angry','care','door','watch','response'].includes
 function artFor(id){return {L1_BIKE:'danger',L2_WATCH:'watch',L1_LIHUA:'care',L1_INFERENCE:'overview',L2_MOM:'mom_angry',L2_DOORBELL:'door',L2_LIHUA:'response',L2_STATION:'overview'}[id]||'overview'}
 function speak(text){if(!audioOn){toast('朗读已关闭，请点击右上角语音按钮开启。');return}if(window.GameAudio){window.GameAudio.speak(text,toast);return}if(!('speechSynthesis'in window)){toast('当前浏览器不支持语音合成。');return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.88;u.pitch=1.13;u.volume=.38;speechSynthesis.speak(u)}
 function stopSpeech(){if(window.GameAudio?.stopSpeech)window.GameAudio.stopSpeech();else try{window.speechSynthesis?.cancel()}catch(e){}}
-function openTask(n){task={node:n,stepIndex:0};scaffoldOpen=false;selection=[];categorize={};picked=null;feedback='';hintIndex=0;paused=true;show('overlay');renderTask()}
+function openTask(n){const resumeNotebook=n.id==='L2_STATION'&&n.steps?.length>1&&!!state.answers[n.steps[0].id];task={node:n,stepIndex:resumeNotebook?1:0};scaffoldOpen=false;selection=[];categorize={};picked=null;feedback='';hintIndex=0;paused=true;show('overlay');renderTask()}
 function closeTask(){hide('overlay');task=null;paused=false;stopSpeech()}
 function shownEvidence(n,step){
  const allowed=new Set(n.sharedEvidenceParagraphs?.length?n.sharedEvidenceParagraphs:(step?.sourceParagraphs?.length?step.sourceParagraphs:(n.evidence||[]).map(e=>e.paragraph)));
