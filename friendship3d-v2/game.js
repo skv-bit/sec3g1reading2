@@ -188,7 +188,7 @@ function bindQuiz(step){document.querySelectorAll('[data-choice]').forEach(e=>{l
 }}
 function renderNotebook(step){
  const level=step.supportLevels.find(x=>x.id===state.supportLevel)||step.supportLevels[1];
- const header=`<div class="support-choice">${step.supportLevels.map(l=>`<button type="button" class="support-btn ${l.id===state.supportLevel?'active':''}" data-support="${l.id}" aria-pressed="${l.id===state.supportLevel}">${escapeHtml(l.label)}<small>${escapeHtml(l.feature)}</small></button>`).join('')}</div>`;
+ const header=`<div class="support-choice">${step.supportLevels.map(l=>`<button type="button" class="support-btn ${l.id===state.supportLevel?'active':''}" data-support="${l.id}" aria-pressed="${l.id===state.supportLevel}">${escapeHtml(l.label)}</button>`).join('')}</div>`;
  let guidance='';
  if(level.id==='S1'){
   guidance=`<div class="scaffold-quick"><b>🔍 一步步写</b>
