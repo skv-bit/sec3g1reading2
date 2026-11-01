@@ -103,6 +103,19 @@ async def task(task_id, speech=False, vocabulary=False, source=False):
         if task_id=="L1_BIKE" and step_index==0:
             await narrate("按完成检查答案，再按继续进入下一题。")
         await click("#checkBtn",.42)
+        if step_type == "openResponse":
+            await PAGE.locator("#panelOverlay:not(.hidden)").wait_for(timeout=10000)
+            await narrate("提交笔记后，出现恭喜完成的画面。")
+            await click("#completionNext",.5)
+            await narrate("再用三项学习标准检查自己的笔记，按照实际情况勾选。")
+            await PAGE.locator('[data-completion-check]').first.check()
+            await pause(.4)
+            await click("#completionNext",.5)
+            await narrate("最后显示刚才提交的笔记。可以复制原文，带回课堂讨论和修改。")
+            await click("#copySubmittedNote",.45)
+            await click("#completionBackGame",.3)
+            DONE.append(task_id)
+            break
         button=await PAGE.locator("#checkBtn").inner_text()
         if button.strip()!="继续":
             await PAGE.screenshot(path=str(BASE / ("failed_"+task_id+"_"+str(step_index)+".png")))
