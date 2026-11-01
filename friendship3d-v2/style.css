@@ -196,3 +196,15 @@
 .completion-note-text{display:block;width:100%;min-height:230px;max-height:48vh;resize:vertical;white-space:pre-wrap;border:2px solid #9fceb5;border-radius:15px;background:#fffefb;padding:17px 19px;line-height:1.8;font-size:17px;color:#2a584b}
 .completion-copy-status{text-align:center;font-size:13px;min-height:26px;margin:10px 0!important}
 @media(max-width:600px){.completion-actions .primary,.completion-actions .secondary{width:100%;white-space:normal}.completion-check{padding:13px}.completion-note-text{min-height:190px}}
+
+/* Two-screen evidence station: a compact writing workspace without repeated source blocks. */
+.notebook-evidence-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:11px 0 6px}
+.notebook-evidence-chips>b{flex-basis:100%;color:#2b6c55;font-size:14px}
+.notebook-evidence-chips>span{display:inline-flex;background:#fffefa;border:1px solid #c9dfc9;border-radius:11px;padding:7px 10px;color:#375b4d;font-size:13px;line-height:1.6}
+.notebook-keywords{font-size:14px;color:#39674f;margin-top:8px!important}
+.support-choice .support-btn{font-size:15px;min-height:60px;line-height:1.45}
+.scaffold-quick{padding:12px 15px;margin:13px 0}
+.scaffold-quick p{margin:5px 0}
+.scaffold-formula p,.note-card p{white-space:pre-line}
+.note-field{min-height:190px;line-height:1.75}
+@media(max-width:650px){.support-choice .support-btn{min-height:47px}.notebook-evidence-chips>span{width:100%}.note-field{min-height:175px}}
