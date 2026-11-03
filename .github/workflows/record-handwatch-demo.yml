@@ -28,7 +28,7 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg fonts-noto-cjk espeak-ng
           python -m pip install --upgrade pip
-          python -m pip install playwright edge-tts pydub numpy
+          python -m pip install playwright edge-tts pydub numpy pillow reportlab
           python -m playwright install --with-deps chromium
 
       - name: Start local game and record actual UI interactions
@@ -36,6 +36,11 @@ jobs:
           python -m http.server 8765 --bind 127.0.0.1 > /tmp/handwatch_game_server.log 2>&1 &
           sleep 2
           python scripts/record_handwatch_demo.py
+
+      - name: Build curated teaching-flow PDF from the latest recording
+        if: success()
+        run: |
+          python scripts/build_teaching_flow_pdf.py
 
       - name: Upload video and evidence for review
         if: always()
@@ -47,20 +52,21 @@ jobs:
             recorded_demo/*.webm
             recorded_demo/*.srt
             recorded_demo/*.json
+            recorded_demo/*.pdf
             recorded_demo/*failed*.png
             recorded_demo/failure.png
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Publish finished MP4 as a public release
+      - name: Publish the new teaching-flow PDF as a public release
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create handwatch-gameplay-video-20261031-v2 \
-            recorded_demo/手表_3D友情侦探_游戏解说.mp4 \
-            recorded_demo/解说字幕.srt \
-            --title "《手表》3D友情侦探 · 精简快速解说版 V2" \
-            --notes "在真实游戏浏览器中自动演示：学生登录、拼音开关、音乐开关、阅读助手、收集证据与回看、第一题原文朗读、词语库、行走、全部两关的真实作答和解锁、侦探笔记。视频包含中文自动配音与烧录字幕。背景音乐为后期原创轻音乐，不是浏览器原声录制。" \
+          tag="handwatch-teaching-flow-${GITHUB_SHA:0:8}"
+          gh release create "$tag" \
+            "recorded_demo/手表_最新版_教学流程精选.pdf" \
+            --title "《手表》最新游戏教学流程精选 PDF (${GITHUB_SHA:0:8})" \
+            --notes "由最新游戏源码真实浏览器自动录制并整理的教学流程精选版。涵盖登入、辅助功能（每项只示范一次）、两关任务、证据集合站、差异化侦探笔记、提交与自评。" \
             --target "$GITHUB_SHA" \
             --latest=false
