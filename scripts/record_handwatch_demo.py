@@ -83,7 +83,12 @@ async def task(task_id, speech=False, vocabulary=False, source=False):
         step_type = await api("currentStepType")
         if not step_type:
             break
-        await PAGE.locator(".stem").first.scroll_into_view_if_needed()
+        # The evidence-station popups deliberately re-render and temporarily
+        # detach .stem; studio answers scroll their own controls into view.
+        # Avoid dereferencing a stale .stem during that transition.
+        if task_id=="L2_STATION":
+            await PAGE.locator("#overlay:not(.hidden)").wait_for(timeout=10000)
+            await pause(.35)
         if task_id=="L1_BIKE" and step_index==0:
             await narrate("阅读问题，根据题目来作答。")
         else:
@@ -120,7 +125,8 @@ async def task(task_id, speech=False, vocabulary=False, source=False):
         if button.strip()!="继续":
             await PAGE.screenshot(path=str(BASE / ("failed_"+task_id+"_"+str(step_index)+".png")))
             raise RuntimeError("Answer not accepted: "+task_id+", step "+str(step_index)+", button "+button)
-        await click("#checkBtn",.35)
+        await click("#checkBtn",.65 if task_id=="L2_STATION" else .35)
+        if task_id=="L2_STATION": await pause(.5)
         current=await progress()
         if current["task"]!=task_id:
             DONE.append(task_id)
